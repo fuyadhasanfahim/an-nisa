@@ -1,0 +1,34 @@
+import { ProductsTable } from "@/components/admin/ProductsTable";
+import Link from "next/link";
+import { IconPlus } from "@tabler/icons-react";
+
+export default function AdminProductsPage() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-serif text-3xl tracking-tight">Products</h1>
+          <p className="mt-2 text-sm text-black/65">Manage your catalog</p>
+        </div>
+
+        <Link
+          href="/admin/products/new"
+          className={[
+            "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0b0b0f] px-4 py-2 text-sm font-medium text-white",
+            "shadow-sm transition hover:shadow-softSm hover:scale-[1.02] hover:bg-black",
+            "focus:outline-none focus:ring-2 focus:ring-brand-pink/40",
+            "sm:w-auto",
+          ].join(" ")}
+        >
+          <IconPlus className="h-[18px] w-[18px] text-white" stroke={2} />
+          Add Product
+        </Link>
+      </div>
+
+      <div className="space-y-4">
+        <ProductsTable />
+      </div>
+    </div>
+  );
+}
+

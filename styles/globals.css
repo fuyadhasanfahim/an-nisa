@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b0b0f;
+  --brand-pink: #fcc4c8;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  text-rendering: geometricPrecision;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand-pink) 55%, white);
+}
+
+.stitch-border {
+  border: 2px dashed var(--brand-pink);
+}
+
+.stitch-glow {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand-pink) 0%, white) 0%,
+    color-mix(in srgb, var(--brand-pink) 18%, white) 50%,
+    color-mix(in srgb, var(--brand-pink) 0%, white) 100%
+  );
+  background-size: 200% 100%;
+}
