@@ -19,6 +19,11 @@ function uid() {
   return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/** Relative folder in your Cloudinary account. Unsigned preset must allow the `folder` parameter. */
+const CLOUDINARY_PRODUCT_UPLOAD_FOLDER =
+  process.env.NEXT_PUBLIC_CLOUDINARY_PRODUCT_UPLOAD_FOLDER ??
+  "projects/zihad/an-nisa/products";
+
 async function uploadToCloudinary(file: File) {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
@@ -35,6 +40,7 @@ async function uploadToCloudinary(file: File) {
   const form = new FormData();
   form.append("file", file);
   form.append("upload_preset", preset);
+  form.append("folder", CLOUDINARY_PRODUCT_UPLOAD_FOLDER);
 
   console.log("[cloudinary] upload:start", {
     name: file.name,
@@ -42,6 +48,7 @@ async function uploadToCloudinary(file: File) {
     type: file.type,
     url,
     preset,
+    folder: CLOUDINARY_PRODUCT_UPLOAD_FOLDER,
   });
 
   const controller = new AbortController();
@@ -124,17 +131,14 @@ export function ImageUpload({
   }, []);
 
   const startUpload = useCallback(
-    async (id: string) => {
+    async (id: string, file: File) => {
       setLocalItems((prev) =>
         prev.map((i) =>
           i.id === id ? { ...i, status: "uploading", error: undefined } : i
         )
       );
       try {
-        const item = localRef.current.find((i) => i.id === id);
-        if (!item) return;
-        if (!item.file) throw new Error("File missing for upload.");
-        const secureUrl = await uploadToCloudinary(item.file);
+        const secureUrl = await uploadToCloudinary(file);
 
         // Add uploaded URL to form state (dedupe)
         const nextUrls = Array.from(new Set([...(valueRef.current ?? []), secureUrl]));
@@ -185,7 +189,7 @@ export function ImageUpload({
 
       // start uploads sequential-ish (but not blocking UI)
       nextItems.forEach((it) => {
-        void startUpload(it.id);
+        if (it.file) void startUpload(it.id, it.file);
       });
     },
     [disabled, maxFiles, onError, startUpload]
@@ -218,16 +222,17 @@ export function ImageUpload({
       <div
         {...getRootProps()}
         className={[
-          "rounded-xl border-2 border-dashed p-6 text-center transition",
-          "bg-white",
-          isDragActive ? "border-[#fcc4c8] bg-[#fcc4c8]/10" : "border-black/10",
-          disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:bg-black/2",
+          "rounded-xl border border-dashed bg-black/[0.02] p-6 text-center transition",
+          isDragActive
+            ? "border-[#fcc4c8]/80 bg-[#fcc4c8]/10"
+            : "border-black/12 hover:bg-black/[0.035]",
+          disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         ].join(" ")}
       >
         <input {...getInputProps()} />
-        <div className="mx-auto grid max-w-sm place-items-center gap-2">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-black/5">
-            <IconUpload className="h-5 w-5 text-black/60" stroke={1.8} />
+        <div className="mx-auto grid max-w-sm place-items-center gap-2.5">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-white shadow-sm ring-1 ring-black/5">
+            <IconUpload className="h-5 w-5 text-black/55" stroke={1.8} />
           </div>
           <div className="text-sm font-medium text-brand-black">
             Drag & drop images or click to upload
@@ -239,7 +244,7 @@ export function ImageUpload({
       </div>
 
       {allItems.length ? (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {allItems.map((it) => (
             <motion.div
               key={it.id}
@@ -262,7 +267,9 @@ export function ImageUpload({
                 {it.status === "error" ? (
                   <button
                     type="button"
-                    onClick={() => void startUpload(it.id)}
+                    onClick={() => {
+                      if (it.file) void startUpload(it.id, it.file);
+                    }}
                     className="grid h-8 w-8 place-items-center rounded-lg bg-white/90 text-black/60 shadow-sm transition hover:text-brand-black"
                     aria-label="Retry upload"
                   >
@@ -308,9 +315,9 @@ export function ImageUpload({
           ))}
         </div>
       ) : (
-        <div className="text-xs text-black/50">
-          Uploaded URLs in form: {value.length}
-        </div>
+        <p className="text-center text-xs text-black/40">
+          No images yet — add at least one for the storefront gallery.
+        </p>
       )}
     </div>
   );

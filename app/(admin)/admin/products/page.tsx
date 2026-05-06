@@ -1,6 +1,15 @@
+import { Suspense } from "react";
 import { ProductsTable } from "@/components/admin/ProductsTable";
 import Link from "next/link";
 import { IconPlus } from "@tabler/icons-react";
+
+function ProductsTableFallback() {
+  return (
+    <div className="rounded-xl bg-white p-6 text-sm text-black/60 shadow-sm">
+      Loading products…
+    </div>
+  );
+}
 
 export default function AdminProductsPage() {
   return (
@@ -26,7 +35,9 @@ export default function AdminProductsPage() {
       </div>
 
       <div className="space-y-4">
-        <ProductsTable />
+        <Suspense fallback={<ProductsTableFallback />}>
+          <ProductsTable />
+        </Suspense>
       </div>
     </div>
   );

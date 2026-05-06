@@ -1,15 +1,25 @@
 "use client";
 
 import { AdminTitle } from "@/components/admin/AdminTitle";
-import { ProductForm } from "@/components/admin/product/ProductForm";
-import { useGetProductByIdQuery } from "@/store/api/productsApi";
+import { OrderForm } from "@/components/admin/order/OrderForm";
+import { useGetOrderByIdQuery } from "@/store/api/ordersApi";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { IconArrowLeft, IconRefresh } from "@tabler/icons-react";
 import { useParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query";
+import {
+  ORDER_STATUSES,
+  type OrderStatus,
+} from "@/lib/validators/order.schema";
 
-export default function EditProductPage() {
+function normalizeStatus(s: string): OrderStatus {
+  return (ORDER_STATUSES as readonly string[]).includes(s)
+    ? (s as OrderStatus)
+    : "pending";
+}
+
+export default function EditOrderPage() {
   const params = useParams<{ id?: string | string[] }>();
   const id =
     typeof params?.id === "string"
@@ -18,21 +28,20 @@ export default function EditProductPage() {
         ? params.id[0]
         : undefined;
 
-  const { data, isLoading, isError, refetch } = useGetProductByIdQuery(
+  const { data, isLoading, isError, refetch } = useGetOrderByIdQuery(
     id ?? skipToken
   );
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <AdminTitle title="Edit Product" subtitle="Loading product details…" />
-        <div className="mx-auto w-full max-w-4xl">
-          <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
+        <AdminTitle title="Edit order" subtitle="Loading order…" />
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-black/5">
             <div className="grid gap-4">
               <div className="h-10 w-2/3 rounded-xl bg-black/5" />
               <div className="h-10 w-full rounded-xl bg-black/5" />
               <div className="h-28 w-full rounded-xl bg-black/5" />
-              <div className="h-10 w-1/2 rounded-xl bg-black/5" />
             </div>
           </div>
         </div>
@@ -43,10 +52,10 @@ export default function EditProductPage() {
   if (isError) {
     return (
       <div className="space-y-6">
-        <AdminTitle title="Edit Product" subtitle="Couldn’t load this product." />
+        <AdminTitle title="Edit order" subtitle="Couldn’t load this order." />
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <div className="text-sm text-black/70">
-            Something went wrong while fetching this product.
+            Something went wrong while fetching this order.
           </div>
           <div className="mt-4 flex gap-3">
             <button
@@ -58,11 +67,11 @@ export default function EditProductPage() {
               Retry
             </button>
             <Link
-              href="/admin/products"
+              href="/admin/orders"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-brand-black ring-1 ring-black/10 transition hover:bg-black/5"
             >
               <IconArrowLeft className="h-4 w-4" stroke={2} />
-              Back to products
+              Back to orders
             </Link>
           </div>
         </div>
@@ -70,37 +79,29 @@ export default function EditProductPage() {
     );
   }
 
-  if (!data) {
+  if (!data || !id) {
     return (
       <div className="space-y-6">
-        <AdminTitle title="Edit Product" subtitle="Product not found." />
+        <AdminTitle title="Edit order" subtitle="Order not found." />
         <Link
-          href="/admin/products"
+          href="/admin/orders"
           className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-brand-black ring-1 ring-black/10 transition hover:bg-black/5"
         >
           <IconArrowLeft className="h-4 w-4" stroke={2} />
-          Back to products
+          Back to orders
         </Link>
       </div>
     );
   }
 
   const initialValues = {
-    name: data.name,
-    slug: data.slug,
-    sku: data.sku ?? "",
-    description: data.description ?? "",
-    price: data.priceCents / 100,
-    discountPrice:
-      data.discountPriceCents != null
-        ? data.discountPriceCents / 100
-        : undefined,
-    images: data.images ?? [],
-    category: "embroidery",
-    status: data.isActive ? "active" : "draft",
-    stockQuantity: data.stockQuantity,
-    trackInventory: data.trackInventory,
-  } as const;
+    userId: data.userId,
+    status: normalizeStatus(data.status),
+    items: data.items.map((it) => ({
+      productId: it.productId,
+      quantity: it.quantity,
+    })),
+  };
 
   return (
     <motion.div
@@ -109,14 +110,20 @@ export default function EditProductPage() {
       transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
       className="space-y-6"
     >
-      <AdminTitle title="Edit Product" subtitle="Update this product in your catalog" />
+      <AdminTitle
+        title="Edit order"
+        subtitle={`Order ${data.id.slice(0, 12)}… · ${data.items.length} line item(s)`}
+      />
 
-      <div className="mx-auto w-full max-w-4xl">
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
-          <ProductForm productId={id} initialValues={{ ...initialValues }} />
+      <div className="mx-auto w-full max-w-3xl">
+        <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+          <OrderForm
+            orderId={id}
+            initialValues={initialValues}
+            initialCustomer={data.user}
+          />
         </div>
       </div>
     </motion.div>
   );
 }
-

@@ -79,16 +79,20 @@ model Verification {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  priceCents  Int
-  currency    String   @default("BDT")
-  images      String[]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String
+  slug               String   @unique
+  sku                String?  @unique
+  description        String?
+  priceCents         Int
+  discountPriceCents Int?
+  currency           String   @default("BDT")
+  images             String[]
+  isActive           Boolean  @default(true)
+  stockQuantity      Int      @default(0)
+  trackInventory     Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   orderItems OrderItem[]
 

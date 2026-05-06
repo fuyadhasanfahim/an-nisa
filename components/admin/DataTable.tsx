@@ -24,7 +24,7 @@ export function DataTable<T>({
   });
 
   return (
-    <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
+    <div className="overflow-x-auto overflow-y-clip rounded-xl bg-white shadow-sm">
       <table className="min-w-full border-separate border-spacing-0">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -51,7 +51,7 @@ export function DataTable<T>({
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="border-t border-black/5 bg-white px-4 py-3 text-sm text-black/80"
+                  className="overflow-visible border-t border-black/5 bg-white px-4 py-3 text-sm text-black/80"
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>

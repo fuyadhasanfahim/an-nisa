@@ -14,8 +14,8 @@ export default function NewProductPage() {
     >
       <AdminTitle title="Add Product" subtitle="Create a new product in your catalog" />
 
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
           <ProductForm />
         </div>
       </div>

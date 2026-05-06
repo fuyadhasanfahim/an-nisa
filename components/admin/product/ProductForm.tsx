@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, type ProductInput } from "@/lib/validators/product.schema";
 import {
@@ -9,13 +9,23 @@ import {
   useUpdateProductMutation,
 } from "@/store/api/productsApi";
 import { useToast } from "@/components/shared/toast/useToast";
-import { motion } from "framer-motion";
 import {
   IconCircleCheckFilled,
   IconCircleDotted,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import {
+  AdminFormButton,
+  FormActions,
+  FormField,
+  FormInput,
+  FormMediaCard,
+  FormSection,
+  FormSelect,
+  FormTextarea,
+  FormToggleRow,
+} from "@/components/admin/form";
 
 function slugify(input: string) {
   return input
@@ -26,131 +36,36 @@ function slugify(input: string) {
     .replace(/(^-|-$)+/g, "");
 }
 
-function Field({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-baseline justify-between gap-3">
-        <label className="text-sm font-medium text-brand-black">{label}</label>
-        {hint ? <div className="text-xs text-black/45">{hint}</div> : null}
-      </div>
-      {children}
-      {error ? <p className="text-xs text-rose-600">{error}</p> : null}
-    </div>
-  );
-}
-
-export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className={[
-        "h-11 w-full rounded-xl bg-white px-3 text-sm text-brand-black",
-        "shadow-sm ring-1 ring-black/5 transition",
-        "placeholder:text-black/40",
-        "focus:outline-none focus:ring-2 focus:ring-brand-pink/40",
-        props.className ?? "",
-      ].join(" ")}
-    />
-  );
-}
-
-export function Textarea(
-  props: React.TextareaHTMLAttributes<HTMLTextAreaElement>
-) {
-  return (
-    <textarea
-      {...props}
-      className={[
-        "min-h-[110px] w-full resize-y rounded-xl bg-white px-3 py-2 text-sm text-brand-black",
-        "shadow-sm ring-1 ring-black/5 transition",
-        "placeholder:text-black/40",
-        "focus:outline-none focus:ring-2 focus:ring-brand-pink/40",
-        props.className ?? "",
-      ].join(" ")}
-    />
-  );
-}
-
-export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      {...props}
-      className={[
-        "h-11 w-full rounded-xl bg-white px-3 text-sm text-brand-black",
-        "shadow-sm ring-1 ring-black/5 transition",
-        "focus:outline-none focus:ring-2 focus:ring-brand-pink/40",
-        props.className ?? "",
-      ].join(" ")}
-    />
-  );
-}
-
-export function Button({
-  variant = "primary",
-  loading,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary";
-  loading?: boolean;
-}) {
-  const base =
-    "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-pink/40 disabled:opacity-60 disabled:cursor-not-allowed";
-  const styles =
-    variant === "primary"
-      ? "bg-[#0b0b0f] text-white shadow-sm hover:shadow-softSm"
-      : "bg-white text-brand-black ring-1 ring-black/10 hover:bg-black/5";
-  return (
-    <motion.button
-      whileHover={props.disabled ? undefined : { scale: 1.02 }}
-      whileTap={props.disabled ? undefined : { scale: 0.98 }}
-      {...props}
-      className={[base, styles, props.className ?? ""].join(" ")}
-    >
-      {loading ? "Saving…" : props.children}
-    </motion.button>
-  );
-}
-
-function Switch({
-  checked,
-  onChange,
-  disabled,
-}: {
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={[
-        "relative inline-flex h-9 w-16 items-center rounded-full p-1 transition",
-        "shadow-sm ring-1 ring-black/10",
-        checked ? "bg-[#fcc4c8]/70" : "bg-white",
-        disabled ? "opacity-60" : "hover:shadow-softSm",
-      ].join(" ")}
-      aria-pressed={checked}
-    >
-      <span
-        className={[
-          "h-7 w-7 rounded-full bg-white shadow-sm transition",
-          checked ? "translate-x-7" : "translate-x-0",
-        ].join(" ")}
-      />
-    </button>
-  );
+/** Percentage off regular price (`price` − `discount`) / `price` × 100, rounded. */
+function discountPercentOff(
+  priceVal: unknown,
+  discountVal: unknown
+): number | null {
+  const price =
+    typeof priceVal === "string"
+      ? priceVal.trim() === ""
+        ? NaN
+        : Number(priceVal)
+      : Number(priceVal);
+  if (discountVal === "" || discountVal === null || discountVal === undefined) {
+    return null;
+  }
+  const discount =
+    typeof discountVal === "string"
+      ? discountVal.trim() === ""
+        ? NaN
+        : Number(discountVal)
+      : Number(discountVal);
+  if (
+    !Number.isFinite(price) ||
+    !Number.isFinite(discount) ||
+    price <= 0 ||
+    discount <= 0 ||
+    discount >= price
+  ) {
+    return null;
+  }
+  return Math.round(((price - discount) / price) * 100);
 }
 
 export function ProductForm({
@@ -178,16 +93,19 @@ export function ProductForm({
     reset,
     formState: { errors },
   } = useForm<ProductInput>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productSchema) as Resolver<ProductInput>,
     defaultValues: {
       name: "",
       slug: "",
+      sku: "",
       description: "",
       price: 0,
       discountPrice: undefined,
       images: [],
       category: "embroidery",
       status: "active",
+      stockQuantity: 0,
+      trackInventory: false,
     },
     mode: "onBlur",
   });
@@ -196,12 +114,15 @@ export function ProductForm({
   useEffect(() => {
     if (!normalizedInitial) return;
     reset(normalizedInitial);
-    // In edit mode, never auto-overwrite the existing slug.
     slugEditedRef.current = true;
   }, [normalizedInitial, reset]);
 
   const name = watch("name");
+  const priceWatch = watch("price");
+  const discountWatch = watch("discountPrice");
+  const discountPct = discountPercentOff(priceWatch, discountWatch);
   const status = watch("status");
+  const trackInventory = watch("trackInventory");
   const images = watch("images") ?? [];
 
   useEffect(() => {
@@ -245,22 +166,19 @@ export function ProductForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-5">
-          <div className="text-xs font-medium tracking-wide text-black/45">
-            Basic info
-          </div>
-          <Field label="Product Name" error={errors.name?.message}>
-            <Input placeholder="Premium Floral Abaya Embroidery" {...register("name")} />
-          </Field>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-x-12 lg:gap-y-0">
+        <FormSection title="Basic info">
+          <FormField label="Product name" error={errors.name?.message}>
+            <FormInput placeholder="Premium Floral Abaya Embroidery" {...register("name")} />
+          </FormField>
 
-          <Field
+          <FormField
             label="Slug"
             hint="Auto-generated, editable"
             error={errors.slug?.message}
           >
-            <Input
+            <FormInput
               placeholder="premium-floral-abaya-embroidery"
               {...register("slug", {
                 onChange: () => {
@@ -268,127 +186,167 @@ export function ProductForm({
                 },
               })}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Description" error={errors.description?.message}>
-            <Textarea
+          <FormField
+            label="SKU"
+            hint="Stock keeping unit (unique)"
+            error={errors.sku?.message}
+          >
+            <FormInput placeholder="e.g. AN-NISA-ABY-001" {...register("sku")} />
+          </FormField>
+
+          <FormField label="Description" error={errors.description?.message}>
+            <FormTextarea
               placeholder="A short, elegant description (optional)…"
               {...register("description")}
             />
-          </Field>
-        </div>
+          </FormField>
+        </FormSection>
 
-        <div className="space-y-5">
-          <div className="text-xs font-medium tracking-wide text-black/45">
-            Pricing
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Price" error={errors.price?.message}>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="120.00"
-                {...register("price")}
-              />
-            </Field>
-            <Field label="Discount Price" error={errors.discountPrice?.message}>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="99.00"
-                {...register("discountPrice")}
-              />
-            </Field>
-          </div>
-
-          <div className="text-xs font-medium tracking-wide text-black/45">
-            Category & status
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Category" error={errors.category?.message}>
-              <Select {...register("category")}>
-                <option value="embroidery">Embroidery</option>
-                <option value="abaya">Abaya</option>
-                <option value="custom">Custom</option>
-                <option value="accessories">Accessories</option>
-              </Select>
-            </Field>
-
-            <div className="space-y-1.5">
-              <div className="text-sm font-medium text-brand-black">Status</div>
-              <div className="flex items-center justify-between rounded-xl bg-white p-3 shadow-sm ring-1 ring-black/5">
-                <div className="flex items-center gap-2 text-sm text-black/70">
-                  {status === "active" ? (
-                    <IconCircleCheckFilled className="h-5 w-5 text-emerald-600" />
-                  ) : (
-                    <IconCircleDotted className="h-5 w-5 text-black/40" />
-                  )}
-                  <span className="font-medium">
-                    {status === "active" ? "Active" : "Draft"}
-                  </span>
-                </div>
-                <Switch
-                  checked={status === "active"}
-                  onChange={(v) => setValue("status", v ? "active" : "draft")}
-                  disabled={isSaving}
+        <div className="space-y-10">
+          <FormSection title="Pricing">
+            <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+              <FormField label="Price" error={errors.price?.message}>
+                <FormInput
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="120.00"
+                  {...register("price")}
                 />
-              </div>
-              {errors.status?.message ? (
-                <p className="text-xs text-rose-600">{errors.status?.message}</p>
-              ) : null}
+              </FormField>
+              <FormField
+                label="Discount price"
+                hint={
+                  discountPct != null
+                    ? `${discountPct}% off regular price`
+                    : "Must be lower than regular price • optional"
+                }
+                error={errors.discountPrice?.message}
+              >
+                <FormInput
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="99.00"
+                  {...register("discountPrice")}
+                />
+              </FormField>
             </div>
-          </div>
+          </FormSection>
+
+          <FormSection title="Category & status">
+            <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+              <FormField label="Category" error={errors.category?.message}>
+                <FormSelect {...register("category")}>
+                  <option value="embroidery">Embroidery</option>
+                  <option value="abaya">Abaya</option>
+                  <option value="custom">Custom</option>
+                  <option value="accessories">Accessories</option>
+                </FormSelect>
+              </FormField>
+
+              <FormToggleRow
+                label="Status"
+                switchAriaLabel={status === "active" ? "Set to draft" : "Set to active"}
+                leading={
+                  status === "active" ? (
+                    <IconCircleCheckFilled className="h-5 w-5 shrink-0 text-emerald-600" />
+                  ) : (
+                    <IconCircleDotted className="h-5 w-5 shrink-0 text-black/40" />
+                  )
+                }
+                caption={status === "active" ? "Active" : "Draft"}
+                checked={status === "active"}
+                onChange={(v) => setValue("status", v ? "active" : "draft")}
+                disabled={isSaving}
+                error={errors.status?.message}
+              />
+            </div>
+          </FormSection>
         </div>
       </div>
 
-      <div className="space-y-5">
-        <div className="text-xs font-medium tracking-wide text-black/45">Media</div>
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
-          <div>
-            <div className="text-sm font-medium text-brand-black">Images</div>
-            <div className="mt-1 text-xs text-black/55">
-              Drag & drop to upload. Images are uploaded to Cloudinary and saved as URLs.
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <ImageUpload
-              value={images}
-              onChange={(urls) => setValue("images", urls, { shouldDirty: true })}
-              onUploadingChange={setUploading}
+      <FormSection
+        title="Inventory"
+        description="Control how stock is tracked for this SKU."
+      >
+        <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+          <FormField
+            label="Units in stock"
+            hint={
+              trackInventory
+                ? "Reduced when non-cancelled orders include this SKU."
+                : "Turn on tracking to enforce stock on orders."
+            }
+            error={errors.stockQuantity?.message}
+          >
+            <FormInput
+              type="number"
+              min={0}
+              step={1}
               disabled={isSaving}
-              maxFiles={8}
-              onError={(msg) =>
-                toast({ title: "Upload failed", message: msg, variant: "error" })
-              }
+              {...register("stockQuantity")}
             />
-            {errors.images?.message ? (
-              <p className="mt-2 text-xs text-rose-600">{errors.images.message}</p>
-            ) : null}
-          </div>
-        </div>
-      </div>
+          </FormField>
 
-      <div className="flex items-center justify-end gap-3 pt-2">
-        <Button
+          <FormToggleRow
+            label="Track inventory"
+            switchAriaLabel={
+              trackInventory ? "Stop tracking inventory" : "Track inventory"
+            }
+            caption={
+              trackInventory ? "Stock enforced on orders" : "Unlimited / manual"
+            }
+            checked={trackInventory}
+            onChange={(v) => setValue("trackInventory", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.trackInventory?.message}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection title="Media">
+        <FormMediaCard
+          title="Product images"
+          description="Drag and drop or click to upload. Files go to Cloudinary and are stored as URLs on the product."
+        >
+          <ImageUpload
+            value={images}
+            onChange={(urls) => setValue("images", urls, { shouldDirty: true })}
+            onUploadingChange={setUploading}
+            disabled={isSaving}
+            maxFiles={8}
+            onError={(msg) =>
+              toast({ title: "Upload failed", message: msg, variant: "error" })
+            }
+          />
+          {errors.images?.message ? (
+            <p className="mt-3 text-xs text-rose-600" role="alert">
+              {errors.images.message}
+            </p>
+          ) : null}
+        </FormMediaCard>
+      </FormSection>
+
+      <FormActions>
+        <AdminFormButton
           type="button"
           variant="secondary"
           onClick={() => router.push("/admin/products")}
           disabled={isSaving}
         >
           Cancel
-        </Button>
-        <Button
+        </AdminFormButton>
+        <AdminFormButton
           type="submit"
           loading={isSaving}
           disabled={isSaving || uploading}
         >
-          {productId ? "Update Product" : "Create Product"}
-        </Button>
-      </div>
+          {productId ? "Update product" : "Create product"}
+        </AdminFormButton>
+      </FormActions>
     </form>
   );
 }
-
