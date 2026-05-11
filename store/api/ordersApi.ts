@@ -14,6 +14,7 @@ export type OrderListItemDto = {
   status: string;
   totalCents: number;
   currency: string;
+  paymentMethod: string;
   createdAt: string;
   updatedAt: string;
   user: OrderUserMini;
@@ -33,8 +34,17 @@ export type OrderDetailDto = {
   id: string;
   userId: string;
   status: string;
+  subtotalCents: number;
+  discountCents: number;
+  shippingFeeCents: number;
   totalCents: number;
   currency: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  shippingPhone: string | null;
+  shippingAddress: string | null;
+  shippingCity: string | null;
+  shippingCountry: string;
   createdAt: string;
   updatedAt: string;
   user: OrderUserMini;

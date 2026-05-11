@@ -4,8 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useForm, useFieldArray, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  orderWriteSchema,
+  orderFormSchema,
   ORDER_STATUSES,
+  PAYMENT_METHODS,
+  PAYMENT_STATUSES,
+  type OrderFormInput,
   type OrderWriteInput,
 } from "@/lib/validators/order.schema";
 import {
@@ -19,13 +22,27 @@ import { useToast } from "@/components/shared/toast/useToast";
 import { useRouter } from "next/navigation";
 import {
   Field,
+  FormSection,
+  FormActions,
+  AdminFormButton,
   Input,
   FormSelect,
-  Button,
+  FormTextarea,
 } from "@/components/admin/form";
 import { IconPlus, IconTrash, IconUserSearch } from "@tabler/icons-react";
+import { finalizeOrderTotals } from "@/lib/orders/compute-order-totals";
+import { useLazyGetCustomerProfileForAdminQuery } from "@/store/api/usersApi";
 
-type OrderFormValues = OrderWriteInput;
+type OrderFormValuesIn = OrderFormInput;
+
+const PAYMENT_LABEL: Record<(typeof PAYMENT_METHODS)[number], string> = {
+  cod: "Cash on delivery",
+  bkash: "bKash",
+  nagad: "Nagad",
+  card: "Card",
+  bank_transfer: "Bank transfer",
+  other: "Other",
+};
 
 function UserPicker({
   selectedUser,
@@ -118,7 +135,7 @@ function UserPicker({
                   <button
                     key={u.id}
                     type="button"
-                    className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm transition hover:bg-black/[0.03]"
+                    className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm transition hover:bg-black/3"
                     onClick={() => {
                       onSelect(u);
                       setOpen(false);
@@ -145,7 +162,7 @@ export function OrderForm({
   initialCustomer,
 }: {
   orderId?: string;
-  initialValues?: OrderFormValues;
+  initialValues?: OrderFormValuesIn;
   initialCustomer?: UserMiniDto | null;
 }) {
   const router = useRouter();
@@ -153,6 +170,7 @@ export function OrderForm({
   const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
   const isSaving = isCreating || isUpdating;
+  const [triggerCustomerProfile] = useLazyGetCustomerProfileForAdminQuery();
 
   const { data: productsData } = useListProductsQuery({
     q: "",
@@ -178,13 +196,26 @@ export function OrderForm({
     control,
     setValue,
     reset,
+    watch,
     formState: { errors },
-  } = useForm<OrderFormValues>({
-    resolver: zodResolver(orderWriteSchema) as Resolver<OrderFormValues>,
+  } = useForm<OrderFormValuesIn, unknown, OrderWriteInput>({
+    resolver: zodResolver(orderFormSchema) as Resolver<
+      OrderFormValuesIn,
+      unknown,
+      OrderWriteInput
+    >,
     defaultValues: {
       userId: "",
       status: "pending",
       items: [{ productId: "", quantity: 1 }],
+      shippingPhone: "",
+      shippingAddress: "",
+      shippingCity: "",
+      shippingCountry: "BD",
+      discount: 0,
+      shippingFee: 0,
+      paymentMethod: "cod",
+      paymentStatus: "pending",
     },
     mode: "onBlur",
   });
@@ -193,6 +224,37 @@ export function OrderForm({
     control,
     name: "items",
   });
+
+  const watchedItems = watch("items");
+  const watchedDiscount = watch("discount");
+  const watchedShippingFee = watch("shippingFee");
+
+  const lineTotalsForPreview = useMemo(() => {
+    const priceById = new Map(
+      productOptions.map((p) => [p.id, p.priceCents] as const)
+    );
+    const lines: { unitCents: number; quantity: number }[] = [];
+    for (const line of watchedItems ?? []) {
+      const pid = line.productId;
+      if (!pid) continue;
+      const unit = priceById.get(pid);
+      if (unit == null) continue;
+      const qty = Number(line.quantity);
+      if (!Number.isFinite(qty) || qty < 1) continue;
+      lines.push({ unitCents: unit, quantity: qty });
+    }
+    return lines;
+  }, [watchedItems, productOptions]);
+
+  const previewTotals = useMemo(
+    () =>
+      finalizeOrderTotals({
+        lines: lineTotalsForPreview,
+        discountCents: Math.round(Number(watchedDiscount ?? 0) * 100),
+        shippingFeeCents: Math.round(Number(watchedShippingFee ?? 0) * 100),
+      }),
+    [lineTotalsForPreview, watchedDiscount, watchedShippingFee]
+  );
 
   const normalizedInitial = useMemo(
     () => initialValues,
@@ -220,11 +282,29 @@ export function OrderForm({
       }
       setValue("userId", u.id, { shouldValidate: true, shouldDirty: true });
       setSelectedUser(u);
+
+      if (!orderId) {
+        void triggerCustomerProfile(u.id)
+          .unwrap()
+          .then((profile) => {
+            if (profile.phone)
+              setValue("shippingPhone", profile.phone, { shouldDirty: true });
+            if (profile.address)
+              setValue("shippingAddress", profile.address, { shouldDirty: true });
+            if (profile.city)
+              setValue("shippingCity", profile.city, { shouldDirty: true });
+            if (profile.country)
+              setValue("shippingCountry", profile.country, { shouldDirty: true });
+          })
+          .catch(() => {
+            /* no profile */
+          });
+      }
     },
-    [setValue]
+    [orderId, setValue, triggerCustomerProfile]
   );
 
-  async function onSubmit(values: OrderFormValues) {
+  async function onSubmit(values: OrderWriteInput) {
     try {
       if (orderId) {
         await updateOrder({ id: orderId, data: values }).unwrap();
@@ -257,12 +337,12 @@ export function OrderForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-5">
-          <div className="text-xs font-medium tracking-wide text-black/45">
-            Customer & status
-          </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+      <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-x-12 lg:gap-y-0">
+        <FormSection
+          title="Customer & status"
+          description="Search registered customers, then set how this order should appear in your pipeline."
+        >
           <input type="hidden" {...register("userId")} />
           <UserPicker
             selectedUser={selectedUser}
@@ -278,24 +358,114 @@ export function OrderForm({
               ))}
             </FormSelect>
           </Field>
-        </div>
+        </FormSection>
 
-        <div className="space-y-5">
-          <div className="text-xs font-medium tracking-wide text-black/45">
-            Summary
+        <FormSection
+          title="Summary"
+          description="Subtotal follows selected products. Discount cannot exceed subtotal."
+        >
+          <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+            <Field label="Discount (৳)" error={errors.discount?.message}>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                {...register("discount", { valueAsNumber: true })}
+              />
+            </Field>
+            <Field label="Shipping fee (৳)" error={errors.shippingFee?.message}>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                {...register("shippingFee", { valueAsNumber: true })}
+              />
+            </Field>
           </div>
-          <div className="rounded-xl bg-white p-4 text-sm text-black/70 shadow-sm ring-1 ring-black/5">
-            Line totals use each product&apos;s current catalog price in BDT. Saving
-            the order snapshots unit prices at that moment.
+          <div className="space-y-3 rounded-xl bg-white p-4 text-sm text-black/70 shadow-sm ring-1 ring-black/5">
+            <p className="text-xs leading-relaxed text-black/55">
+              Unit prices snap to the catalog when you save. This preview uses current
+              list prices.
+            </p>
+            <div className="space-y-2 border-t border-black/10 pt-3">
+              <div className="flex justify-between gap-3 tabular-nums">
+                <span className="text-black/55">Subtotal</span>
+                <span>৳ {(previewTotals.subtotalCents / 100).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between gap-3 tabular-nums">
+                <span className="text-black/55">Discount</span>
+                <span>− ৳ {(previewTotals.discountCents / 100).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between gap-3 tabular-nums">
+                <span className="text-black/55">Shipping</span>
+                <span>৳ {(previewTotals.shippingFeeCents / 100).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between gap-3 border-t border-black/10 pt-2 text-base font-semibold text-brand-black tabular-nums">
+                <span>Total (preview)</span>
+                <span>৳ {(previewTotals.totalCents / 100).toFixed(2)}</span>
+              </div>
+            </div>
           </div>
-        </div>
+        </FormSection>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="text-xs font-medium tracking-wide text-black/45">
-            Line items
-          </div>
+      <FormSection
+        title="Delivery"
+        description="Saved on the order so changes to the customer profile do not rewrite history."
+      >
+        <Field label="Phone" hint="Optional" error={errors.shippingPhone?.message}>
+          <Input
+            type="tel"
+            placeholder="+880…"
+            autoComplete="tel"
+            {...register("shippingPhone")}
+          />
+        </Field>
+        <Field label="Address" error={errors.shippingAddress?.message}>
+          <FormTextarea
+            rows={3}
+            placeholder="Street, area, postcode…"
+            {...register("shippingAddress")}
+          />
+        </Field>
+        <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+          <Field label="City" error={errors.shippingCity?.message}>
+            <Input {...register("shippingCity")} />
+          </Field>
+          <Field label="Country (ISO)" error={errors.shippingCountry?.message}>
+            <Input maxLength={2} className="uppercase" {...register("shippingCountry")} />
+          </Field>
+        </div>
+      </FormSection>
+
+      <FormSection title="Payment" description="How the customer will pay.">
+        <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+          <Field label="Method" error={errors.paymentMethod?.message}>
+            <FormSelect {...register("paymentMethod")}>
+              {PAYMENT_METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {PAYMENT_LABEL[m]}
+                </option>
+              ))}
+            </FormSelect>
+          </Field>
+          <Field label="Payment status" error={errors.paymentStatus?.message}>
+            <FormSelect {...register("paymentStatus")}>
+              {PAYMENT_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </option>
+              ))}
+            </FormSelect>
+          </Field>
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Line items"
+        description="Add one row per product. Rows without a product are ignored when calculating the preview."
+      >
+        <div className="flex justify-end">
           <button
             type="button"
             className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-medium text-brand-black ring-1 ring-black/10 transition hover:bg-black/5"
@@ -310,7 +480,7 @@ export function OrderForm({
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5 sm:grid-cols-[1fr_120px_auto]"
+              className="grid min-w-0 gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5 sm:grid-cols-[minmax(0,1fr)_120px_auto] sm:items-stretch"
             >
               <Field
                 label="Product"
@@ -356,21 +526,21 @@ export function OrderForm({
         {typeof errors.items?.root?.message === "string" ? (
           <p className="text-xs text-rose-600">{errors.items.root.message}</p>
         ) : null}
-      </div>
+      </FormSection>
 
-      <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
-        <Button
+      <FormActions>
+        <AdminFormButton
           type="button"
           variant="secondary"
           onClick={() => router.push("/admin/orders")}
           disabled={isSaving}
         >
           Cancel
-        </Button>
-        <Button type="submit" loading={isSaving} disabled={isSaving}>
+        </AdminFormButton>
+        <AdminFormButton type="submit" loading={isSaving} disabled={isSaving}>
           {orderId ? "Update order" : "Create order"}
-        </Button>
-      </div>
+        </AdminFormButton>
+      </FormActions>
     </form>
   );
 }

@@ -99,15 +99,39 @@ model Product {
   @@map("product")
 }
 
+enum PaymentMethod {
+  cod
+  bkash
+  nagad
+  card
+  bank_transfer
+  other
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+}
+
 model Order {
   id         String   @id @default(cuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   status     String   @default("pending")
-  totalCents Int
-  currency   String   @default("BDT")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  subtotalCents    Int
+  discountCents    Int            @default(0)
+  shippingFeeCents Int            @default(0)
+  totalCents       Int
+  currency         String         @default("BDT")
+  paymentMethod    PaymentMethod  @default(cod)
+  paymentStatus    PaymentStatus  @default(pending)
+  shippingPhone    String?
+  shippingAddress  String?
+  shippingCity     String?
+  shippingCountry  String         @default("BD")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   items   OrderItem[]
   invoice Invoice?

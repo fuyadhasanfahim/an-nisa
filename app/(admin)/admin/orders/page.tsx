@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { AdminTitle } from "@/components/admin/AdminTitle";
 import { OrdersTable } from "@/components/admin/OrdersTable";
 import Link from "next/link";
 import { IconPlus } from "@tabler/icons-react";
@@ -16,7 +15,11 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <AdminTitle title="Orders" subtitle="Track and fulfill orders." />
+        <div>
+          <h1 className="font-serif text-3xl tracking-tight">Orders</h1>
+          <p className="mt-2 text-sm text-black/65">Track and fulfill orders</p>
+        </div>
+
         <Link
           href="/admin/orders/new"
           className={[
@@ -27,9 +30,10 @@ export default function AdminOrdersPage() {
           ].join(" ")}
         >
           <IconPlus className="h-[18px] w-[18px] text-white" stroke={2} />
-          New order
+          Add Order
         </Link>
       </div>
+
       <div className="space-y-4">
         <Suspense fallback={<OrdersTableFallback />}>
           <OrdersTable />

@@ -79,7 +79,27 @@ type Row = {
   customerEmail: string;
   customerName: string;
   itemCount: number;
+  paymentMethod: string;
 };
+
+function orderPaymentLabel(method: string): string {
+  switch (method) {
+    case "cod":
+      return "COD";
+    case "bkash":
+      return "bKash";
+    case "nagad":
+      return "Nagad";
+    case "card":
+      return "Card";
+    case "bank_transfer":
+      return "Bank";
+    case "other":
+      return "Other";
+    default:
+      return method || "—";
+  }
+}
 
 function OrderStatusCell({
   orderId,
@@ -255,6 +275,12 @@ function buildColumns(col: ReturnType<typeof createColumnHelper<Row>>) {
         <span className="tabular-nums text-black/75">{ctx.getValue()}</span>
       ),
     }),
+    col.accessor("paymentMethod", {
+      header: "Pay",
+      cell: (ctx) => (
+        <span className="text-xs text-black/75">{orderPaymentLabel(ctx.getValue())}</span>
+      ),
+    }),
     col.accessor("totalCents", {
       header: "Total",
       cell: (ctx) => `৳ ${(ctx.getValue() / 100).toFixed(2)}`,
@@ -332,6 +358,7 @@ export function OrdersTable() {
       customerEmail: o.user.email,
       customerName: o.user.name,
       itemCount: o.itemCount,
+      paymentMethod: o.paymentMethod,
     })) ?? [];
 
   const sortSelectValue =
@@ -367,7 +394,7 @@ export function OrdersTable() {
           ].join(" ")}
         >
           <IconPlus className="h-[18px] w-[18px] text-white" stroke={2} />
-          Create first order
+          Create your first order
         </Link>
       </div>
     );

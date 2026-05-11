@@ -8,7 +8,6 @@ import {
   orderWriteSchema,
 } from "@/lib/validators/order.schema";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import {
   aggregateQtyByProductId,
@@ -18,40 +17,10 @@ import {
   OrderNotFoundError,
   orderCountsAgainstStock,
 } from "@/lib/inventory/order-stock";
+import { finalizeOrderTotals } from "@/lib/orders/compute-order-totals";
+import { serializeOrderDetail } from "@/lib/orders/serialize-order";
 
 export const runtime = "nodejs";
-
-function serializeOrderDetail(
-  o: Prisma.OrderGetPayload<{
-    include: {
-      user: { select: { id: true; name: true; email: true } };
-      items: {
-        include: {
-          product: { select: { id: true; name: true; slug: true } };
-        };
-      };
-    };
-  }>
-) {
-  return {
-    id: o.id,
-    userId: o.userId,
-    status: o.status,
-    totalCents: o.totalCents,
-    currency: o.currency,
-    createdAt: o.createdAt.toISOString(),
-    updatedAt: o.updatedAt.toISOString(),
-    user: o.user,
-    items: o.items.map((it) => ({
-      id: it.id,
-      productId: it.productId,
-      quantity: it.quantity,
-      unitCents: it.unitCents,
-      createdAt: it.createdAt.toISOString(),
-      product: it.product,
-    })),
-  };
-}
 
 export async function GET(
   req: Request,
@@ -124,10 +93,12 @@ export async function PUT(
       quantity: i.quantity,
       unitCents: priceById.get(i.productId)!,
     }));
-    const totalCents = lines.reduce(
-      (sum, l) => sum + l.unitCents * l.quantity,
-      0
-    );
+
+    const totals = finalizeOrderTotals({
+      lines,
+      discountCents: input.discountCents,
+      shippingFeeCents: input.shippingFeeCents,
+    });
 
     const updated = await prisma.$transaction(async (tx) => {
       if (orderCountsAgainstStock(existing.status)) {
@@ -143,7 +114,16 @@ export async function PUT(
         data: {
           userId: input.userId,
           status: input.status,
-          totalCents,
+          subtotalCents: totals.subtotalCents,
+          discountCents: totals.discountCents,
+          shippingFeeCents: totals.shippingFeeCents,
+          totalCents: totals.totalCents,
+          paymentMethod: input.paymentMethod,
+          paymentStatus: input.paymentStatus,
+          shippingPhone: input.shippingPhone ?? null,
+          shippingAddress: input.shippingAddress,
+          shippingCity: input.shippingCity,
+          shippingCountry: input.shippingCountry,
           items: {
             create: lines.map((l) => ({
               productId: l.productId,

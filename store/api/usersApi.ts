@@ -6,6 +6,13 @@ export type UserMiniDto = {
   email: string;
 };
 
+export type CustomerProfileDto = {
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+};
+
 export type UserListResponse = {
   items: UserMiniDto[];
 };
@@ -24,8 +31,14 @@ export const usersApi = baseApi.injectEndpoints({
         },
       }),
     }),
+    getCustomerProfileForAdmin: build.query<CustomerProfileDto, string>({
+      query: (userId) => `/users/${userId}/customer-profile`,
+    }),
   }),
 });
 
-export const { useListUsersForAdminQuery, useLazyListUsersForAdminQuery } =
-  usersApi;
+export const {
+  useListUsersForAdminQuery,
+  useLazyListUsersForAdminQuery,
+  useLazyGetCustomerProfileForAdminQuery,
+} = usersApi;

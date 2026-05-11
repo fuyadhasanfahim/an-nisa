@@ -10,6 +10,9 @@ import { useParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query";
 import {
   ORDER_STATUSES,
+  normalizePaymentMethod,
+  normalizePaymentStatus,
+  type OrderFormInput,
   type OrderStatus,
 } from "@/lib/validators/order.schema";
 
@@ -35,13 +38,14 @@ export default function EditOrderPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <AdminTitle title="Edit order" subtitle="Loading order…" />
-        <div className="mx-auto w-full max-w-3xl">
-          <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+        <AdminTitle title="Edit Order" subtitle="Loading order details…" />
+        <div className="mx-auto w-full max-w-4xl">
+          <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
             <div className="grid gap-4">
               <div className="h-10 w-2/3 rounded-xl bg-black/5" />
               <div className="h-10 w-full rounded-xl bg-black/5" />
               <div className="h-28 w-full rounded-xl bg-black/5" />
+              <div className="h-10 w-1/2 rounded-xl bg-black/5" />
             </div>
           </div>
         </div>
@@ -52,7 +56,7 @@ export default function EditOrderPage() {
   if (isError) {
     return (
       <div className="space-y-6">
-        <AdminTitle title="Edit order" subtitle="Couldn’t load this order." />
+        <AdminTitle title="Edit Order" subtitle="Couldn’t load this order." />
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5">
           <div className="text-sm text-black/70">
             Something went wrong while fetching this order.
@@ -82,7 +86,7 @@ export default function EditOrderPage() {
   if (!data || !id) {
     return (
       <div className="space-y-6">
-        <AdminTitle title="Edit order" subtitle="Order not found." />
+        <AdminTitle title="Edit Order" subtitle="Order not found." />
         <Link
           href="/admin/orders"
           className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-brand-black ring-1 ring-black/10 transition hover:bg-black/5"
@@ -94,13 +98,21 @@ export default function EditOrderPage() {
     );
   }
 
-  const initialValues = {
+  const initialValues: OrderFormInput = {
     userId: data.userId,
     status: normalizeStatus(data.status),
     items: data.items.map((it) => ({
       productId: it.productId,
       quantity: it.quantity,
     })),
+    shippingPhone: data.shippingPhone ?? "",
+    shippingAddress: data.shippingAddress ?? "",
+    shippingCity: data.shippingCity ?? "",
+    shippingCountry: data.shippingCountry ?? "BD",
+    discount: data.discountCents / 100,
+    shippingFee: data.shippingFeeCents / 100,
+    paymentMethod: normalizePaymentMethod(data.paymentMethod),
+    paymentStatus: normalizePaymentStatus(data.paymentStatus),
   };
 
   return (
@@ -111,12 +123,12 @@ export default function EditOrderPage() {
       className="space-y-6"
     >
       <AdminTitle
-        title="Edit order"
+        title="Edit Order"
         subtitle={`Order ${data.id.slice(0, 12)}… · ${data.items.length} line item(s)`}
       />
 
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
           <OrderForm
             orderId={id}
             initialValues={initialValues}

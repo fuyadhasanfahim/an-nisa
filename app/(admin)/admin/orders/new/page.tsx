@@ -13,12 +13,12 @@ export default function NewOrderPage() {
       className="space-y-6"
     >
       <AdminTitle
-        title="New order"
-        subtitle="Choose a customer and add line items from your catalog."
+        title="Add Order"
+        subtitle="Create a new order from your catalog"
       />
 
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
           <OrderForm />
         </div>
       </div>
