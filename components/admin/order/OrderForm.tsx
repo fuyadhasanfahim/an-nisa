@@ -1,15 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useForm, useFieldArray, type Resolver } from "react-hook-form";
+import {
+  useForm,
+  useFieldArray,
+  useWatch,
+  type Resolver,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  orderFormSchema,
+  orderFormFieldsSchema,
+  orderFormValuesToWriteInput,
   ORDER_STATUSES,
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
+  PAYMENT_COLLECTED_VIA,
+  PAYMENT_COLLECTED_VIA_LABEL,
   type OrderFormInput,
-  type OrderWriteInput,
+  type OrderFormValues,
 } from "@/lib/validators/order.schema";
 import {
   useCreateOrderMutation,
@@ -32,8 +40,6 @@ import {
 import { IconPlus, IconTrash, IconUserSearch } from "@tabler/icons-react";
 import { finalizeOrderTotals } from "@/lib/orders/compute-order-totals";
 import { useLazyGetCustomerProfileForAdminQuery } from "@/store/api/usersApi";
-
-type OrderFormValuesIn = OrderFormInput;
 
 const PAYMENT_LABEL: Record<(typeof PAYMENT_METHODS)[number], string> = {
   cod: "Cash on delivery",
@@ -162,7 +168,7 @@ export function OrderForm({
   initialCustomer,
 }: {
   orderId?: string;
-  initialValues?: OrderFormValuesIn;
+  initialValues?: OrderFormInput;
   initialCustomer?: UserMiniDto | null;
 }) {
   const router = useRouter();
@@ -196,14 +202,9 @@ export function OrderForm({
     control,
     setValue,
     reset,
-    watch,
     formState: { errors },
-  } = useForm<OrderFormValuesIn, unknown, OrderWriteInput>({
-    resolver: zodResolver(orderFormSchema) as Resolver<
-      OrderFormValuesIn,
-      unknown,
-      OrderWriteInput
-    >,
+  } = useForm<OrderFormValues>({
+    resolver: zodResolver(orderFormFieldsSchema) as Resolver<OrderFormValues>,
     defaultValues: {
       userId: "",
       status: "pending",
@@ -216,6 +217,8 @@ export function OrderForm({
       shippingFee: 0,
       paymentMethod: "cod",
       paymentStatus: "pending",
+      paymentId: "",
+      paymentCollectedVia: "cash",
     },
     mode: "onBlur",
   });
@@ -225,9 +228,17 @@ export function OrderForm({
     name: "items",
   });
 
-  const watchedItems = watch("items");
-  const watchedDiscount = watch("discount");
-  const watchedShippingFee = watch("shippingFee");
+  const watchedItems = useWatch({
+    control,
+    name: "items",
+    defaultValue: [{ productId: "", quantity: 1 }],
+  });
+  const watchedDiscount = useWatch({ control, name: "discount", defaultValue: 0 });
+  const watchedShippingFee = useWatch({
+    control,
+    name: "shippingFee",
+    defaultValue: 0,
+  });
 
   const lineTotalsForPreview = useMemo(() => {
     const priceById = new Map(
@@ -246,15 +257,15 @@ export function OrderForm({
     return lines;
   }, [watchedItems, productOptions]);
 
-  const previewTotals = useMemo(
-    () =>
-      finalizeOrderTotals({
-        lines: lineTotalsForPreview,
-        discountCents: Math.round(Number(watchedDiscount ?? 0) * 100),
-        shippingFeeCents: Math.round(Number(watchedShippingFee ?? 0) * 100),
-      }),
-    [lineTotalsForPreview, watchedDiscount, watchedShippingFee]
-  );
+  const previewTotals = useMemo(() => {
+    const disc = Number(watchedDiscount);
+    const ship = Number(watchedShippingFee);
+    return finalizeOrderTotals({
+      lines: lineTotalsForPreview,
+      discountCents: Math.round((Number.isFinite(disc) ? disc : 0) * 100),
+      shippingFeeCents: Math.round((Number.isFinite(ship) ? ship : 0) * 100),
+    });
+  }, [lineTotalsForPreview, watchedDiscount, watchedShippingFee]);
 
   const normalizedInitial = useMemo(
     () => initialValues,
@@ -304,17 +315,18 @@ export function OrderForm({
     [orderId, setValue, triggerCustomerProfile]
   );
 
-  async function onSubmit(values: OrderWriteInput) {
+  async function onSubmit(values: OrderFormValues) {
+    const payload = orderFormValuesToWriteInput(values);
     try {
       if (orderId) {
-        await updateOrder({ id: orderId, data: values }).unwrap();
+        await updateOrder({ id: orderId, data: payload }).unwrap();
         toast({
           title: "Order updated",
           message: "Changes have been saved.",
           variant: "success",
         });
       } else {
-        await createOrder(values).unwrap();
+        await createOrder(payload).unwrap();
         toast({
           title: "Order created",
           message: "The order has been added.",
@@ -438,7 +450,10 @@ export function OrderForm({
         </div>
       </FormSection>
 
-      <FormSection title="Payment" description="How the customer will pay.">
+      <FormSection
+        title="Payment"
+        description="Order payment method and status. For COD collection, enter the payment reference and how it was received."
+      >
         <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
           <Field label="Method" error={errors.paymentMethod?.message}>
             <FormSelect {...register("paymentMethod")}>
@@ -459,6 +474,30 @@ export function OrderForm({
             </FormSelect>
           </Field>
         </div>
+        <Field
+          label="Payment ID"
+          hint="Trx / receipt / reference — required"
+          error={errors.paymentId?.message}
+        >
+          <Input
+            placeholder="e.g. TRXABC123456 or receipt number"
+            autoComplete="off"
+            {...register("paymentId")}
+          />
+        </Field>
+        <Field
+          label="Received via"
+          hint="How the customer paid"
+          error={errors.paymentCollectedVia?.message}
+        >
+          <FormSelect {...register("paymentCollectedVia")}>
+            {PAYMENT_COLLECTED_VIA.map((v) => (
+              <option key={v} value={v}>
+                {PAYMENT_COLLECTED_VIA_LABEL[v]}
+              </option>
+            ))}
+          </FormSelect>
+        </Field>
       </FormSection>
 
       <FormSection
@@ -503,7 +542,9 @@ export function OrderForm({
                   type="number"
                   min={1}
                   step={1}
-                  {...register(`items.${index}.quantity`)}
+                  {...register(`items.${index}.quantity`, {
+                    valueAsNumber: true,
+                  })}
                 />
               </Field>
               <div className="flex items-end justify-end sm:pb-1">

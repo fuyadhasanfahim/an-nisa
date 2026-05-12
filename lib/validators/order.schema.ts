@@ -26,6 +26,30 @@ export const PAYMENT_STATUSES = ["pending", "paid", "failed"] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
+/** How payment was collected (COD handover, trx channel, etc.). */
+export const PAYMENT_COLLECTED_VIA = [
+  "cash",
+  "bkash",
+  "nagad",
+  "card",
+  "bank_transfer",
+  "other",
+] as const;
+
+export type PaymentCollectedVia = (typeof PAYMENT_COLLECTED_VIA)[number];
+
+export const PAYMENT_COLLECTED_VIA_LABEL: Record<
+  PaymentCollectedVia,
+  string
+> = {
+  cash: "Cash",
+  bkash: "bKash",
+  nagad: "Nagad",
+  card: "Card",
+  bank_transfer: "Bank transfer",
+  other: "Other",
+};
+
 const emptyToUndefined = (v: unknown) =>
   typeof v === "string" && v.trim() === "" ? undefined : v;
 
@@ -75,27 +99,40 @@ export const orderWriteSchema = z.object({
     .default(0),
   paymentMethod: z.enum(PAYMENT_METHODS).default("cod"),
   paymentStatus: z.enum(PAYMENT_STATUSES).default("pending"),
+  paymentId: z
+    .string()
+    .trim()
+    .min(1, "Payment ID / reference is required")
+    .max(160),
+  paymentCollectedVia: z.enum(PAYMENT_COLLECTED_VIA),
 });
 
 export type OrderWriteInput = z.infer<typeof orderWriteSchema>;
 
-/** Admin form: discount & shipping in BDT (decimal); transforms to cents for API. */
-export const orderFormSchema = orderWriteSchema
+/**
+ * Admin form shape (BDT decimals for discount/shipping). No `.transform()` here so
+ * react-hook-form + zodResolver validate the same values the inputs hold.
+ */
+export const orderFormFieldsSchema = orderWriteSchema
   .omit({ discountCents: true, shippingFeeCents: true })
   .extend({
     discount: z.coerce.number().min(0).default(0),
     shippingFee: z.coerce.number().min(0).default(0),
-  })
-  .transform((v) => {
-    const { discount, shippingFee, ...rest } = v;
-    return {
-      ...rest,
-      discountCents: Math.round(discount * 100),
-      shippingFeeCents: Math.round(shippingFee * 100),
-    };
   });
 
-export type OrderFormInput = z.input<typeof orderFormSchema>;
+export type OrderFormValues = z.infer<typeof orderFormFieldsSchema>;
+
+/** Initial values for reset() on edit — same shape as the form. */
+export type OrderFormInput = OrderFormValues;
+
+export function orderFormValuesToWriteInput(v: OrderFormValues): OrderWriteInput {
+  const { discount, shippingFee, ...rest } = v;
+  return {
+    ...rest,
+    discountCents: Math.round(discount * 100),
+    shippingFeeCents: Math.round(shippingFee * 100),
+  };
+}
 
 export function normalizePaymentMethod(value: string): PaymentMethod {
   return (PAYMENT_METHODS as readonly string[]).includes(value)
@@ -107,6 +144,14 @@ export function normalizePaymentStatus(value: string): PaymentStatus {
   return (PAYMENT_STATUSES as readonly string[]).includes(value)
     ? (value as PaymentStatus)
     : "pending";
+}
+
+export function normalizePaymentCollectedVia(
+  value: string
+): PaymentCollectedVia {
+  return (PAYMENT_COLLECTED_VIA as readonly string[]).includes(value)
+    ? (value as PaymentCollectedVia)
+    : "cash";
 }
 
 export const orderPatchSchema = z.object({

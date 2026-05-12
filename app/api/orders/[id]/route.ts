@@ -120,6 +120,8 @@ export async function PUT(
           totalCents: totals.totalCents,
           paymentMethod: input.paymentMethod,
           paymentStatus: input.paymentStatus,
+          paymentId: input.paymentId.trim(),
+          paymentCollectedVia: input.paymentCollectedVia,
           shippingPhone: input.shippingPhone ?? null,
           shippingAddress: input.shippingAddress,
           shippingCity: input.shippingCity,

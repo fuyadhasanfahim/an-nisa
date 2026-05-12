@@ -23,10 +23,11 @@ function serializeOrderListItem(
   o: Prisma.OrderGetPayload<{
     include: {
       user: { select: { id: true; name: true; email: true } };
-      _count: { select: { items: true } };
+      items: { select: { quantity: true } };
     };
   }>
 ) {
+  const totalQuantity = o.items.reduce((sum, it) => sum + it.quantity, 0);
   return {
     id: o.id,
     userId: o.userId,
@@ -37,7 +38,7 @@ function serializeOrderListItem(
     createdAt: o.createdAt.toISOString(),
     updatedAt: o.updatedAt.toISOString(),
     user: o.user,
-    itemCount: o._count.items,
+    totalQuantity,
   };
 }
 
@@ -60,6 +61,7 @@ export async function GET(req: Request) {
         ? {
             OR: [
               { id: { contains: q.q } },
+              { paymentId: { contains: q.q, mode: "insensitive" } },
               { status: { contains: q.q, mode: "insensitive" } },
               {
                 user: {
@@ -89,7 +91,7 @@ export async function GET(req: Request) {
       take: q.limit,
       include: {
         user: { select: { id: true, name: true, email: true } },
-        _count: { select: { items: true } },
+        items: { select: { quantity: true } },
       },
     });
 
@@ -163,6 +165,8 @@ export async function POST(req: Request) {
           currency: "BDT",
           paymentMethod: input.paymentMethod,
           paymentStatus: input.paymentStatus,
+          paymentId: input.paymentId.trim(),
+          paymentCollectedVia: input.paymentCollectedVia,
           shippingPhone: input.shippingPhone ?? null,
           shippingAddress: input.shippingAddress,
           shippingCity: input.shippingCity,

@@ -18,7 +18,8 @@ export type OrderListItemDto = {
   createdAt: string;
   updatedAt: string;
   user: OrderUserMini;
-  itemCount: number;
+  /** Sum of line-item quantities (pieces / units), not number of rows. */
+  totalQuantity: number;
 };
 
 export type OrderLineDto = {
@@ -41,6 +42,8 @@ export type OrderDetailDto = {
   currency: string;
   paymentMethod: string;
   paymentStatus: string;
+  paymentId: string;
+  paymentCollectedVia: string;
   shippingPhone: string | null;
   shippingAddress: string | null;
   shippingCity: string | null;

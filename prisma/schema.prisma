@@ -99,6 +99,15 @@ model Product {
   @@map("product")
 }
 
+enum PaymentCollectedVia {
+  cash
+  bkash
+  nagad
+  card
+  bank_transfer
+  other
+}
+
 enum PaymentMethod {
   cod
   bkash
@@ -124,8 +133,12 @@ model Order {
   shippingFeeCents Int            @default(0)
   totalCents       Int
   currency         String         @default("BDT")
-  paymentMethod    PaymentMethod  @default(cod)
-  paymentStatus    PaymentStatus  @default(pending)
+  paymentMethod           PaymentMethod         @default(cod)
+  paymentStatus           PaymentStatus         @default(pending)
+  /// Reference / trx id recorded when COD (or other) payment is collected.
+  paymentId               String                @default("")
+  /// Channel used when taking payment (cash, mobile wallet, etc.).
+  paymentCollectedVia     PaymentCollectedVia   @default(cash)
   shippingPhone    String?
   shippingAddress  String?
   shippingCity     String?

@@ -12,6 +12,7 @@ import {
   ORDER_STATUSES,
   normalizePaymentMethod,
   normalizePaymentStatus,
+  normalizePaymentCollectedVia,
   type OrderFormInput,
   type OrderStatus,
 } from "@/lib/validators/order.schema";
@@ -113,6 +114,10 @@ export default function EditOrderPage() {
     shippingFee: data.shippingFeeCents / 100,
     paymentMethod: normalizePaymentMethod(data.paymentMethod),
     paymentStatus: normalizePaymentStatus(data.paymentStatus),
+    paymentId: data.paymentId.trim() ? data.paymentId.trim() : "",
+    paymentCollectedVia: normalizePaymentCollectedVia(
+      data.paymentCollectedVia
+    ),
   };
 
   return (

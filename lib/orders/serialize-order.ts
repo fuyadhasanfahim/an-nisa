@@ -11,6 +11,8 @@ export type OrderDetailSerialized = {
   currency: string;
   paymentMethod: string;
   paymentStatus: string;
+  paymentId: string;
+  paymentCollectedVia: string;
   shippingPhone: string | null;
   shippingAddress: string | null;
   shippingCity: string | null;
@@ -51,6 +53,8 @@ export function serializeOrderDetail(
     currency: o.currency,
     paymentMethod: o.paymentMethod,
     paymentStatus: o.paymentStatus,
+    paymentId: o.paymentId,
+    paymentCollectedVia: o.paymentCollectedVia,
     shippingPhone: o.shippingPhone,
     shippingAddress: o.shippingAddress,
     shippingCity: o.shippingCity,
