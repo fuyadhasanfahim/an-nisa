@@ -38,6 +38,8 @@ import {
 } from '@/lib/validators/order-list.query';
 import { ORDER_STATUSES } from '@/lib/validators/order.schema';
 import { adminControlClass, FormSelect } from '@/components/admin/form';
+import { paymentMethodLabel } from '@/lib/orders/payment-method-label';
+import { PaymentStatusBadge } from '@/components/admin/PaymentStatusBadge';
 
 const SORT_OPTIONS: {
     value: `${OrderListSortField}:${'asc' | 'desc'}`;
@@ -90,26 +92,8 @@ type Row = {
     customerName: string;
     totalQuantity: number;
     paymentMethod: string;
+    paymentStatus: string;
 };
-
-function orderPaymentLabel(method: string): string {
-    switch (method) {
-        case 'cod':
-            return 'COD';
-        case 'bkash':
-            return 'bKash';
-        case 'nagad':
-            return 'Nagad';
-        case 'card':
-            return 'Card';
-        case 'bank_transfer':
-            return 'Bank';
-        case 'other':
-            return 'Other';
-        default:
-            return method || '—';
-    }
-}
 
 function OrderStatusCell({
     orderId,
@@ -313,12 +297,18 @@ function buildColumns(
                 </span>
             ),
         }),
-        col.accessor('paymentMethod', {
-            header: 'Pay',
+        col.display({
+            id: 'payment',
+            header: 'Payment',
             cell: (ctx) => (
-                <span className="text-xs text-black/75">
-                    {orderPaymentLabel(ctx.getValue())}
-                </span>
+                <div className="flex min-w-[88px] flex-col gap-1">
+                    <span className="text-xs text-black/75">
+                        {paymentMethodLabel(ctx.row.original.paymentMethod)}
+                    </span>
+                    <PaymentStatusBadge
+                        status={ctx.row.original.paymentStatus}
+                    />
+                </div>
             ),
         }),
         col.accessor('totalCents', {
@@ -413,6 +403,7 @@ export function OrdersTable() {
             customerName: o.user.name,
             totalQuantity: o.totalQuantity,
             paymentMethod: o.paymentMethod,
+            paymentStatus: o.paymentStatus,
         })) ?? [];
 
     const sortSelectValue =

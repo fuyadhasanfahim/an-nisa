@@ -36,6 +36,7 @@ function serializeOrderListItem(
     totalCents: o.totalCents,
     currency: o.currency,
     paymentMethod: o.paymentMethod,
+    paymentStatus: o.paymentStatus,
     createdAt: o.createdAt.toISOString(),
     updatedAt: o.updatedAt.toISOString(),
     user: o.user,

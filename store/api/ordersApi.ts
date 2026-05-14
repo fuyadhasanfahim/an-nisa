@@ -15,6 +15,7 @@ export type OrderListItemDto = {
   totalCents: number;
   currency: string;
   paymentMethod: string;
+  paymentStatus: string;
   createdAt: string;
   updatedAt: string;
   user: OrderUserMini;

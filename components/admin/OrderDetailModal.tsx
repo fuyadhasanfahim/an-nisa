@@ -9,6 +9,7 @@ import {
   normalizePaymentCollectedVia,
   PAYMENT_COLLECTED_VIA_LABEL,
 } from "@/lib/validators/order.schema";
+import { PaymentStatusBadge } from "@/components/admin/PaymentStatusBadge";
 
 function moneyBdt(cents: number): string {
   return `৳ ${(cents / 100).toFixed(2)}`;
@@ -175,9 +176,9 @@ export function OrderDetailModal({
                   <p className="mt-1 text-brand-black">
                     {orderPaymentLabel(data.paymentMethod)}
                   </p>
-                  <p className="mt-0.5 text-xs capitalize text-black/55">
-                    {data.paymentStatus}
-                  </p>
+                  <div className="mt-2">
+                    <PaymentStatusBadge status={data.paymentStatus} />
+                  </div>
                 </div>
                 <div className="sm:col-span-2">
                   <p className="text-xs font-medium uppercase tracking-wide text-black/45">
