@@ -15,6 +15,8 @@ export type OrderListQuery = {
   order: "asc" | "desc";
   page: number;
   limit: OrderPageSize;
+  /** When true, only orders that do not yet have an invoice. */
+  withoutInvoice: boolean;
 };
 
 export function normalizeOrderListQuery(input: {
@@ -23,6 +25,7 @@ export function normalizeOrderListQuery(input: {
   order?: string | null;
   page?: string | number | null;
   limit?: string | number | null;
+  withoutInvoice?: string | null;
 }): OrderListQuery {
   const q = String(input.q ?? "")
     .trim()
@@ -41,5 +44,7 @@ export function normalizeOrderListQuery(input: {
   if (!Number.isFinite(rawLimit)) rawLimit = 20;
   const limit: OrderPageSize =
     rawLimit === 50 || rawLimit === 100 ? rawLimit : 20;
-  return { q, sort, order, page, limit };
+  const withoutInvoice =
+    input.withoutInvoice === "1" || input.withoutInvoice === "true";
+  return { q, sort, order, page, limit, withoutInvoice };
 }

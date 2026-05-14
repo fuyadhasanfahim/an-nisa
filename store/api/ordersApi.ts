@@ -20,6 +20,7 @@ export type OrderListItemDto = {
   user: OrderUserMini;
   /** Sum of line-item quantities (pieces / units), not number of rows. */
   totalQuantity: number;
+  invoice: { id: string; number: string } | null;
 };
 
 export type OrderLineDto = {
@@ -76,6 +77,7 @@ export const ordersApi = baseApi.injectEndpoints({
           order: params.order,
           page: params.page,
           limit: params.limit,
+          ...(params.withoutInvoice ? { withoutInvoice: "1" } : {}),
         },
       }),
       providesTags: (result) =>

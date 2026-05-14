@@ -1,22 +1,27 @@
+import { Suspense } from "react";
 import { AdminTitle } from "@/components/admin/AdminTitle";
-import Link from "next/link";
+import { InvoicesSection } from "@/components/admin/InvoicesSection";
 
-export default function AdminInvoicesPage() {
+function InvoicesFallback() {
   return (
     <div className="space-y-6">
-      <AdminTitle title="Invoices" subtitle="Generate and download PDFs." />
-      <div className="rounded-xl bg-white p-6 shadow-sm">
-        <div className="text-sm text-black/70">
-          Starter invoice download endpoint:
-        </div>
-        <Link
-          href="/api/invoices/sample.pdf"
-          className="mt-4 inline-flex rounded-xl bg-brand-black px-4 py-2 text-sm font-medium text-white transition hover:bg-black hover:shadow-softSm"
-        >
-          Download sample invoice PDF
-        </Link>
+      <div className="rounded-xl bg-white p-6 text-sm text-black/60 shadow-sm ring-1 ring-black/5">
+        Loading invoices…
       </div>
     </div>
   );
 }
 
+export default function AdminInvoicesPage() {
+  return (
+    <div className="space-y-6">
+      <AdminTitle
+        title="Invoices"
+        subtitle="Issue invoices from orders and download PDFs aligned with totals."
+      />
+      <Suspense fallback={<InvoicesFallback />}>
+        <InvoicesSection />
+      </Suspense>
+    </div>
+  );
+}

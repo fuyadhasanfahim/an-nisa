@@ -24,6 +24,7 @@ function serializeOrderListItem(
     include: {
       user: { select: { id: true; name: true; email: true } };
       items: { select: { quantity: true } };
+      invoice: { select: { id: true; number: true } };
     };
   }>
 ) {
@@ -39,6 +40,7 @@ function serializeOrderListItem(
     updatedAt: o.updatedAt.toISOString(),
     user: o.user,
     totalQuantity,
+    invoice: o.invoice,
   };
 }
 
@@ -54,26 +56,36 @@ export async function GET(req: Request) {
       order: searchParams.get("order") ?? undefined,
       page: searchParams.get("page") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
+      withoutInvoice: searchParams.get("withoutInvoice"),
     });
 
+    const parts: Prisma.OrderWhereInput[] = [];
+    if (q.q.length > 0) {
+      parts.push({
+        OR: [
+          { id: { contains: q.q } },
+          { paymentId: { contains: q.q, mode: "insensitive" } },
+          { status: { contains: q.q, mode: "insensitive" } },
+          {
+            user: {
+              OR: [
+                { email: { contains: q.q, mode: "insensitive" } },
+                { name: { contains: q.q, mode: "insensitive" } },
+              ],
+            },
+          },
+        ],
+      });
+    }
+    if (q.withoutInvoice) {
+      parts.push({ invoice: null });
+    }
     const where: Prisma.OrderWhereInput =
-      q.q.length > 0
-        ? {
-            OR: [
-              { id: { contains: q.q } },
-              { paymentId: { contains: q.q, mode: "insensitive" } },
-              { status: { contains: q.q, mode: "insensitive" } },
-              {
-                user: {
-                  OR: [
-                    { email: { contains: q.q, mode: "insensitive" } },
-                    { name: { contains: q.q, mode: "insensitive" } },
-                  ],
-                },
-              },
-            ],
-          }
-        : {};
+      parts.length === 0
+        ? {}
+        : parts.length === 1
+          ? parts[0]!
+          : { AND: parts };
 
     const orderBy = {
       [q.sort]: q.order,
@@ -92,6 +104,7 @@ export async function GET(req: Request) {
       include: {
         user: { select: { id: true, name: true, email: true } },
         items: { select: { quantity: true } },
+        invoice: { select: { id: true, number: true } },
       },
     });
 

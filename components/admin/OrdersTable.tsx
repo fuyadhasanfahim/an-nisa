@@ -77,6 +77,7 @@ function listQueryToSearchString(p: OrderListQuery): string {
     sp.set('order', p.order);
     sp.set('page', String(p.page));
     sp.set('limit', String(p.limit));
+    if (p.withoutInvoice) sp.set('withoutInvoice', '1');
     return sp.toString();
 }
 
@@ -360,6 +361,7 @@ export function OrdersTable() {
                 order: searchParams.get('order'),
                 page: searchParams.get('page'),
                 limit: searchParams.get('limit'),
+                withoutInvoice: searchParams.get('withoutInvoice'),
             }),
         [searchParams],
     );
