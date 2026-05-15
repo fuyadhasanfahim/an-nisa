@@ -16,19 +16,31 @@ import {
 } from "@/lib/inventory/order-stock";
 import { finalizeOrderTotals } from "@/lib/orders/compute-order-totals";
 import { serializeOrderDetail } from "@/lib/orders/serialize-order";
+import {
+  allocateUniqueOrderId,
+  ensureCustomerPublicId,
+} from "@/lib/ids/public-ref";
 
 export const runtime = "nodejs";
 
 function serializeOrderListItem(
   o: Prisma.OrderGetPayload<{
     include: {
-      user: { select: { id: true; name: true; email: true } };
+      user: {
+        select: {
+          id: true;
+          name: true;
+          email: true;
+          customers: { select: { publicCustomerId: true } };
+        };
+      };
       items: { select: { quantity: true } };
       invoice: { select: { id: true; number: true } };
     };
   }>
 ) {
   const totalQuantity = o.items.reduce((sum, it) => sum + it.quantity, 0);
+  const { customers: _customers, ...userRest } = o.user;
   return {
     id: o.id,
     userId: o.userId,
@@ -39,7 +51,8 @@ function serializeOrderListItem(
     paymentStatus: o.paymentStatus,
     createdAt: o.createdAt.toISOString(),
     updatedAt: o.updatedAt.toISOString(),
-    user: o.user,
+    user: userRest,
+    customerPublicId: o.user.customers?.publicCustomerId ?? null,
     totalQuantity,
     invoice: o.invoice,
   };
@@ -72,6 +85,14 @@ export async function GET(req: Request) {
               OR: [
                 { email: { contains: q.q, mode: "insensitive" } },
                 { name: { contains: q.q, mode: "insensitive" } },
+                {
+                  customers: {
+                    publicCustomerId: {
+                      contains: q.q,
+                      mode: "insensitive",
+                    },
+                  },
+                },
               ],
             },
           },
@@ -103,14 +124,36 @@ export async function GET(req: Request) {
       skip,
       take: q.limit,
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            customers: { select: { publicCustomerId: true } },
+          },
+        },
         items: { select: { quantity: true } },
         invoice: { select: { id: true, number: true } },
       },
     });
 
+    const items = await Promise.all(
+      orders.map(async (o) => {
+        const publicId =
+          o.user.customers?.publicCustomerId ??
+          (await ensureCustomerPublicId(prisma, o.userId));
+        return serializeOrderListItem({
+          ...o,
+          user: {
+            ...o.user,
+            customers: { publicCustomerId: publicId },
+          },
+        });
+      }),
+    );
+
     return NextResponse.json({
-      items: orders.map(serializeOrderListItem),
+      items,
       total,
       page,
       limit: q.limit,
@@ -168,8 +211,12 @@ export async function POST(req: Request) {
     });
 
     const created = await prisma.$transaction(async (tx) => {
+      await ensureCustomerPublicId(tx, input.userId);
+      const orderId = await allocateUniqueOrderId(tx);
+
       const order = await tx.order.create({
         data: {
+          id: orderId,
           userId: input.userId,
           status: input.status,
           subtotalCents: totals.subtotalCents,
@@ -194,7 +241,14 @@ export async function POST(req: Request) {
           },
         },
         include: {
-          user: { select: { id: true, name: true, email: true } },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              customers: { select: { publicCustomerId: true } },
+            },
+          },
           items: {
             include: {
               product: { select: { id: true, name: true, slug: true } },

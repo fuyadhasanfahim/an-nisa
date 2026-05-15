@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@/styles/globals.css';
 import { Providers } from '@/store/providers';
 import { ToastProvider } from '@/components/shared/toast/ToastProvider';
+import { BannedUserGate } from '@/components/auth/BannedUserGate';
 
 export const metadata: Metadata = {
     title: "An-Nisa's World — Premium Embroidery",
@@ -17,7 +18,9 @@ export default function RootLayout({
         <html suppressHydrationWarning lang="en" className="h-full antialiased">
             <body className="min-h-full flex flex-col bg-brand-white text-brand-black">
                 <Providers>
-                    <ToastProvider>{children}</ToastProvider>
+                    <BannedUserGate>
+                        <ToastProvider>{children}</ToastProvider>
+                    </BannedUserGate>
                 </Providers>
             </body>
         </html>

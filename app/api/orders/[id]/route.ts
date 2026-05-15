@@ -19,6 +19,7 @@ import {
 } from "@/lib/inventory/order-stock";
 import { finalizeOrderTotals } from "@/lib/orders/compute-order-totals";
 import { serializeOrderDetail } from "@/lib/orders/serialize-order";
+import { ensureCustomerPublicId } from "@/lib/ids/public-ref";
 
 export const runtime = "nodejs";
 
@@ -33,7 +34,14 @@ export async function GET(
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true, email: true } },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          customers: { select: { publicCustomerId: true } },
+        },
+      },
       items: {
         include: {
           product: { select: { id: true, name: true, slug: true } },
@@ -45,7 +53,22 @@ export async function GET(
   if (!order) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(serializeOrderDetail(order));
+
+  const customerPublicId =
+    order.user.customers?.publicCustomerId ??
+    (await ensureCustomerPublicId(prisma, order.userId));
+
+  return NextResponse.json(
+    serializeOrderDetail({
+      ...order,
+      user: {
+        id: order.user.id,
+        name: order.user.name,
+        email: order.user.email,
+        customers: { publicCustomerId: customerPublicId },
+      },
+    })
+  );
 }
 
 export async function PUT(
@@ -135,7 +158,14 @@ export async function PUT(
           },
         },
         include: {
-          user: { select: { id: true, name: true, email: true } },
+          user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          customers: { select: { publicCustomerId: true } },
+        },
+      },
           items: {
             include: {
               product: { select: { id: true, name: true, slug: true } },
@@ -198,31 +228,45 @@ export async function PATCH(
       }
 
       const from = current.status;
-      const to = body.status;
+      const to = body.status ?? from;
 
-      if (
-        orderCountsAgainstStock(from) &&
-        !orderCountsAgainstStock(to)
-      ) {
-        await incrementStockForQuantities(
-          tx,
-          aggregateQtyByProductId(current.items)
-        );
-      } else if (
-        !orderCountsAgainstStock(from) &&
-        orderCountsAgainstStock(to)
-      ) {
-        await decrementStockForQuantities(
-          tx,
-          aggregateQtyByProductId(current.items)
-        );
+      if (body.status !== undefined) {
+        if (
+          orderCountsAgainstStock(from) &&
+          !orderCountsAgainstStock(to)
+        ) {
+          await incrementStockForQuantities(
+            tx,
+            aggregateQtyByProductId(current.items)
+          );
+        } else if (
+          !orderCountsAgainstStock(from) &&
+          orderCountsAgainstStock(to)
+        ) {
+          await decrementStockForQuantities(
+            tx,
+            aggregateQtyByProductId(current.items)
+          );
+        }
       }
 
       return tx.order.update({
         where: { id },
-        data: { status: to },
+        data: {
+          ...(body.status !== undefined ? { status: body.status } : {}),
+          ...(body.paymentStatus !== undefined
+            ? { paymentStatus: body.paymentStatus }
+            : {}),
+        },
         include: {
-          user: { select: { id: true, name: true, email: true } },
+          user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          customers: { select: { publicCustomerId: true } },
+        },
+      },
           items: {
             include: {
               product: { select: { id: true, name: true, slug: true } },

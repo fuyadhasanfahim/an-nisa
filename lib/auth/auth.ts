@@ -13,6 +13,12 @@ export const auth = betterAuth({
         type: "string",
         input: false,
       },
+      banned: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: false,
+      },
     },
   },
   database: prismaAdapter(prisma, {

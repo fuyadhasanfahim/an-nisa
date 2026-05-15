@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { productSchema } from "@/lib/validators/product.schema";
 import { normalizeProductListQuery } from "@/lib/validators/product-list.query";
 import { z } from "zod";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { publicProductId } from "@/lib/ids/public-ref";
 
 export const runtime = "nodejs";
 
@@ -70,30 +71,49 @@ export async function POST(req: Request) {
     const json = await req.json();
     const input = productSchema.parse(json);
 
-    const created = await prisma.product.create({
-      data: {
-        name: input.name,
-        slug: input.slug,
-        sku: input.sku,
-        description: input.description ?? null,
-        priceCents: Math.round(input.price * 100),
-        discountPriceCents:
-          input.discountPrice != null && Number.isFinite(input.discountPrice)
-            ? Math.round(input.discountPrice * 100)
-            : null,
-        currency: "BDT",
-        images: input.images ?? [],
-        isActive: input.status === "active",
-        stockQuantity: input.stockQuantity,
-        trackInventory: input.trackInventory,
-      },
-    });
+    for (let attempt = 0; attempt < 25; attempt++) {
+      try {
+        const created = await prisma.product.create({
+          data: {
+            id: publicProductId(),
+            name: input.name,
+            slug: input.slug,
+            sku: input.sku,
+            description: input.description ?? null,
+            priceCents: Math.round(input.price * 100),
+            discountPriceCents:
+              input.discountPrice != null &&
+              Number.isFinite(input.discountPrice)
+                ? Math.round(input.discountPrice * 100)
+                : null,
+            currency: "BDT",
+            images: input.images ?? [],
+            isActive: input.status === "active",
+            stockQuantity: input.stockQuantity,
+            trackInventory: input.trackInventory,
+          },
+        });
 
-    return NextResponse.json({
-      ...created,
-      createdAt: created.createdAt.toISOString(),
-      updatedAt: created.updatedAt.toISOString(),
-    });
+        return NextResponse.json({
+          ...created,
+          createdAt: created.createdAt.toISOString(),
+          updatedAt: created.updatedAt.toISOString(),
+        });
+      } catch (err) {
+        if (
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          err.code === "P2002"
+        ) {
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    return NextResponse.json(
+      { error: "Could not allocate product id" },
+      { status: 500 }
+    );
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(

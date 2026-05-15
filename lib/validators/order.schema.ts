@@ -154,8 +154,14 @@ export function normalizePaymentCollectedVia(
     : "cash";
 }
 
-export const orderPatchSchema = z.object({
-  status: z.enum(ORDER_STATUSES),
-});
+/** Inline admin edits: order pipeline status and/or payment (Paid vs Unpaid). */
+export const orderPatchSchema = z
+  .object({
+    status: z.enum(ORDER_STATUSES).optional(),
+    paymentStatus: z.enum(["pending", "paid"]).optional(),
+  })
+  .refine((v) => v.status !== undefined || v.paymentStatus !== undefined, {
+    message: "Provide status and/or paymentStatus",
+  });
 
 export type OrderPatchInput = z.infer<typeof orderPatchSchema>;

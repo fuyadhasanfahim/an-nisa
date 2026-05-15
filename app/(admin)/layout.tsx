@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/auth";
+import { prisma } from "@/lib/db/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -27,6 +28,16 @@ export default async function AdminLayout({
     redirect(
       `/sign-in?callbackUrl=${encodeURIComponent(requestedPath)}&toast=auth-required`
     );
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { banned: true },
+  });
+  if (dbUser?.banned) {
+    await prisma.session.deleteMany({ where: { userId: session.user.id } });
+    redirect("/sign-in?toast=banned");
+  }
+
   if (session.user.role !== "admin") redirect("/");
 
   return (

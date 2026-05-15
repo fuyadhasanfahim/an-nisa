@@ -1,6 +1,9 @@
 import { baseApi } from "@/store/api/baseApi";
 import type { OrderListQuery } from "@/lib/validators/order-list.query";
-import type { OrderWriteInput } from "@/lib/validators/order.schema";
+import type {
+  OrderWriteInput,
+  OrderStatus,
+} from "@/lib/validators/order.schema";
 
 export type OrderUserMini = {
   id: string;
@@ -19,6 +22,7 @@ export type OrderListItemDto = {
   createdAt: string;
   updatedAt: string;
   user: OrderUserMini;
+  customerPublicId: string | null;
   /** Sum of line-item quantities (pieces / units), not number of rows. */
   totalQuantity: number;
   invoice: { id: string; number: string } | null;
@@ -52,6 +56,7 @@ export type OrderDetailDto = {
   shippingCountry: string;
   createdAt: string;
   updatedAt: string;
+  customerPublicId: string | null;
   user: OrderUserMini;
   items: OrderLineDto[];
 };
@@ -120,7 +125,13 @@ export const ordersApi = baseApi.injectEndpoints({
     }),
     patchOrder: build.mutation<
       OrderDetailDto,
-      { id: string; body: { status: OrderWriteInput["status"] } }
+      {
+        id: string;
+        body: Partial<{
+          status: OrderStatus;
+          paymentStatus: "pending" | "paid";
+        }>;
+      }
     >({
       query: ({ id, body }) => ({
         url: `/orders/${id}`,

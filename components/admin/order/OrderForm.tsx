@@ -72,7 +72,11 @@ function UserPicker({
 
   useEffect(() => {
     if (!open) return;
-    void trigger({ q: search || undefined, limit: 30 });
+    void trigger({
+      q: search || undefined,
+      limit: 30,
+      excludeBanned: true,
+    });
   }, [open, search, trigger]);
 
   useEffect(() => {
@@ -468,7 +472,11 @@ export function OrderForm({
             <FormSelect {...register("paymentStatus")}>
               {PAYMENT_STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                  {s === "pending"
+                    ? "Unpaid"
+                    : s === "paid"
+                      ? "Paid"
+                      : "Failed"}
                 </option>
               ))}
             </FormSelect>

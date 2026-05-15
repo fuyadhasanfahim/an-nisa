@@ -7,17 +7,9 @@ import { normalizeInvoiceListQuery } from "@/lib/validators/invoice-list.query";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { allocateUniqueInvoiceNumber } from "@/lib/ids/public-ref";
 
 export const runtime = "nodejs";
-
-function makeInvoiceNumber(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const rand = crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase();
-  return `INV-${y}${m}${day}-${rand}`;
-}
 
 function serializeInvoice(
   inv: Prisma.InvoiceGetPayload<{
@@ -139,18 +131,21 @@ export async function POST(req: Request) {
       );
     }
 
-    const created = await prisma.invoice.create({
-      data: {
-        orderId: order.id,
-        userId: order.userId,
-        number: makeInvoiceNumber(),
-        totalCents: order.totalCents,
-        currency: order.currency,
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-        order: { select: { id: true, status: true } },
-      },
+    const created = await prisma.$transaction(async (tx) => {
+      const number = await allocateUniqueInvoiceNumber(tx);
+      return tx.invoice.create({
+        data: {
+          orderId: order.id,
+          userId: order.userId,
+          number,
+          totalCents: order.totalCents,
+          currency: order.currency,
+        },
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          order: { select: { id: true, status: true } },
+        },
+      });
     });
 
     return NextResponse.json(serializeInvoice(created), { status: 201 });

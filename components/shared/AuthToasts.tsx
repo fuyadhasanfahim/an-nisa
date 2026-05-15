@@ -4,7 +4,11 @@ import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/shared/toast/useToast";
 
-type ToastKind = "signed-in" | "signed-out" | "auth-required";
+type ToastKind =
+  | "signed-in"
+  | "signed-out"
+  | "auth-required"
+  | "banned";
 
 function messageFor(kind: ToastKind) {
   switch (kind) {
@@ -14,6 +18,8 @@ function messageFor(kind: ToastKind) {
       return "You’ve been signed out.";
     case "auth-required":
       return "Please sign in to continue.";
+    case "banned":
+      return "This account has been blocked. Contact support if this is a mistake.";
   }
 }
 
@@ -25,7 +31,12 @@ export function AuthToasts() {
 
   const toastKindFromUrl = useMemo(() => {
     const v = searchParams.get("toast");
-    if (v === "signed-in" || v === "signed-out" || v === "auth-required")
+    if (
+      v === "signed-in" ||
+      v === "signed-out" ||
+      v === "auth-required" ||
+      v === "banned"
+    )
       return v;
     return null;
   }, [searchParams]);
@@ -41,9 +52,16 @@ export function AuthToasts() {
           ? "Signed in"
           : kind === "signed-out"
             ? "Signed out"
-            : "Authentication required",
+            : kind === "banned"
+              ? "Account blocked"
+              : "Authentication required",
       message: messageFor(kind),
-      variant: kind === "auth-required" ? "warning" : "success",
+      variant:
+        kind === "auth-required"
+          ? "warning"
+          : kind === "banned"
+            ? "error"
+            : "success",
       durationMs: 4500,
     });
 

@@ -19,6 +19,7 @@ model User {
   emailVerified Boolean
   image         String?
   role          Role     @default(user)
+  banned        Boolean  @default(false)
   createdAt     DateTime
   updatedAt     DateTime
 
@@ -79,7 +80,7 @@ model Verification {
 }
 
 model Product {
-  id                 String   @id @default(cuid())
+  id                 String   @id
   name               String
   slug               String   @unique
   sku                String?  @unique
@@ -124,7 +125,7 @@ enum PaymentStatus {
 }
 
 model Order {
-  id         String   @id @default(cuid())
+  id         String   @id
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   status     String   @default("pending")
@@ -202,6 +203,8 @@ model CustomerProfile {
   id        String   @id @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Stable human-readable id shown in admin (e.g. customer-48291).
+  publicCustomerId String? @unique
   phone     String?
   address   String?
   city      String?

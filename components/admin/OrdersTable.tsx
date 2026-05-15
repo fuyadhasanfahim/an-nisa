@@ -38,8 +38,6 @@ import {
 } from '@/lib/validators/order-list.query';
 import { ORDER_STATUSES } from '@/lib/validators/order.schema';
 import { adminControlClass, FormSelect } from '@/components/admin/form';
-import { paymentMethodLabel } from '@/lib/orders/payment-method-label';
-import { PaymentStatusBadge } from '@/components/admin/PaymentStatusBadge';
 
 const SORT_OPTIONS: {
     value: `${OrderListSortField}:${'asc' | 'desc'}`;
@@ -88,10 +86,8 @@ type Row = {
     status: string;
     totalCents: number;
     createdAt: string;
-    customerEmail: string;
-    customerName: string;
+    customerPublicId: string | null;
     totalQuantity: number;
-    paymentMethod: string;
     paymentStatus: string;
 };
 
@@ -151,6 +147,68 @@ function OrderStatusCell({
                         {s.charAt(0).toUpperCase() + s.slice(1)}
                     </option>
                 ))}
+            </FormSelect>
+        </div>
+    );
+}
+
+function PaymentStatusCell({
+    orderId,
+    paymentStatus,
+}: {
+    orderId: string;
+    paymentStatus: string;
+}) {
+    const { toast } = useToast();
+    const [patch, { isLoading }] = usePatchOrderMutation();
+
+    const uiValue = paymentStatus === 'paid' ? 'paid' : 'pending';
+
+    const onChange = useCallback(
+        async (e: React.ChangeEvent<HTMLSelectElement>) => {
+            const next = e.target.value as 'paid' | 'pending';
+            if (next === uiValue) return;
+            try {
+                await patch({
+                    id: orderId,
+                    body: { paymentStatus: next },
+                }).unwrap();
+                toast({
+                    title: 'Payment updated',
+                    message:
+                        next === 'paid'
+                            ? 'Marked as paid.'
+                            : 'Marked as unpaid.',
+                    variant: 'success',
+                });
+            } catch (err: unknown) {
+                const msg =
+                    typeof err === 'object' && err && 'data' in err
+                        ? String(
+                              (err as { data?: { error?: string } }).data
+                                  ?.error ?? '',
+                          )
+                        : '';
+                toast({
+                    title: 'Couldn’t update payment status',
+                    message: msg || 'Something went wrong.',
+                    variant: 'error',
+                });
+            }
+        },
+        [orderId, patch, toast, uiValue],
+    );
+
+    return (
+        <div className="w-full max-w-[140px]">
+            <FormSelect
+                value={uiValue}
+                disabled={isLoading}
+                onChange={(ev) => void onChange(ev)}
+                aria-label="Payment status"
+            >
+                <option value="pending">Unpaid</option>
+                <option value="paid">Paid</option>
             </FormSelect>
         </div>
     );
@@ -262,21 +320,16 @@ function buildColumns(
             header: 'Order',
             cell: (ctx) => (
                 <span className="font-mono text-xs text-black/85">
-                    {ctx.getValue().slice(0, 12)}…
+                    {ctx.getValue()}
                 </span>
             ),
         }),
-        col.accessor('customerEmail', {
-            header: 'Customer',
+        col.accessor('customerPublicId', {
+            header: 'Customer ID',
             cell: (ctx) => (
-                <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-brand-black">
-                        {ctx.row.original.customerName}
-                    </div>
-                    <div className="truncate text-xs text-black/55">
-                        {ctx.getValue()}
-                    </div>
-                </div>
+                <span className="font-mono text-xs uppercase tracking-wide text-black/85">
+                    {ctx.getValue() ?? '—'}
+                </span>
             ),
         }),
         col.display({
@@ -298,17 +351,13 @@ function buildColumns(
             ),
         }),
         col.display({
-            id: 'payment',
-            header: 'Payment',
+            id: 'paymentStatus',
+            header: 'Payment status',
             cell: (ctx) => (
-                <div className="flex min-w-[88px] flex-col gap-1">
-                    <span className="text-xs text-black/75">
-                        {paymentMethodLabel(ctx.row.original.paymentMethod)}
-                    </span>
-                    <PaymentStatusBadge
-                        status={ctx.row.original.paymentStatus}
-                    />
-                </div>
+                <PaymentStatusCell
+                    orderId={ctx.row.original.id}
+                    paymentStatus={ctx.row.original.paymentStatus}
+                />
             ),
         }),
         col.accessor('totalCents', {
@@ -399,10 +448,8 @@ export function OrdersTable() {
             status: o.status,
             totalCents: o.totalCents,
             createdAt: o.createdAt,
-            customerEmail: o.user.email,
-            customerName: o.user.name,
+            customerPublicId: o.customerPublicId,
             totalQuantity: o.totalQuantity,
-            paymentMethod: o.paymentMethod,
             paymentStatus: o.paymentStatus,
         })) ?? [];
 
@@ -473,7 +520,7 @@ export function OrdersTable() {
                         type="search"
                         value={searchDraft}
                         onChange={(e) => setSearchDraft(e.target.value)}
-                        placeholder="Order id, status, customer…"
+                        placeholder="Order ID, customer ID, status…"
                         className={adminControlClass}
                         autoComplete="off"
                     />

@@ -19,6 +19,7 @@ export type OrderDetailSerialized = {
   shippingCountry: string;
   createdAt: string;
   updatedAt: string;
+  customerPublicId: string | null;
   user: { id: string; name: string; email: string };
   items: {
     id: string;
@@ -33,7 +34,14 @@ export type OrderDetailSerialized = {
 export function serializeOrderDetail(
   o: Prisma.OrderGetPayload<{
     include: {
-      user: { select: { id: true; name: true; email: true } };
+      user: {
+        select: {
+          id: true;
+          name: true;
+          email: true;
+          customers: { select: { publicCustomerId: true } };
+        };
+      };
       items: {
         include: {
           product: { select: { id: true; name: true; slug: true } };
@@ -42,6 +50,7 @@ export function serializeOrderDetail(
     };
   }>
 ): OrderDetailSerialized {
+  const { customers: _customers, ...userRest } = o.user;
   return {
     id: o.id,
     userId: o.userId,
@@ -61,7 +70,8 @@ export function serializeOrderDetail(
     shippingCountry: o.shippingCountry,
     createdAt: o.createdAt.toISOString(),
     updatedAt: o.updatedAt.toISOString(),
-    user: o.user,
+    customerPublicId: o.user.customers?.publicCustomerId ?? null,
+    user: userRest,
     items: o.items.map((it) => ({
       id: it.id,
       productId: it.productId,

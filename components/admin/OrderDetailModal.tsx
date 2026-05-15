@@ -222,7 +222,10 @@ export function OrderDetailModal({
                 <p className="text-xs font-medium uppercase tracking-wide text-black/45">
                   Customer
                 </p>
-                <p className="mt-1 font-medium text-brand-black">{data.user.name}</p>
+                <p className="mt-1 font-mono text-sm uppercase tracking-wide text-black/70">
+                  {data.customerPublicId ?? "—"}
+                </p>
+                <p className="mt-2 font-medium text-brand-black">{data.user.name}</p>
                 <p className="text-black/65">{data.user.email}</p>
               </section>
 
