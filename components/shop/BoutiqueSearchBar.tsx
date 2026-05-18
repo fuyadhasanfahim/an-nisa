@@ -76,31 +76,39 @@ export function BoutiqueSearchBar({
     <div className={cn(containerClass, "isolate")}>
       <form
         onSubmit={(e) => void handleSubmit(e)}
-        className="flex items-center rounded-lg border border-black/8 bg-brand-lightgray px-3 py-2 text-sm transition-colors focus-within:border-brand-pink dark:border-white/12 dark:bg-white/6"
+        className="flex items-center justify-between gap-2 rounded-xl border border-brand-pink/35 bg-white/70 pl-3.5 pr-2 py-1.5 text-sm backdrop-blur-sm transition-all duration-300 focus-within:border-brand-pink/60 focus-within:bg-white focus-within:shadow-[0_4px_16px_rgba(252,196,200,0.12)] focus-within:ring-4 focus-within:ring-brand-pink/10"
       >
-        <IconSearch className="mr-2.5 h-4 w-4 shrink-0 text-black/40 dark:text-white/50" />
-        <label className="sr-only">Search products</label>
-        <input
-          value={draft}
-          onChange={(evt) => {
-            const value = evt.target.value;
-            setDraft(value);
-            void fetchSuggest(value).then((items) => {
-              if (value.trim().length < 2) {
-                setSuggestions([]);
-                setOpen(false);
-                return;
-              }
-              setSuggestions(items);
-              setOpen(items.length > 0);
-            });
-          }}
-          onFocus={() => {
-            if (suggestions.length) setOpen(true);
-          }}
-          placeholder="Search products..."
-          className="w-full bg-transparent text-sm text-brand-black placeholder:text-black/35 focus:outline-none dark:text-white dark:placeholder:text-white/35"
-        />
+        <div className="flex flex-1 items-center min-w-0">
+          <IconSearch className="mr-2.5 h-4 w-4 shrink-0 text-[#fcc4c8]" stroke={2.2} />
+          <label className="sr-only">Search products</label>
+          <input
+            value={draft}
+            onChange={(evt) => {
+              const value = evt.target.value;
+              setDraft(value);
+              void fetchSuggest(value).then((items) => {
+                if (value.trim().length < 2) {
+                  setSuggestions([]);
+                  setOpen(false);
+                  return;
+                }
+                setSuggestions(items);
+                setOpen(items.length > 0);
+              });
+            }}
+            onFocus={() => {
+              if (suggestions.length) setOpen(true);
+            }}
+            placeholder="Search for premium embroidery, abayas, fashion..."
+            className="w-full bg-transparent text-sm text-brand-black placeholder:text-black/35 focus:outline-none"
+          />
+        </div>
+        <button
+          type="submit"
+          className="flex h-7 items-center justify-center rounded-lg bg-[#fcc4c8] px-3.5 text-xs font-semibold text-brand-black transition-all hover:bg-[#fcc4c8]/85 hover:scale-[1.02] active:scale-[0.98] shadow-sm shrink-0"
+        >
+          Search
+        </button>
       </form>
 
       <AnimatePresence>
@@ -109,10 +117,10 @@ export function BoutiqueSearchBar({
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="absolute left-0 right-0 top-[calc(100%+6px)] z-[80] overflow-hidden rounded-xl border border-black/8 bg-white shadow-lg dark:border-white/10 dark:bg-[#151318]"
+            className="glass-strong absolute left-0 right-0 top-[calc(100%+6px)] z-[80] overflow-hidden rounded-xl shadow-lg"
           >
             {suggestions.length ? (
-              <ul className="max-h-64 divide-y divide-black/5 overflow-y-auto dark:divide-white/8">
+              <ul className="max-h-64 divide-y divide-brand-pink/10 overflow-y-auto">
                 {suggestions.map((item) => (
                   <li key={item.id}>
                     <button
@@ -120,10 +128,10 @@ export function BoutiqueSearchBar({
                       className="flex w-full flex-col items-start gap-0.5 px-4 py-2.5 text-left transition hover:bg-brand-pink/15"
                       onClick={() => commitSearch(item.name)}
                     >
-                      <span className="text-sm font-medium text-brand-black dark:text-white">
+                      <span className="text-sm font-medium text-brand-black">
                         {item.name}
                       </span>
-                      <span className="text-[11px] text-black/40 dark:text-white/45">
+                      <span className="text-[11px] text-black/35">
                         {item.category}
                       </span>
                     </button>
@@ -131,7 +139,7 @@ export function BoutiqueSearchBar({
                 ))}
               </ul>
             ) : (
-              <div className="px-4 py-4 text-xs text-black/50 dark:text-white/50">
+              <div className="px-4 py-4 text-xs text-black/45">
                 Start typing to see suggestions...
               </div>
             )}

@@ -53,7 +53,7 @@ export function BoutiqueProductCard({
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/6 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-white/8 dark:bg-white/[0.05]",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-brand-pink/15 bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-pink/10",
         className
       )}
     >
@@ -67,7 +67,7 @@ export function BoutiqueProductCard({
       >
         {/* Discount badge */}
         {discountPct ? (
-          <span className="absolute left-3 top-3 z-20 rounded-md bg-brand-pink px-2 py-0.5 text-[11px] font-semibold text-brand-black">
+          <span className="absolute left-3 top-3 z-20 rounded-lg bg-brand-pink/90 px-2.5 py-1 text-[11px] font-semibold text-brand-black backdrop-blur-sm">
             −{discountPct}%
           </span>
         ) : null}
@@ -81,14 +81,14 @@ export function BoutiqueProductCard({
               : `Add ${product.name} to wishlist`
           }
           onClick={() => dispatch(toggleWishlist(product.id))}
-          className="absolute right-3 top-3 z-20 rounded-full bg-white/90 p-1.5 shadow-sm transition hover:bg-white dark:bg-black/60 dark:hover:bg-black/80"
+          className="absolute right-3 top-3 z-20 rounded-full bg-white/80 p-1.5 shadow-sm backdrop-blur-sm transition hover:bg-white"
         >
           <IconHeart
             className={cn(
               "h-4 w-4",
               liked
                 ? "fill-brand-pink stroke-brand-pink"
-                : "text-black/50 dark:text-white/60"
+                : "text-black/40"
             )}
             stroke={1.8}
           />
@@ -123,13 +123,13 @@ export function BoutiqueProductCard({
             ) : null}
           </>
         ) : (
-          <div className="flex h-full items-center justify-center bg-brand-cream">
-            <span className="text-sm text-black/30">No image</span>
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-pink/15 to-brand-cream">
+            <span className="text-sm text-black/25">No image</span>
           </div>
         )}
 
         {/* Category label */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-3 pb-2 pt-8">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 to-transparent px-3 pb-2 pt-8">
           <span className="text-[10px] font-medium uppercase tracking-wider text-white/80">
             {product.category}
           </span>
@@ -142,20 +142,20 @@ export function BoutiqueProductCard({
         <div className="flex items-start justify-between gap-2">
           <Link
             href={`/product/${product.slug}`}
-            className="line-clamp-2 text-sm font-medium leading-snug text-brand-black transition hover:text-black/70 dark:text-white dark:hover:text-white/80"
+            className="line-clamp-2 text-sm font-medium leading-snug text-brand-black transition hover:text-black/65"
           >
             {product.name}
           </Link>
-          <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-brand-pink/30 px-1.5 py-0.5 text-[11px] font-semibold text-brand-black">
+          <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-brand-pink/25 px-1.5 py-0.5 text-[11px] font-semibold text-brand-black">
             <IconStar className="h-3 w-3 fill-amber-400 text-amber-500" />
             {(product.ratingAverage ?? 0).toFixed(1)}
           </div>
         </div>
 
         {/* Meta */}
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-black/45 dark:text-white/50">
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-black/40">
           {product.fabricType && (
-            <span className="rounded border border-black/8 px-1.5 py-0.5 dark:border-white/12">
+            <span className="rounded-md border border-brand-pink/15 bg-brand-pink/8 px-1.5 py-0.5">
               {product.fabricType}
             </span>
           )}
@@ -177,8 +177,8 @@ export function BoutiqueProductCard({
                 className={cn(
                   "rounded-md px-2 py-0.5 text-[10px] font-medium uppercase transition-colors",
                   size === s
-                    ? "bg-brand-black text-white dark:bg-white dark:text-brand-black"
-                    : "border border-black/10 text-black/55 hover:border-brand-pink dark:border-white/15 dark:text-white/55"
+                    ? "bg-[#1a1a1a] text-white"
+                    : "border border-brand-pink/15 text-black/50 hover:border-brand-pink/40"
                 )}
               >
                 {s}
@@ -191,11 +191,11 @@ export function BoutiqueProductCard({
         <div className="mt-auto flex items-end justify-between gap-3 pt-2">
           <div>
             {product.discountPriceCents != null && (
-              <span className="block text-[11px] text-black/40 line-through dark:text-white/40">
+              <span className="block text-[11px] text-black/35 line-through">
                 {formatBdtFromCents(product.priceCents, product.currency)}
               </span>
             )}
-            <span className="text-lg font-semibold tracking-tight text-brand-black dark:text-white">
+            <span className="text-lg font-semibold tracking-tight text-brand-black">
               {formatBdtFromCents(
                 product.effectivePriceCents,
                 product.currency
@@ -206,10 +206,10 @@ export function BoutiqueProductCard({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold uppercase tracking-wide transition",
+              "inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wide transition",
               commerceBlocked
-                ? "cursor-not-allowed bg-black/10 text-black/40 dark:bg-white/8 dark:text-white/40"
-                : "bg-brand-black text-white hover:bg-black/85 dark:bg-white dark:text-brand-black dark:hover:bg-white/90"
+                ? "cursor-not-allowed bg-black/8 text-black/35"
+                : "bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]/85"
             )}
             disabled={commerceBlocked}
             onClick={() => {

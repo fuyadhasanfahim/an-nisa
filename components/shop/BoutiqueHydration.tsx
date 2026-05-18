@@ -2,22 +2,24 @@
 
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { hydrateFromStorage } from "@/store/slices/boutiqueUISlice";
+import { hydrateFromStorage, setTheme } from "@/store/slices/boutiqueUISlice";
 
-/** Loads cart, wishlist, and boutique theme preference from browser storage once. */
+/** Loads cart, wishlist from browser storage once. Forces light mode. */
 export function BoutiqueHydration() {
   const dispatch = useAppDispatch();
-  const theme = useAppSelector((s) => s.boutiqueUi.theme);
   const hydrated = useAppSelector((s) => s.boutiqueUi.hydrated);
 
   useEffect(() => {
     dispatch(hydrateFromStorage());
+    // Force light mode only
+    dispatch(setTheme("light"));
   }, [dispatch]);
 
   useEffect(() => {
     if (!hydrated || typeof document === "undefined") return;
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }, [theme, hydrated]);
+    // Always remove dark class — light mode only
+    document.documentElement.classList.remove("dark");
+  }, [hydrated]);
 
   return null;
 }

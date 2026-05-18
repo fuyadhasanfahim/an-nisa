@@ -24,10 +24,10 @@ export function Button({
     "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium tracking-tight transition focus:outline-none focus:ring-2 focus:ring-brand-pink/50";
   const styles =
     variant === "primary"
-      ? "bg-brand-black text-white shadow-softSm hover:bg-black dark:bg-white dark:text-brand-black dark:hover:bg-white/90"
+      ? "bg-[#1a1a1a] text-white shadow-sm hover:bg-[#1a1a1a]/85"
       : variant === "outline"
-        ? "border border-black/20 bg-transparent text-brand-black hover:bg-black/[0.04] dark:border-white/22 dark:text-white dark:hover:bg-white/[0.07]"
-        : "bg-transparent text-brand-black hover:bg-black/[0.04] dark:text-white dark:hover:bg-white/[0.08]";
+        ? "border border-brand-pink/20 bg-transparent text-[#1a1a1a] hover:bg-brand-pink/10"
+        : "bg-transparent text-[#1a1a1a] hover:bg-brand-pink/10";
 
   const composedClass = cn(base, styles, className);
 

@@ -33,46 +33,46 @@ const columns = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t-2 border-brand-pink/40 bg-brand-cream pt-14 pb-10 dark:border-brand-pink/20 dark:bg-[#0e0b10]">
+    <footer className="mt-auto border-t-2 border-brand-pink/40 bg-gradient-to-b from-brand-cream via-white to-brand-pink/10 pt-14 pb-10">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1fr_1fr_1fr_1.2fr]">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-pink/60 text-sm font-bold text-brand-black">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-pink to-brand-pink/70 text-sm font-bold text-brand-black shadow-sm">
                 AN
               </div>
-              <span className="font-serif text-xl tracking-tight text-brand-black dark:text-white">
+              <span className="font-serif text-xl tracking-tight text-brand-black">
                 An‑Nisa
               </span>
             </div>
-            <p className="mt-4 max-w-[280px] text-sm leading-relaxed text-black/55 dark:text-white/60">
+            <p className="mt-4 max-w-[280px] text-sm leading-relaxed text-brand-black/55">
               Premium women&apos;s fashion — embroidery, handmade designs, and bespoke pieces crafted with care.
             </p>
 
             {/* Contact */}
-            <div className="mt-5 space-y-1.5 text-sm text-black/50 dark:text-white/50">
+            <div className="mt-5 space-y-1.5 text-sm text-brand-black/50">
               <p>📧 support@annisa.world</p>
               <p>📱 +880 1XXX-XXXXXX</p>
             </div>
 
             {/* Social */}
-            <div className="mt-5 flex gap-4 text-sm text-black/45 dark:text-white/50">
+            <div className="mt-5 flex gap-4 text-sm font-medium text-brand-black/45">
               <a
                 href="https://instagram.com"
-                className="transition hover:text-brand-black dark:hover:text-white"
+                className="transition hover:text-brand-black"
               >
                 Instagram
               </a>
               <a
                 href="https://facebook.com"
-                className="transition hover:text-brand-black dark:hover:text-white"
+                className="transition hover:text-brand-black"
               >
                 Facebook
               </a>
               <a
                 href="https://tiktok.com"
-                className="transition hover:text-brand-black dark:hover:text-white"
+                className="transition hover:text-brand-black"
               >
                 TikTok
               </a>
@@ -82,15 +82,15 @@ export function SiteFooter() {
           {/* Link columns */}
           {columns.map((col) => (
             <div key={col.heading}>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-black/45 dark:text-white/50">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-brand-black/45">
                 {col.heading}
               </h4>
-              <ul className="mt-4 space-y-2.5 text-sm text-black/65 dark:text-white/65">
+              <ul className="mt-4 space-y-2.5 text-sm text-brand-black/60">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="transition hover:text-brand-black dark:hover:text-white"
+                      className="transition hover:text-brand-black"
                     >
                       {link.label}
                     </Link>
@@ -102,12 +102,12 @@ export function SiteFooter() {
         </div>
 
         {/* Newsletter */}
-        <div className="mt-10 flex flex-col gap-4 rounded-xl border border-brand-pink/30 bg-white p-5 sm:flex-row sm:items-center sm:justify-between dark:bg-white/[0.04]">
+        <div className="glass mt-10 flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h4 className="text-sm font-semibold text-brand-black dark:text-white">
+            <h4 className="text-sm font-semibold text-brand-black">
               Subscribe to our newsletter
             </h4>
-            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-brand-black/45">
               Get updates on new arrivals, offers, and more.
             </p>
           </div>
@@ -124,11 +124,11 @@ export function SiteFooter() {
               required
               type="email"
               placeholder="your@email.com"
-              className="rounded-lg border border-black/10 bg-brand-lightgray px-4 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none dark:border-white/12 dark:bg-white/8 dark:text-white"
+              className="rounded-xl border border-brand-pink/25 bg-white/80 px-4 py-2.5 text-sm text-brand-black backdrop-blur-sm focus:border-brand-pink focus:outline-none"
             />
             <button
               type="submit"
-              className="rounded-lg bg-brand-black px-5 py-2 text-xs font-semibold text-white transition hover:bg-black/85 dark:bg-white dark:text-brand-black dark:hover:bg-white/90"
+              className="rounded-xl bg-[#1a1a1a] px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1a1a1a]/85"
             >
               Subscribe
             </button>
@@ -136,7 +136,7 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-8 flex flex-col gap-3 border-t border-black/8 pt-6 text-xs text-black/40 sm:flex-row sm:items-center sm:justify-between dark:border-white/8 dark:text-white/40">
+        <div className="mt-8 flex flex-col gap-3 border-t border-brand-pink/20 pt-6 text-xs text-brand-black/35 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} An‑Nisa. All rights reserved.</p>
           <p>Handcrafted with care in Bangladesh</p>
         </div>

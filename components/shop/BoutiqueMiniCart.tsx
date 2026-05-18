@@ -46,11 +46,11 @@ export function BoutiqueMiniCart() {
         type="button"
         aria-label="Open heirloom cart"
         onClick={() => setOpen(true)}
-        className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white shadow-softSm transition hover:shadow-soft dark:border-white/15 dark:bg-white/10"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-brand-pink/30 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-brand-pink/15 hover:border-brand-pink/60"
       >
-        <IconShoppingBagHeart className="h-6 w-6 text-brand-black dark:text-white" />
+        <IconShoppingBagHeart className="h-[20px] w-[20px] text-brand-black/75" stroke={1.8} />
         {summary.qty ? (
-          <span className="absolute -top-2 -right-1 min-w-[24px] rounded-full bg-brand-pink px-2 text-[11px] font-semibold text-brand-black">
+          <span className="absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#fcc4c8] px-1 text-[10px] font-bold text-brand-black ring-2 ring-white shadow-sm">
             {summary.qty}
           </span>
         ) : null}
@@ -67,49 +67,54 @@ export function BoutiqueMiniCart() {
             <button
               type="button"
               aria-label="Close cart overlay"
-              className="fixed inset-0 bg-black/45 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none"
+              className="fixed inset-0 bg-black/25 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none"
               onClick={() => setOpen(false)}
             />
 
-            <div className="absolute bottom-6 right-4 left-4 max-h-[80vh] overflow-y-auto rounded-[32px] border border-black/10 bg-white px-7 py-7 shadow-soft dark:border-white/10 dark:bg-brand-black md:static md:max-h-[75vh]">
-              <header className="mb-6 flex items-center justify-between">
+            <div className="glass-strong absolute bottom-6 right-4 left-4 max-h-[80vh] overflow-y-auto rounded-2xl p-6 shadow-xl sidebar-scroll md:static md:max-h-[75vh]">
+              <header className="mb-5 flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.24em] text-black/50 dark:text-white/65">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-black/45">
                     Heirloom cart
                   </p>
-                  <h3 className="font-serif text-2xl text-brand-black dark:text-white">
+                  <h3 className="font-serif text-xl font-medium text-brand-black">
                     {summary.qty} keepsakes
                   </h3>
                 </div>
-                <button type="button" onClick={() => setOpen(false)} aria-label="Close cart">
-                  <IconX />
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close cart"
+                  className="rounded-lg p-1.5 hover:bg-brand-pink/15"
+                >
+                  <IconX className="h-5 w-5 text-brand-black/70" />
                 </button>
               </header>
 
               {lines.length ? (
-                <ul className="space-y-4">
+                <ul className="space-y-3.5">
                   {lines.map((line) => (
                     <li
                       key={keyFor(line)}
-                      className="rounded-2xl border border-black/10 p-4 text-sm dark:border-white/12"
+                      className="rounded-xl border border-brand-pink/15 bg-white/70 p-4 text-sm"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="font-semibold text-brand-black dark:text-white">
+                          <div className="font-medium text-brand-black">
                             {line.name}
                           </div>
                           {line.size ? (
-                            <div className="text-xs uppercase tracking-[0.18em] text-black/54 dark:text-white/55">
+                            <div className="mt-0.5 text-xs font-medium uppercase tracking-wider text-black/45">
                               Size {line.size}
                             </div>
                           ) : null}
-                          <div className="mt-2 text-[13px] text-black/60 dark:text-white/65">
+                          <div className="mt-1.5 font-medium text-brand-black/70">
                             {formatBdtFromCents(line.unitCents)}
                           </div>
                         </div>
                         <button
                           type="button"
-                          className="text-xs uppercase tracking-[0.18em] text-rose-600"
+                          className="text-xs font-semibold uppercase tracking-wider text-rose-600 hover:text-rose-700"
                           onClick={() =>
                             dispatch(
                               removeFromCart({
@@ -122,11 +127,11 @@ export function BoutiqueMiniCart() {
                           Remove
                         </button>
                       </div>
-                      <div className="mt-4 flex items-center gap-4">
-                        <label className="text-xs uppercase tracking-[0.18em] text-black/53 dark:text-white/62">
+                      <div className="mt-3 flex items-center gap-4">
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-black/45">
                           Qty
                           <select
-                            className="mt-1 w-full rounded-2xl border border-black/10 bg-transparent px-2 py-1 text-brand-black dark:border-white/12 dark:text-white"
+                            className="mt-1 block w-20 rounded-lg border border-brand-pink/20 bg-white/80 px-2 py-1 text-xs text-brand-black focus:border-brand-pink focus:outline-none"
                             value={line.quantity}
                             onChange={(e) =>
                               dispatch(
@@ -148,20 +153,24 @@ export function BoutiqueMiniCart() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-black/62 dark:text-white/70">
+                <p className="py-6 text-center text-sm text-black/45">
                   Your cart awaits its first heirloom.
                 </p>
               )}
 
-              <footer className="mt-8 space-y-4 border-t border-black/12 pt-6 dark:border-white/12">
-                <div className="flex items-center justify-between text-brand-black dark:text-white">
-                  <span className="text-sm uppercase tracking-[0.22em]">Subtotal</span>
-                  <span className="font-serif text-2xl">{formatBdtFromCents(subtotal)}</span>
+              <footer className="mt-6 space-y-4 border-t border-brand-pink/15 pt-5">
+                <div className="flex items-center justify-between text-brand-black">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-black/45">
+                    Subtotal
+                  </span>
+                  <span className="font-serif text-xl font-semibold">
+                    {formatBdtFromCents(subtotal)}
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     className={cn(
-                      "flex-1 rounded-full",
+                      "flex-1 rounded-xl text-xs py-2.5",
                       commerceBlocked && "opacity-65"
                     )}
                     type="button"
@@ -184,7 +193,7 @@ export function BoutiqueMiniCart() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="rounded-full px-5"
+                    className="rounded-xl px-4 text-xs py-2.5"
                     onClick={() => setOpen(false)}
                     asChild
                   >

@@ -25,7 +25,7 @@ export function ProductGrid({
         {Array.from({ length: 8 }).map((_, idx) => (
           <div
             key={idx}
-            className="aspect-[3/4.5] animate-pulse rounded-2xl bg-black/[0.04] dark:bg-white/8"
+            className="aspect-[3/4.5] animate-pulse rounded-2xl bg-brand-pink/10"
           />
         ))}
       </div>
@@ -34,8 +34,8 @@ export function ProductGrid({
 
   if (!data?.items.length) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-black/10 py-20 text-center dark:border-white/10">
-        <p className="text-sm text-black/55 dark:text-white/60">
+      <div className="glass flex flex-col items-center gap-4 rounded-2xl py-20 text-center">
+        <p className="text-sm text-black/50">
           No products found
           {query.trim() ? <> for &ldquo;{query.trim()}&rdquo;</> : "."}
         </p>
@@ -72,14 +72,14 @@ export function ProductGrid({
 
       {/* Pagination */}
       {data.totalPages > 1 && (
-        <div className="mt-8 flex flex-col items-center gap-4 border-t border-black/6 pt-6 sm:flex-row sm:justify-between dark:border-white/8">
-          <span className="text-sm text-black/50 dark:text-white/50">
+        <div className="mt-8 flex flex-col items-center gap-4 border-t border-brand-pink/10 pt-6 sm:flex-row sm:justify-between">
+          <span className="text-sm text-black/45">
             Page{" "}
-            <span className="font-medium text-brand-black dark:text-white">
+            <span className="font-medium text-brand-black">
               {data.page}
             </span>{" "}
             of{" "}
-            <span className="font-medium text-brand-black dark:text-white">
+            <span className="font-medium text-brand-black">
               {data.totalPages}
             </span>
           </span>
@@ -98,12 +98,11 @@ export function ProductGrid({
               Previous
             </Button>
 
-            {/* Page number buttons */}
             {generatePageNumbers(data.page, data.totalPages).map((p, i) =>
               p === "..." ? (
                 <span
                   key={`dots-${i}`}
-                  className="px-1 text-sm text-black/30 dark:text-white/30"
+                  className="px-1 text-sm text-black/25"
                 >
                   …
                 </span>
@@ -116,8 +115,8 @@ export function ProductGrid({
                   }
                   className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
                     p === data.page
-                      ? "bg-brand-pink text-brand-black"
-                      : "text-black/60 hover:bg-brand-pink/20 dark:text-white/60"
+                      ? "bg-brand-pink text-brand-black shadow-sm"
+                      : "text-black/55 hover:bg-brand-pink/20"
                   }`}
                 >
                   {p}

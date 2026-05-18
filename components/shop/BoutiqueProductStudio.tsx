@@ -27,89 +27,116 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.06fr_minmax(0,0.9fr)]">
-      <motion.div layout className="relative aspect-[3/4] overflow-hidden rounded-[36px] border border-black/10 bg-brand-pink/20 shadow-soft dark:border-white/10">
+      {/* Studio Image Showcase */}
+      <motion.div layout className="relative aspect-[3/4] overflow-hidden rounded-[32px] border border-brand-pink/20 bg-white/70 shadow-sm backdrop-blur-sm">
         {images.length ? (
           <>
             <Image
               src={images[Math.min(active, images.length - 1)] ?? images[0]}
               alt={`${product.name} studio frame`}
               fill
-              sizes="60vw"
+              sizes="(max-width: 1024px) 100vw, 60vw"
               className="object-cover"
               priority
             />
-            <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto bg-gradient-to-t from-black/82 via-transparent p-6">
+            <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto bg-gradient-to-t from-black/60 via-transparent p-6">
               {images.map((img, idx) => (
                 <button
                   key={img}
                   type="button"
-                  className={`relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-2xl border ${
-                    active === idx ? "border-brand-pink" : "border-white/40 opacity-72"
+                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                    active === idx ? "border-[#fcc4c8] scale-105" : "border-white/40 opacity-75 hover:opacity-100"
                   }`}
                   aria-label={`View photo ${idx + 1}`}
                   onClick={() => setActive(idx)}
                 >
-                  <Image src={img} alt="" fill className="object-cover" sizes="120px" />
+                  <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                 </button>
               ))}
             </div>
           </>
         ) : (
-          <div className="grid h-full place-items-center px-14 text-center text-lg text-brand-black dark:text-white">
+          <div className="grid h-full place-items-center px-14 text-center text-lg text-brand-black">
             Photographer en route • heirloom capture pending.
           </div>
         )}
       </motion.div>
 
+      {/* Product Information */}
       <div className="space-y-6">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-black/53 dark:text-white/62">{product.category}</p>
-        <h1 className="font-serif text-4xl text-brand-black md:text-[2.9rem] dark:text-white">{product.name}</h1>
+        <div className="space-y-2">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-black/45">{product.category}</p>
+          <h1 className="font-serif text-3xl font-medium tracking-tight text-brand-black md:text-[2.6rem]">{product.name}</h1>
+        </div>
+
         {product.fabricType ? (
-          <p className="text-sm text-black/70 dark:text-white/73">Fabric • {product.fabricType}</p>
+          <p className="text-sm font-medium text-black/55">
+            Fabric: <span className="text-brand-black">{product.fabricType}</span>
+          </p>
         ) : null}
-        <p className="text-[15px] leading-relaxed text-black/73 dark:text-white/75">{product.description}</p>
-        <div className="rounded-[28px] border border-brand-pink/60 bg-brand-pink/35 px-6 py-4 text-brand-black backdrop-blur">
-          <div className="text-xs uppercase tracking-[0.24em]">Atelier tariff</div>
-          <div className="mt-4 flex gap-8 text-brand-black dark:text-brand-black">
+
+        <p className="text-[15px] leading-relaxed text-black/65">{product.description}</p>
+
+        {/* Premium Tariff Glass Card */}
+        <div className="glass rounded-2xl p-5 text-brand-black">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-black/45">Atelier tariff</div>
+          <div className="mt-3 flex items-baseline gap-4">
             {product.discountPriceCents != null ? (
-              <span className="text-xl line-through">{formatBdtFromCents(product.priceCents, product.currency)}</span>
+              <span className="text-sm text-black/40 line-through tabular-nums">
+                {formatBdtFromCents(product.priceCents, product.currency)}
+              </span>
             ) : null}
-            <span className="text-4xl">{formatBdtFromCents(product.effectivePriceCents, product.currency)}</span>
+            <span className="text-3xl font-semibold tracking-tight text-brand-black tabular-nums">
+              {formatBdtFromCents(product.effectivePriceCents, product.currency)}
+            </span>
           </div>
         </div>
 
+        {/* Sizes Selector */}
         {sizes.length ? (
-          <div className="flex flex-wrap gap-3">
-            {sizes.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.18em] ${
-                  size === s
-                    ? "bg-brand-black text-white dark:bg-white dark:text-brand-black"
-                    : "border border-black/17 dark:border-white/15"
-                }`}
-                onClick={() => setSize(s)}
-              >
-                {s}
-              </button>
-            ))}
+          <div className="space-y-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">Select Size</span>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
+                    size === s
+                      ? "bg-[#1a1a1a] text-white shadow-sm"
+                      : "border border-brand-pink/25 text-black/55 hover:border-brand-pink/60 hover:bg-brand-pink/10"
+                  }`}
+                  onClick={() => setSize(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         ) : null}
 
-        <div className="flex flex-wrap gap-4">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 pt-2">
           <Button
             type="button"
             variant="outline"
-            className="rounded-full px-10"
-            onClick={() => dispatch(toggleWishlist(product.id))}
+            className="rounded-xl px-6 text-xs py-3"
+            onClick={() => {
+              dispatch(toggleWishlist(product.id));
+              toast({
+                title: liked ? "Removed from wishlist" : "Added to wishlist",
+                message: liked ? `${product.name} removed.` : `${product.name} added.`,
+                variant: liked ? "error" : "success",
+              });
+            }}
           >
-            <IconHeart className={liked ? "fill-brand-pink" : ""} />
+            <IconHeart className={`h-4 w-4 mr-1 transition-all ${liked ? "fill-brand-pink text-brand-pink" : "text-black/50"}`} />
             Moodboard toggle
           </Button>
+
           <Button
             type="button"
-            className={`rounded-full px-12 py-[0.85rem] ${
+            className={`rounded-xl px-8 text-xs py-3 bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]/85 ${
               commerceBlocked ? "cursor-not-allowed opacity-70" : ""
             }`}
             disabled={commerceBlocked}
@@ -129,10 +156,14 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
                   size: sizes.length ? size : undefined,
                 })
               );
-              toast({ title: "Nestled delicately", message: `${product.name} joined your heirloom bag.`, variant: "success" });
+              toast({
+                title: "Nestled delicately",
+                message: `${product.name} joined your heirloom bag.`,
+                variant: "success",
+              });
             }}
           >
-            <IconShoppingBagPlus className="h-5 w-5" />
+            <IconShoppingBagPlus className="h-4 w-4 mr-1" />
             Add heirloom
           </Button>
         </div>

@@ -2,29 +2,51 @@
 
 :root {
   --background: #fffbfc;
-  --foreground: #0b0b0f;
+  --foreground: #1a1a1a;
   --brand-pink: #fcc4c8;
   --muted: #fcf4f7;
+  --glass-bg: rgba(255, 248, 248, 0.72);
+  --glass-border: rgba(252, 196, 200, 0.25);
+  --glass-shadow: 0 8px 32px rgba(252, 196, 200, 0.12);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-.dark {
-  --background: #0b090c;
-  --foreground: #f7f5f8;
-  --muted: rgba(247, 245, 248, 0.08);
-}
-
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #fffbfc 0%, #fff5f7 50%, #fff8f8 100%);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   text-rendering: geometricPrecision;
+  min-height: 100vh;
 }
 
 ::selection {
   background: color-mix(in srgb, var(--brand-pink) 55%, white);
+}
+
+/* ── Apple-style glass effect utility ── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(252, 196, 200, 0.18);
+}
+
+.glass-strong {
+  background: rgba(255, 248, 248, 0.85);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(252, 196, 200, 0.3);
+  box-shadow: 0 4px 24px rgba(252, 196, 200, 0.15), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* ── Custom scrollbar for sidebar ── */
@@ -35,11 +57,11 @@ body {
   background: transparent;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(252, 196, 200, 0.4);
   border-radius: 999px;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(252, 196, 200, 0.7);
 }
 
 /* ── Subtle fade-in animation ── */

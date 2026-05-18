@@ -34,26 +34,26 @@ export function ShopToolbar({
   const to = Math.min(page * limit, total);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-black/6 bg-white px-4 py-3 shadow-sm dark:border-white/8 dark:bg-white/[0.04]">
+    <div className="glass flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3">
       {/* Left — count + mobile filter */}
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMobileFilterToggle}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 px-3 py-1.5 text-xs font-medium text-black/70 transition hover:bg-brand-pink/15 lg:hidden dark:border-white/15 dark:text-white/70"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-pink/20 px-3 py-1.5 text-xs font-medium text-black/65 transition hover:bg-brand-pink/15 lg:hidden"
         >
           <IconFilter className="h-3.5 w-3.5" />
           Filters
         </button>
-        <span className="text-sm text-black/55 dark:text-white/55">
+        <span className="text-sm text-black/50">
           {total > 0 ? (
             <>
               Showing{" "}
-              <span className="font-medium text-brand-black dark:text-white">
+              <span className="font-medium text-brand-black">
                 {from}–{to}
               </span>{" "}
               of{" "}
-              <span className="font-medium text-brand-black dark:text-white">
+              <span className="font-medium text-brand-black">
                 {total}
               </span>{" "}
               products
@@ -66,10 +66,10 @@ export function ShopToolbar({
 
       {/* Right — sort + page size */}
       <div className="flex items-center gap-2.5">
-        <div className="flex items-center gap-1.5 text-xs text-black/50 dark:text-white/50">
+        <div className="flex items-center gap-1.5 text-xs text-black/45">
           <IconArrowsSort className="h-3.5 w-3.5" />
           <select
-            className="rounded-lg border border-black/10 bg-brand-lightgray px-2 py-1.5 text-xs font-medium text-brand-black focus:border-brand-pink focus:outline-none dark:border-white/12 dark:bg-white/8 dark:text-white"
+            className="rounded-lg border border-brand-pink/20 bg-white/80 px-2 py-1.5 text-xs font-medium text-brand-black focus:border-brand-pink focus:outline-none"
             value={sortMode ?? "latest"}
             onChange={(e) =>
               pushParams((sp) => {
@@ -87,7 +87,7 @@ export function ShopToolbar({
         </div>
 
         <select
-          className="rounded-lg border border-black/10 bg-brand-lightgray px-2 py-1.5 text-xs font-medium text-brand-black focus:border-brand-pink focus:outline-none dark:border-white/12 dark:bg-white/8 dark:text-white"
+          className="rounded-lg border border-brand-pink/20 bg-white/80 px-2 py-1.5 text-xs font-medium text-brand-black focus:border-brand-pink focus:outline-none"
           value={limit}
           onChange={(e) =>
             pushParams((sp) => {

@@ -17,8 +17,6 @@ import {
 import type { ProductListFilters } from "@/lib/validators/product-list.query";
 import { cn } from "@/lib/utils/cn";
 
-/* ── Sidebar filter sections ── */
-
 const CATEGORIES = [
   { label: "All", value: "" },
   { label: "Embroidery", value: "embroidery" },
@@ -79,9 +77,9 @@ export function ShopSidebar({
 }) {
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — glass effect */}
       <aside className="hidden lg:block lg:w-[264px] lg:shrink-0">
-        <div className="sticky top-[72px] max-h-[calc(100vh-80px)] overflow-y-auto sidebar-scroll rounded-2xl border border-black/8 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+        <div className="glass sticky top-[72px] max-h-[calc(100vh-80px)] overflow-y-auto sidebar-scroll rounded-2xl p-5">
           <SidebarContent filters={filters} pushParams={pushParams} />
         </div>
       </aside>
@@ -94,7 +92,7 @@ export function ShopSidebar({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-[100] bg-black/20 backdrop-blur-sm lg:hidden"
               onClick={onMobileClose}
             />
             <motion.aside
@@ -102,17 +100,17 @@ export function ShopSidebar({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 z-[110] w-[300px] max-w-[85vw] overflow-y-auto bg-white p-5 shadow-xl sidebar-scroll dark:bg-[#121014] lg:hidden"
+              className="glass-strong fixed inset-y-0 left-0 z-[110] w-[300px] max-w-[85vw] overflow-y-auto p-5 shadow-xl sidebar-scroll lg:hidden"
             >
               <div className="mb-5 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-semibold text-brand-black dark:text-white">
+                <div className="flex items-center gap-2 text-sm font-semibold text-brand-black">
                   <IconFilter className="h-4 w-4" />
                   Filters
                 </div>
                 <button
                   type="button"
                   onClick={onMobileClose}
-                  className="rounded-lg p-1.5 hover:bg-black/5 dark:hover:bg-white/10"
+                  className="rounded-lg p-1.5 hover:bg-brand-pink/15"
                   aria-label="Close filters"
                 >
                   <IconX className="h-5 w-5" />
@@ -126,8 +124,6 @@ export function ShopSidebar({
     </>
   );
 }
-
-/* ── Inner sidebar content (shared desktop/mobile) ── */
 
 function SidebarContent({
   filters,
@@ -156,8 +152,8 @@ function SidebarContent({
               className={cn(
                 "flex w-full items-center rounded-lg px-3 py-2 text-sm transition-colors",
                 (filters.category ?? "") === cat.value
-                  ? "bg-brand-pink/30 font-medium text-brand-black dark:text-white"
-                  : "text-black/70 hover:bg-brand-pink/15 dark:text-white/70 dark:hover:bg-white/8"
+                  ? "bg-brand-pink/35 font-medium text-brand-black"
+                  : "text-black/65 hover:bg-brand-pink/15"
               )}
             >
               {cat.label}
@@ -172,7 +168,7 @@ function SidebarContent({
           <input
             type="number"
             placeholder="Min"
-            className="w-full rounded-lg border border-black/10 bg-brand-lightgray px-3 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none dark:border-white/15 dark:bg-white/8 dark:text-white"
+            className="w-full rounded-lg border border-brand-pink/20 bg-white/80 px-3 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none"
             value={filters.priceMinCents ? Math.floor(filters.priceMinCents / 100) : ""}
             onChange={(e) =>
               pushParams((sp) => {
@@ -184,11 +180,11 @@ function SidebarContent({
               })
             }
           />
-          <span className="text-xs text-black/40 dark:text-white/40">–</span>
+          <span className="text-xs text-black/35">–</span>
           <input
             type="number"
             placeholder="Max"
-            className="w-full rounded-lg border border-black/10 bg-brand-lightgray px-3 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none dark:border-white/15 dark:bg-white/8 dark:text-white"
+            className="w-full rounded-lg border border-brand-pink/20 bg-white/80 px-3 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none"
             value={filters.priceMaxCents ? Math.floor(filters.priceMaxCents / 100) : ""}
             onChange={(e) =>
               pushParams((sp) => {
@@ -201,9 +197,7 @@ function SidebarContent({
             }
           />
         </div>
-        <p className="mt-1 text-[11px] text-black/40 dark:text-white/40">
-          Values in BDT (৳)
-        </p>
+        <p className="mt-1 text-[11px] text-black/35">Values in BDT (৳)</p>
       </FilterSection>
 
       {/* Sizes */}
@@ -223,8 +217,8 @@ function SidebarContent({
               className={cn(
                 "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
                 filters.size === s
-                  ? "border-brand-pink bg-brand-pink/25 text-brand-black dark:text-white"
-                  : "border-black/10 text-black/60 hover:border-brand-pink/60 dark:border-white/15 dark:text-white/60"
+                  ? "border-brand-pink bg-brand-pink/30 text-brand-black"
+                  : "border-brand-pink/15 text-black/55 hover:border-brand-pink/50 hover:bg-brand-pink/10"
               )}
             >
               {s}
@@ -254,7 +248,7 @@ function SidebarContent({
                 "h-7 w-7 rounded-full border-2 transition-transform hover:scale-110",
                 filters.color === c.value
                   ? "border-brand-pink ring-2 ring-brand-pink/40 scale-110"
-                  : "border-black/15 dark:border-white/20"
+                  : "border-brand-pink/20"
               )}
               style={{ backgroundColor: c.hex }}
             />
@@ -281,8 +275,8 @@ function SidebarContent({
               className={cn(
                 "rounded-lg border px-2.5 py-1.5 text-xs transition-colors",
                 filters.fabricType === f.toLowerCase()
-                  ? "border-brand-pink bg-brand-pink/25 font-medium text-brand-black dark:text-white"
-                  : "border-black/10 text-black/60 hover:border-brand-pink/60 dark:border-white/15 dark:text-white/60"
+                  ? "border-brand-pink bg-brand-pink/30 font-medium text-brand-black"
+                  : "border-brand-pink/15 text-black/55 hover:border-brand-pink/50 hover:bg-brand-pink/10"
               )}
             >
               {f}
@@ -293,7 +287,7 @@ function SidebarContent({
 
       {/* Availability */}
       <FilterSection title="Availability">
-        <label className="flex cursor-pointer items-center gap-3 text-sm text-black/70 dark:text-white/70">
+        <label className="flex cursor-pointer items-center gap-3 text-sm text-black/65">
           <input
             type="checkbox"
             checked={Boolean(filters.inStockOnly)}
@@ -305,7 +299,7 @@ function SidebarContent({
                 sp.set("page", "1");
               })
             }
-            className="h-4 w-4 rounded border-black/20 accent-brand-pink"
+            className="h-4 w-4 rounded border-brand-pink/30 accent-brand-pink"
           />
           In Stock Only
         </label>
@@ -330,8 +324,8 @@ function SidebarContent({
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                 filters.minRating === r.value
-                  ? "bg-brand-pink/25 font-medium text-brand-black dark:text-white"
-                  : "text-black/60 hover:bg-brand-pink/10 dark:text-white/60"
+                  ? "bg-brand-pink/30 font-medium text-brand-black"
+                  : "text-black/55 hover:bg-brand-pink/10"
               )}
             >
               <IconStar className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
@@ -367,8 +361,8 @@ function SidebarContent({
                 className={cn(
                   "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
                   active
-                    ? "bg-brand-pink/25 font-medium text-brand-black dark:text-white"
-                    : "text-black/65 hover:bg-brand-pink/10 dark:text-white/65"
+                    ? "bg-brand-pink/30 font-medium text-brand-black"
+                    : "text-black/60 hover:bg-brand-pink/10"
                 )}
               >
                 <Icon className="h-4 w-4" stroke={1.8} />
@@ -390,15 +384,13 @@ function SidebarContent({
             sp.set("sortMode", "latest");
           })
         }
-        className="w-full rounded-lg border border-black/10 py-2 text-xs font-medium text-black/50 transition hover:bg-brand-pink/15 hover:text-brand-black dark:border-white/12 dark:text-white/50 dark:hover:text-white"
+        className="w-full rounded-lg border border-brand-pink/20 py-2 text-xs font-medium text-black/45 transition hover:bg-brand-pink/15 hover:text-brand-black"
       >
         Clear all filters
       </button>
     </div>
   );
 }
-
-/* ── Collapsible section ── */
 
 function FilterSection({
   title,
@@ -414,11 +406,11 @@ function FilterSection({
   const toggle = useCallback(() => setOpen((o) => !o), []);
 
   return (
-    <div className="border-b border-black/6 pb-4 dark:border-white/8">
+    <div className="border-b border-brand-pink/10 pb-4">
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between py-1 text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/55"
+        className="flex w-full items-center justify-between py-1 text-xs font-semibold uppercase tracking-wider text-black/45"
       >
         {title}
         {open ? (
