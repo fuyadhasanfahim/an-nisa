@@ -4,7 +4,6 @@ import type { FormEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 import {
   normalizeProductListQuery,
-  productFiltersFromSearchParams,
 } from "@/lib/validators/product-list.query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
@@ -45,10 +44,6 @@ export function BoutiqueSearchBar({
   );
 
   const [draft, setDraft] = useState(normalized.q);
-  const filters = useMemo(() => productFiltersFromSearchParams(searchParams), [
-    searchParams,
-  ]);
-  const activeFilterKeys = Object.values(filters).filter(Boolean).length;
   const [open, setOpen] = useState(false);
   type Suggestions = Awaited<ReturnType<typeof fetchSuggest>>;
   const [suggestions, setSuggestions] = useState<Suggestions>([]);
@@ -74,17 +69,17 @@ export function BoutiqueSearchBar({
 
   const containerClass =
     placement === "header"
-      ? "relative hidden md:block md:flex-1"
+      ? "relative flex-1"
       : "relative w-full";
 
   return (
     <div className={cn(containerClass, "isolate")}>
       <form
         onSubmit={(e) => void handleSubmit(e)}
-        className="flex items-center rounded-full border border-black/12 bg-[color-mix(in_srgb,var(--background)_86%,transparent)] px-4 py-[0.5rem] text-sm shadow-softSm backdrop-blur dark:border-white/15 dark:bg-black/42"
+        className="flex items-center rounded-lg border border-black/8 bg-brand-lightgray px-3 py-2 text-sm transition-colors focus-within:border-brand-pink dark:border-white/12 dark:bg-white/6"
       >
-        <IconSearch className="mr-3 h-5 w-5 shrink-0 text-black/54 dark:text-white/65" />
-        <label className="sr-only">Search heirloom catalog</label>
+        <IconSearch className="mr-2.5 h-4 w-4 shrink-0 text-black/40 dark:text-white/50" />
+        <label className="sr-only">Search products</label>
         <input
           value={draft}
           onChange={(evt) => {
@@ -103,32 +98,32 @@ export function BoutiqueSearchBar({
           onFocus={() => {
             if (suggestions.length) setOpen(true);
           }}
-          placeholder="Search motif, neckline, SKU…"
-          className="w-full bg-transparent text-sm text-brand-black placeholder:text-black/45 focus:outline-none dark:text-white"
+          placeholder="Search products..."
+          className="w-full bg-transparent text-sm text-brand-black placeholder:text-black/35 focus:outline-none dark:text-white dark:placeholder:text-white/35"
         />
       </form>
 
       <AnimatePresence>
         {open ? (
           <motion.div
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            className="absolute left-0 right-0 top-[calc(100%+10px)] z-[80] overflow-hidden rounded-3xl border border-black/10 bg-white/95 text-sm shadow-2xl ring-1 ring-black/5 dark:border-white/12 dark:bg-brand-black/95"
+            exit={{ opacity: 0, y: -4 }}
+            className="absolute left-0 right-0 top-[calc(100%+6px)] z-[80] overflow-hidden rounded-xl border border-black/8 bg-white shadow-lg dark:border-white/10 dark:bg-[#151318]"
           >
             {suggestions.length ? (
-              <ul className="max-h-72 divide-y divide-black/5 overflow-y-auto dark:divide-white/10">
+              <ul className="max-h-64 divide-y divide-black/5 overflow-y-auto dark:divide-white/8">
                 {suggestions.map((item) => (
                   <li key={item.id}>
                     <button
                       type="button"
-                      className="flex w-full flex-col items-start gap-1 px-4 py-3 text-left transition hover:bg-brand-pink/35"
+                      className="flex w-full flex-col items-start gap-0.5 px-4 py-2.5 text-left transition hover:bg-brand-pink/15"
                       onClick={() => commitSearch(item.name)}
                     >
-                      <span className="font-semibold text-brand-black dark:text-white">
+                      <span className="text-sm font-medium text-brand-black dark:text-white">
                         {item.name}
                       </span>
-                      <span className="text-xs uppercase tracking-[0.18em] text-black/50 dark:text-white/55">
+                      <span className="text-[11px] text-black/40 dark:text-white/45">
                         {item.category}
                       </span>
                     </button>
@@ -136,13 +131,10 @@ export function BoutiqueSearchBar({
                 ))}
               </ul>
             ) : (
-              <div className="px-4 py-5 text-xs text-black/60 dark:text-white/60">
-                Keep typing—we’ll surface heirloom matches.
+              <div className="px-4 py-4 text-xs text-black/50 dark:text-white/50">
+                Start typing to see suggestions...
               </div>
             )}
-            <div className="border-t border-black/8 bg-[#fff6fa] px-4 py-3 text-[11px] text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/65">
-              {activeFilterKeys} refinement chips syncing with this ritual
-            </div>
           </motion.div>
         ) : null}
       </AnimatePresence>

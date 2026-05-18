@@ -1,115 +1,146 @@
 "use client";
 
 import Link from "next/link";
-import { Container } from "@/components/shared/Container";
 
 const columns = [
   {
-    heading: "Boutique",
+    heading: "Shop",
     links: [
-      { label: "Heirloom shop", href: "/#boutique-catalog" },
-      { label: "Custom stitch requests", href: "/custom-order" },
-      { label: "Concierge gifting", href: "mailto:support@annisa.world" },
+      { label: "All Products", href: "/#" },
+      { label: "New Arrivals", href: "/?newArrival=true" },
+      { label: "Custom Orders", href: "/custom-order" },
+      { label: "On Sale", href: "/?onSale=true" },
     ],
   },
   {
     heading: "Support",
     links: [
-      { label: "Shipping & timelines", href: "/policies/shipping" },
-      { label: "Returns & swaps", href: "/policies/returns" },
-      { label: "Care guide", href: "/policies/care" },
+      { label: "Shipping & Delivery", href: "/policies/shipping" },
+      { label: "Returns & Exchange", href: "/policies/returns" },
+      { label: "Care Guide", href: "/policies/care" },
+      { label: "Contact Us", href: "mailto:support@annisa.world" },
     ],
   },
   {
-    heading: "Legal",
+    heading: "Company",
     links: [
-      { label: "Privacy", href: "/policies/privacy" },
-      { label: "Terms", href: "/policies/terms" },
+      { label: "About Us", href: "/policies/terms" },
+      { label: "Privacy Policy", href: "/policies/privacy" },
+      { label: "Terms of Service", href: "/policies/terms" },
     ],
   },
 ];
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-black/10 bg-[linear-gradient(to_bottom,var(--muted),transparent)] pb-24 pt-20 dark:border-white/14 dark:bg-white/[0.05] md:pb-16">
-      <Container>
-        <div className="grid gap-12 md:grid-cols-[1fr_minmax(0,520px)_minmax(0,320px)]">
+    <footer className="mt-auto border-t-2 border-brand-pink/40 bg-brand-cream pt-14 pb-10 dark:border-brand-pink/20 dark:bg-[#0e0b10]">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-10 md:grid-cols-[1fr_1fr_1fr_1.2fr]">
+          {/* Brand */}
           <div>
-            <div className="font-serif text-3xl tracking-tight">An‑Nisa</div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-black/65 dark:text-white/73">
-              A needle-first atelier marrying heritage embroidery rhythms with luminous modern femininity.
-            </p>
-            <div className="mt-6 flex gap-5 text-[11px] uppercase tracking-[0.22em] text-black/53 dark:text-white/65">
-              <a href="https://instagram.com" className="hover:text-brand-black dark:hover:text-white">
-                IG
-              </a>
-              <a href="https://pinterest.com" className="hover:text-brand-black dark:hover:text-white">
-                Pins
-              </a>
-              <a href="https://tiktok.com" className="hover:text-brand-black dark:hover:text-white">
-                StitchTok
-              </a>
-            </div>
-          </div>
-          <div className="grid gap-10 md:grid-cols-3">
-            {columns.map((col) => (
-              <div key={col.heading}>
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-black/50 dark:text-white/62">
-                  {col.heading}
-                </div>
-                <ul className="mt-4 space-y-3 text-sm text-black/73 dark:text-white/75">
-                  {col.links.map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="transition hover:text-brand-black dark:hover:text-white">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-pink/60 text-sm font-bold text-brand-black">
+                AN
               </div>
-            ))}
-          </div>
-
-          <div className="rounded-[32px] border border-brand-pink/60 bg-brand-pink/25 p-6 shadow-softSm dark:bg-white/[0.04] dark:shadow-soft">
-            <div className="text-xs uppercase tracking-[0.24em] text-black/60 dark:text-white/65">
-              Thread letters
+              <span className="font-serif text-xl tracking-tight text-brand-black dark:text-white">
+                An‑Nisa
+              </span>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-black/73 dark:text-white/73">
-              Seasonal heirloom drops & private tailoring notes—straight to inbox.
+            <p className="mt-4 max-w-[280px] text-sm leading-relaxed text-black/55 dark:text-white/60">
+              Premium women&apos;s fashion — embroidery, handmade designs, and bespoke pieces crafted with care.
             </p>
-            <form className="mt-6 space-y-3" aria-label="Newsletter signup" onSubmit={(e) => {
-              e.preventDefault();
-            }}>
-              <label className="sr-only" htmlFor="newsletter-email">
-                Email address
-              </label>
-              <input
-                id="newsletter-email"
-                required
-                type="email"
-                placeholder="studio@threads.com"
-                className="w-full rounded-full border border-black/10 bg-white px-5 py-[0.8rem] text-sm text-brand-black shadow-inner shadow-black/[0.04] dark:border-white/15 dark:bg-black/65 dark:text-white"
-              />
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center rounded-full bg-brand-black px-5 py-[0.9rem] text-xs font-semibold uppercase tracking-[0.18em] text-white dark:bg-white dark:text-brand-black"
+
+            {/* Contact */}
+            <div className="mt-5 space-y-1.5 text-sm text-black/50 dark:text-white/50">
+              <p>📧 support@annisa.world</p>
+              <p>📱 +880 1XXX-XXXXXX</p>
+            </div>
+
+            {/* Social */}
+            <div className="mt-5 flex gap-4 text-sm text-black/45 dark:text-white/50">
+              <a
+                href="https://instagram.com"
+                className="transition hover:text-brand-black dark:hover:text-white"
               >
-                Stay looped in
-              </button>
-              <div className="text-[11px] text-black/55 dark:text-white/62">
-                We promise couture pacing—thoughtful sporadic sparkle, zero spam bursts.
-              </div>
-            </form>
+                Instagram
+              </a>
+              <a
+                href="https://facebook.com"
+                className="transition hover:text-brand-black dark:hover:text-white"
+              >
+                Facebook
+              </a>
+              <a
+                href="https://tiktok.com"
+                className="transition hover:text-brand-black dark:hover:text-white"
+              >
+                TikTok
+              </a>
+            </div>
           </div>
+
+          {/* Link columns */}
+          {columns.map((col) => (
+            <div key={col.heading}>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-black/45 dark:text-white/50">
+                {col.heading}
+              </h4>
+              <ul className="mt-4 space-y-2.5 text-sm text-black/65 dark:text-white/65">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="transition hover:text-brand-black dark:hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-6 border-t border-black/12 pt-8 text-[11px] uppercase tracking-[0.24em] text-black/53 dark:border-white/12 dark:text-white/65 md:flex-row md:items-center md:justify-between">
-          <div>© {new Date().getFullYear()} An‑Nisa atelier embroidery</div>
-          <div className="rounded-full px-6 py-[0.62rem] text-[11px] font-semibold normal-case uppercase tracking-normal text-black/73 dark:bg-white/[0.04] dark:text-white/73">
-            Hand guided • Feminine luminous • Consciously tactile
+        {/* Newsletter */}
+        <div className="mt-10 flex flex-col gap-4 rounded-xl border border-brand-pink/30 bg-white p-5 sm:flex-row sm:items-center sm:justify-between dark:bg-white/[0.04]">
+          <div>
+            <h4 className="text-sm font-semibold text-brand-black dark:text-white">
+              Subscribe to our newsletter
+            </h4>
+            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+              Get updates on new arrivals, offers, and more.
+            </p>
           </div>
+          <form
+            className="flex gap-2"
+            aria-label="Newsletter signup"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <label className="sr-only" htmlFor="newsletter-email">
+              Email address
+            </label>
+            <input
+              id="newsletter-email"
+              required
+              type="email"
+              placeholder="your@email.com"
+              className="rounded-lg border border-black/10 bg-brand-lightgray px-4 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none dark:border-white/12 dark:bg-white/8 dark:text-white"
+            />
+            <button
+              type="submit"
+              className="rounded-lg bg-brand-black px-5 py-2 text-xs font-semibold text-white transition hover:bg-black/85 dark:bg-white dark:text-brand-black dark:hover:bg-white/90"
+            >
+              Subscribe
+            </button>
+          </form>
         </div>
-      </Container>
+
+        {/* Bottom bar */}
+        <div className="mt-8 flex flex-col gap-3 border-t border-black/8 pt-6 text-xs text-black/40 sm:flex-row sm:items-center sm:justify-between dark:border-white/8 dark:text-white/40">
+          <p>© {new Date().getFullYear()} An‑Nisa. All rights reserved.</p>
+          <p>Handcrafted with care in Bangladesh</p>
+        </div>
+      </div>
     </footer>
   );
 }

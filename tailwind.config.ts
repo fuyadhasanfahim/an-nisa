@@ -14,6 +14,8 @@ export default {
           pink: "#fcc4c8",
           black: "#0b0b0f",
           white: "#ffffff",
+          cream: "#fff8f8",
+          lightgray: "#f5f5f5",
         },
       },
       fontFamily: {

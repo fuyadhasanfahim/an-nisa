@@ -3,14 +3,12 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { IconHeart, IconShoppingBagPlus, IconStar } from "@tabler/icons-react";
 import type { ProductDto } from "@/store/api/productsApi";
 import { cn } from "@/lib/utils/cn";
 import { formatBdtFromCents } from "@/lib/money/format-bdt-from-cents";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addToCart, toggleWishlist } from "@/store/slices/boutiqueUISlice";
-import { Button } from "@/components/ui/Button";
 import { useBannedCommerce } from "@/hooks/useBannedCommerce";
 import { useToast } from "@/components/shared/toast/useToast";
 
@@ -47,60 +45,66 @@ export function BoutiqueProductCard({
   const sizes = product.sizes?.length ? product.sizes : [];
   const [size, setSize] = useState<string | undefined>(sizes[0]);
 
-  const gallery = useMemo(() => [primary, secondary].filter(Boolean) as string[], [
-    primary,
-    secondary,
-  ]);
+  const gallery = useMemo(
+    () => [primary, secondary].filter(Boolean) as string[],
+    [primary, secondary]
+  );
 
   return (
-    <motion.article
-      layout
+    <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-3xl border border-black/10 bg-[color-mix(in_srgb,var(--background)_94%,white)] shadow-softSm transition hover:-translate-y-[2px] hover:shadow-soft dark:border-white/10 dark:bg-white/10",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/6 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-white/8 dark:bg-white/[0.05]",
         className
       )}
-      transition={{ duration: 0.45, ease: [0.2, 0.85, 0.2, 1] }}
     >
+      {/* Image area */}
       <div
-        className="relative isolate aspect-[3/4] overflow-hidden rounded-t-3xl"
+        className="relative aspect-[3/3.8] overflow-hidden"
         onMouseEnter={() =>
           secondary && primary !== secondary ? setHoverIdx(1) : undefined
         }
         onMouseLeave={() => setHoverIdx(0)}
       >
+        {/* Discount badge */}
         {discountPct ? (
-          <span className="absolute left-4 top-4 z-20 rounded-full bg-brand-pink/95 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-black backdrop-blur">
+          <span className="absolute left-3 top-3 z-20 rounded-md bg-brand-pink px-2 py-0.5 text-[11px] font-semibold text-brand-black">
             −{discountPct}%
           </span>
         ) : null}
 
+        {/* Wishlist button */}
         <button
           type="button"
           aria-label={
-            liked ? `Remove ${product.name} from wishlist` : `Wishlist ${product.name}`
+            liked
+              ? `Remove ${product.name} from wishlist`
+              : `Add ${product.name} to wishlist`
           }
           onClick={() => dispatch(toggleWishlist(product.id))}
-          className="absolute right-4 top-4 z-20 rounded-full bg-white/90 p-2 text-brand-black shadow-sm ring-1 ring-black/5 transition hover:bg-white dark:bg-black/70 dark:text-white dark:ring-white/10"
+          className="absolute right-3 top-3 z-20 rounded-full bg-white/90 p-1.5 shadow-sm transition hover:bg-white dark:bg-black/60 dark:hover:bg-black/80"
         >
           <IconHeart
             className={cn(
-              "h-5 w-5",
-              liked ? "fill-brand-pink stroke-brand-black dark:stroke-white" : ""
+              "h-4 w-4",
+              liked
+                ? "fill-brand-pink stroke-brand-pink"
+                : "text-black/50 dark:text-white/60"
             )}
-            stroke={1.65}
+            stroke={1.8}
           />
         </button>
 
+        {/* Product images with hover transition */}
         {gallery[0] ? (
           <>
             <Image
               src={gallery[0]}
-              alt={`${product.name}`}
+              alt={product.name}
               fill
-              sizes="(max-width: 768px) 52vw, 22vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               loading="lazy"
               className={cn(
-                "object-cover transition-all duration-[1200ms] ease-out group-hover:scale-[1.04]",
+                "object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]",
                 hoverIdx === 1 && gallery[1] ? "opacity-0" : "opacity-100"
               )}
             />
@@ -109,149 +113,137 @@ export function BoutiqueProductCard({
                 src={gallery[1]}
                 alt={`${product.name} — alternate view`}
                 fill
-                sizes="(max-width: 768px) 52vw, 22vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 loading="lazy"
                 className={cn(
-                  "object-cover transition-all duration-[1200ms] ease-out group-hover:scale-[1.04]",
+                  "object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]",
                   hoverIdx === 1 ? "opacity-100" : "opacity-0"
                 )}
               />
             ) : null}
           </>
-        ) : null}
-
-        {!gallery.length ? (
-          <div className="flex h-full flex-col justify-end bg-[radial-gradient(circle_at_20%_-10%,rgba(252,196,200,0.55),transparent_62%),linear-gradient(to_bottom,white,#fdeef3)] px-8 py-12">
-            <span className="inline-flex rounded-full bg-white px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-black/60">
-              Lookbook forthcoming
-            </span>
-            <span className="mt-6 font-serif text-2xl text-brand-black">{product.name}</span>
+        ) : (
+          <div className="flex h-full items-center justify-center bg-brand-cream">
+            <span className="text-sm text-black/30">No image</span>
           </div>
-        ) : null}
+        )}
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/82 via-transparent to-transparent dark:from-black/90" />
-
-        <div className="absolute inset-x-0 bottom-5 flex justify-between px-5 text-[11px] uppercase tracking-[0.18em] text-white/76">
-          <span>{product.category}</span>
-          <span>Atelier stitch</span>
+        {/* Category label */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-3 pb-2 pt-8">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-white/80">
+            {product.category}
+          </span>
         </div>
       </div>
 
-      <div className="relative z-30 flex flex-1 flex-col gap-5 px-6 pb-7 pt-6">
-        <div className="flex items-start gap-4">
-          <div className="min-w-0 flex-1">
-            <Link
-              href={`/product/${product.slug}`}
-              className="line-clamp-2 font-serif text-xl tracking-tight text-brand-black underline-offset-[6px] transition hover:text-black/82 dark:text-white"
-            >
-              {product.name}
-            </Link>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-black/52 dark:text-white/65">
-              {product.fabricType ? (
-                <span className="rounded-full border border-black/15 px-2 py-1 dark:border-white/15">
-                  {product.fabricType}
-                </span>
-              ) : null}
-              <span>
-                {product.trackInventory && product.stockQuantity <= 4
-                  ? "Limited heirloom qty"
-                  : "Ready couture timelines"}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 rounded-full border border-brand-pink/60 bg-brand-pink/35 px-2 py-1 text-xs font-semibold text-brand-black backdrop-blur">
-            <IconStar className="h-[15px] w-[15px] fill-amber-500 text-brand-black/80" />
+      {/* Product info */}
+      <div className="flex flex-1 flex-col gap-2.5 p-3.5">
+        {/* Title + rating */}
+        <div className="flex items-start justify-between gap-2">
+          <Link
+            href={`/product/${product.slug}`}
+            className="line-clamp-2 text-sm font-medium leading-snug text-brand-black transition hover:text-black/70 dark:text-white dark:hover:text-white/80"
+          >
+            {product.name}
+          </Link>
+          <div className="flex shrink-0 items-center gap-0.5 rounded-md bg-brand-pink/30 px-1.5 py-0.5 text-[11px] font-semibold text-brand-black">
+            <IconStar className="h-3 w-3 fill-amber-400 text-amber-500" />
             {(product.ratingAverage ?? 0).toFixed(1)}
           </div>
         </div>
 
-        {sizes.length ? (
-          <div className="flex flex-wrap gap-2">
+        {/* Meta */}
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-black/45 dark:text-white/50">
+          {product.fabricType && (
+            <span className="rounded border border-black/8 px-1.5 py-0.5 dark:border-white/12">
+              {product.fabricType}
+            </span>
+          )}
+          <span>
+            {product.trackInventory && product.stockQuantity <= 4
+              ? "Limited stock"
+              : "In stock"}
+          </span>
+        </div>
+
+        {/* Sizes */}
+        {sizes.length > 0 && (
+          <div className="flex flex-wrap gap-1">
             {sizes.map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setSize(s)}
                 className={cn(
-                  "rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
+                  "rounded-md px-2 py-0.5 text-[10px] font-medium uppercase transition-colors",
                   size === s
-                    ? "bg-brand-black text-white shadow-softSm dark:bg-white dark:text-brand-black"
-                    : "border border-black/18 text-brand-black hover:border-brand-pink hover:bg-brand-pink/35 dark:border-white/22 dark:text-white"
+                    ? "bg-brand-black text-white dark:bg-white dark:text-brand-black"
+                    : "border border-black/10 text-black/55 hover:border-brand-pink dark:border-white/15 dark:text-white/55"
                 )}
               >
                 {s}
               </button>
             ))}
           </div>
-        ) : null}
+        )}
 
-        <div className="mt-auto flex items-end justify-between gap-6">
+        {/* Price + actions */}
+        <div className="mt-auto flex items-end justify-between gap-3 pt-2">
           <div>
-            <div className="text-xs uppercase tracking-[0.18em] text-black/50 dark:text-white/60">
-              Atelier tariff
-            </div>
-            <div className="mt-2 flex flex-col gap-1">
-              {product.discountPriceCents != null ? (
-                <span className="text-xs text-black/50 line-through dark:text-white/50">
-                  {formatBdtFromCents(product.priceCents, product.currency)}
-                </span>
-              ) : null}
-              <span className="font-serif text-2xl tracking-tight text-brand-black dark:text-white">
-                {formatBdtFromCents(
-                  product.effectivePriceCents,
-                  product.currency
-                )}
+            {product.discountPriceCents != null && (
+              <span className="block text-[11px] text-black/40 line-through dark:text-white/40">
+                {formatBdtFromCents(product.priceCents, product.currency)}
               </span>
-            </div>
+            )}
+            <span className="text-lg font-semibold tracking-tight text-brand-black dark:text-white">
+              {formatBdtFromCents(
+                product.effectivePriceCents,
+                product.currency
+              )}
+            </span>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              className="rounded-full px-7 text-[11px] font-semibold uppercase tracking-[0.18em]"
-              type="button"
-              asChild
-            >
-              <Link href={`/product/${product.slug}`}>Studio view</Link>
-            </Button>
-            <button
-              type="button"
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full px-7 py-[0.85rem] text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:brightness-105",
-                commerceBlocked
-                  ? "cursor-not-allowed bg-black/35 text-black/70 dark:bg-white/10 dark:text-white/55"
-                  : "bg-brand-black text-white dark:bg-white dark:text-brand-black"
-              )}
-              disabled={commerceBlocked}
-              onClick={() => {
-                if (commerceBlocked) {
-                  toast({ title: "Checkout paused", message, variant: "error" });
-                  return;
-                }
-                dispatch(
-                  addToCart({
-                    productId: product.id,
-                    slug: product.slug,
-                    name: product.name,
-                    image: imgs[0] ?? null,
-                    unitCents: product.effectivePriceCents,
-                    quantity: 1,
-                    size: sizes.length ? size : null,
-                  })
-                );
+          <button
+            type="button"
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold uppercase tracking-wide transition",
+              commerceBlocked
+                ? "cursor-not-allowed bg-black/10 text-black/40 dark:bg-white/8 dark:text-white/40"
+                : "bg-brand-black text-white hover:bg-black/85 dark:bg-white dark:text-brand-black dark:hover:bg-white/90"
+            )}
+            disabled={commerceBlocked}
+            onClick={() => {
+              if (commerceBlocked) {
                 toast({
-                  title: "Nestled into your cart",
-                  message: `${product.name} awaits finishing touches.`,
-                  variant: "success",
+                  title: "Checkout paused",
+                  message,
+                  variant: "error",
                 });
-              }}
-            >
-              <IconShoppingBagPlus className="h-4 w-4" stroke={1.6} />
-              Add to cart
-            </button>
-          </div>
+                return;
+              }
+              dispatch(
+                addToCart({
+                  productId: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  image: imgs[0] ?? null,
+                  unitCents: product.effectivePriceCents,
+                  quantity: 1,
+                  size: sizes.length ? size : null,
+                })
+              );
+              toast({
+                title: "Added to cart",
+                message: `${product.name} has been added.`,
+                variant: "success",
+              });
+            }}
+          >
+            <IconShoppingBagPlus className="h-3.5 w-3.5" stroke={1.8} />
+            Add
+          </button>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }
