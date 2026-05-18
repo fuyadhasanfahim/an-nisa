@@ -186,7 +186,7 @@ export function ExpenseModal({
   if (!mounted || !open) return null;
 
   const body = (
-    <div className="fixed inset-0 z-[205] grid place-items-center p-4">
+    <div className="fixed inset-0 z-205 grid place-items-center p-4">
       <button
         type="button"
         aria-label="Dismiss"

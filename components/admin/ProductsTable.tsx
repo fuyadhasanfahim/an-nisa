@@ -35,6 +35,8 @@ const SORT_OPTIONS: {
   { value: "updatedAt:asc", label: "Least recently updated" },
   { value: "priceCents:desc", label: "Price: high to low" },
   { value: "priceCents:asc", label: "Price: low to high" },
+  { value: "ratingAverage:desc", label: "Rating average: high → low" },
+  { value: "ratingCount:desc", label: "Most reviewed" },
 ];
 
 function sortTupleFromSelect(
@@ -293,7 +295,10 @@ export function ProductsTable() {
     [searchParams]
   );
 
-  const { data, isLoading, isFetching } = useListProductsQuery(listQuery);
+  const { data, isLoading, isFetching } = useListProductsQuery({
+    ...listQuery,
+    includeInactive: true,
+  });
 
   const [searchDraft, setSearchDraft] = useState(listQuery.q);
   useEffect(() => {

@@ -92,11 +92,33 @@ model Product {
   isActive           Boolean  @default(true)
   stockQuantity      Int      @default(0)
   trackInventory     Boolean  @default(false)
+  /// Storefront taxonomy & merchandising tags
+  category           String   @default("embroidery")
+  tags               String[] @default([])
+  brand              String?
+  sizes              String[] @default([])
+  colors             String[] @default([])
+  fabricType         String?
+  embroideryType     String?
+  ratingAverage      Float    @default(0)
+  ratingCount        Int      @default(0)
+  showInHero         Boolean  @default(false)
+  featured           Boolean  @default(false)
+  isTopRated         Boolean  @default(false)
+  isCombo            Boolean  @default(false)
+  trending           Boolean  @default(false)
+  handmade           Boolean  @default(false)
+  boutiquePick       Boolean  @default(false)
+  newArrival         Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
   orderItems OrderItem[]
 
+  @@index([isActive])
+  @@index([category])
+  @@index([featured])
+  @@index([trending])
   @@map("product")
 }
 

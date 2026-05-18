@@ -1,7 +1,4 @@
-import {
-  requireAdminSession,
-  isNextResponse,
-} from "@/lib/auth/require-admin-api";
+import { getSessionFromRequest } from "@/lib/auth/get-session";
 import { prisma } from "@/lib/db/prisma";
 import type { InvoicePdfModel } from "@/lib/pdf/InvoiceDocument";
 import { generateInvoicePdfBuffer } from "@/lib/pdf/generateInvoicePdf";
@@ -13,8 +10,10 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authResult = await requireAdminSession(request);
-  if (isNextResponse(authResult)) return authResult;
+  const session = await getSessionFromRequest(request);
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await params;
 
@@ -37,6 +36,12 @@ export async function GET(
 
   if (!invoiceRow) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const isOwner = invoiceRow.order.userId === session.user.id;
+  const isAdmin = session.user.role === "admin";
+  if (!isAdmin && !isOwner) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const ord = invoiceRow.order;

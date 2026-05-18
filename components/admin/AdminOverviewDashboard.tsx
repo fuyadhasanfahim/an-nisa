@@ -168,7 +168,7 @@ export function AdminOverviewDashboard() {
           <div className="flex justify-end">
             <Link
               href={`/admin/orders/${ctx.row.original.id}`}
-              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-medium text-brand-black ring-1 ring-black/10 transition hover:bg-black/[0.04]"
+              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-medium text-brand-black ring-1 ring-black/10 transition hover:bg-black/4"
             >
               <IconPencil className="h-4 w-4" stroke={2} />
               Edit
@@ -187,12 +187,12 @@ export function AdminOverviewDashboard() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-xl bg-black/[0.06]"
+              className="h-28 animate-pulse rounded-xl bg-black/6"
             />
           ))}
         </div>
-        <div className="h-96 animate-pulse rounded-xl bg-black/[0.06]" />
-        <div className="h-64 animate-pulse rounded-xl bg-black/[0.06]" />
+        <div className="h-96 animate-pulse rounded-xl bg-black/6" />
+        <div className="h-64 animate-pulse rounded-xl bg-black/6" />
       </div>
     );
   }
@@ -392,13 +392,13 @@ export function AdminOverviewDashboard() {
         </div>
       </section>
 
-      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/[0.06]">
+      <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/6">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-black/55">
           Activity · last {chartDays} days
         </h2>
         <div className="mt-6 h-[340px] w-full min-h-[280px]">
           {!hasChartActivity ? (
-            <div className="flex h-full items-center justify-center rounded-xl bg-black/[0.03] text-sm text-black/55">
+            <div className="flex h-full items-center justify-center rounded-xl bg-black/3 text-sm text-black/55">
               No orders in this window yet — charts will fill as sales come in.
             </div>
           ) : (
@@ -515,7 +515,7 @@ export function AdminOverviewDashboard() {
               key={href}
               href={href}
               className={[
-                "flex gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/[0.06]",
+                "flex gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/6",
                 "transition hover:-translate-y-px hover:shadow-softSm hover:ring-brand-pink/25",
               ].join(" ")}
             >

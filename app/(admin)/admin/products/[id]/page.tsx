@@ -2,6 +2,7 @@
 
 import { AdminTitle } from "@/components/admin/AdminTitle";
 import { ProductForm } from "@/components/admin/product/ProductForm";
+import type { ProductInput } from "@/lib/validators/product.schema";
 import { useGetProductByIdQuery } from "@/store/api/productsApi";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -85,7 +86,7 @@ export default function EditProductPage() {
     );
   }
 
-  const initialValues = {
+  const initialValues: ProductInput = {
     name: data.name,
     slug: data.slug,
     sku: data.sku ?? "",
@@ -96,11 +97,27 @@ export default function EditProductPage() {
         ? data.discountPriceCents / 100
         : undefined,
     images: data.images ?? [],
-    category: "embroidery",
+    category: data.category ?? "embroidery",
     status: data.isActive ? "active" : "draft",
     stockQuantity: data.stockQuantity,
     trackInventory: data.trackInventory,
-  } as const;
+    tagsText: (data.tags ?? []).join(", "),
+    sizesText: (data.sizes ?? []).join(", "),
+    colorsText: (data.colors ?? []).join(", "),
+    brand: data.brand ?? "",
+    fabricType: data.fabricType ?? "",
+    embroideryType: data.embroideryType ?? "",
+    ratingAverage: data.ratingAverage ?? 4.8,
+    ratingCount: data.ratingCount ?? 0,
+    showInHero: data.showInHero ?? false,
+    featured: data.featured ?? false,
+    isTopRated: data.isTopRated ?? false,
+    isCombo: data.isCombo ?? false,
+    trending: data.trending ?? false,
+    handmade: data.handmade ?? false,
+    boutiquePick: data.boutiquePick ?? false,
+    newArrival: data.newArrival ?? false,
+  };
 
   return (
     <motion.div

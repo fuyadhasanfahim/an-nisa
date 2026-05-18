@@ -87,8 +87,8 @@ export function EarningsDashboard() {
   if (isLoading && !data) {
     return (
       <div className="grid gap-5 lg:grid-cols-2">
-        <div className="h-36 animate-pulse rounded-xl bg-black/[0.06] lg:col-span-2" />
-        <div className="h-72 animate-pulse rounded-xl bg-black/[0.06] lg:col-span-2" />
+        <div className="h-36 animate-pulse rounded-xl bg-black/6 lg:col-span-2" />
+        <div className="h-72 animate-pulse rounded-xl bg-black/6 lg:col-span-2" />
       </div>
     );
   }
@@ -126,7 +126,7 @@ export function EarningsDashboard() {
                 "rounded-lg px-4 py-2 text-sm font-medium transition",
                 days === opt.days
                   ? "bg-[#0b0b0f] text-white shadow-sm"
-                  : "text-black/65 hover:bg-black/[0.04] hover:text-brand-black",
+                  : "text-black/65 hover:bg-black/4 hover:text-brand-black",
               ].join(" ")}
             >
               {opt.label}
@@ -222,7 +222,7 @@ export function EarningsDashboard() {
         </div>
       </div>
 
-      <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/[0.06]">
+      <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/6">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
           <div>
             <div className="text-xs font-medium uppercase tracking-wide text-black/55">
@@ -238,7 +238,7 @@ export function EarningsDashboard() {
         </div>
         <div className="mt-6 h-80 w-full min-h-[280px]">
           {trendData.every((d) => d.paidCents === 0) ? (
-            <div className="flex h-full items-center justify-center rounded-xl bg-black/[0.03] text-sm text-black/55">
+            <div className="flex h-full items-center justify-center rounded-xl bg-black/3 text-sm text-black/55">
               No paid orders in this window yet.
             </div>
           ) : (
@@ -300,7 +300,7 @@ export function EarningsDashboard() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-5">
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/[0.06] lg:col-span-3">
+        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/6 lg:col-span-3">
           <div className="text-xs font-medium uppercase tracking-wide text-black/55">
             Payment method
           </div>
@@ -309,7 +309,7 @@ export function EarningsDashboard() {
           </div>
           <div className="mt-6 h-72">
             {methodBars.length === 0 ? (
-              <div className="flex h-full items-center justify-center rounded-xl bg-black/[0.03] text-sm text-black/55">
+              <div className="flex h-full items-center justify-center rounded-xl bg-black/3 text-sm text-black/55">
                 No paid orders in this window.
               </div>
             ) : (
@@ -362,7 +362,7 @@ export function EarningsDashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/[0.06] lg:col-span-2">
+        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/6 lg:col-span-2">
           <div className="text-xs font-medium uppercase tracking-wide text-black/55">
             Fulfillment status
           </div>
@@ -371,7 +371,7 @@ export function EarningsDashboard() {
           </div>
           <div className="mt-4 h-72">
             {statusPie.length === 0 ? (
-              <div className="flex h-full items-center justify-center rounded-xl bg-black/[0.03] text-sm text-black/55">
+              <div className="flex h-full items-center justify-center rounded-xl bg-black/3 text-sm text-black/55">
                 No orders in this window.
               </div>
             ) : (

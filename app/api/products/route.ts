@@ -1,15 +1,36 @@
 import { prisma } from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
-import { productSchema } from "@/lib/validators/product.schema";
-import { normalizeProductListQuery } from "@/lib/validators/product-list.query";
+import {
+  productSchema,
+  productInputToPersist,
+} from "@/lib/validators/product.schema";
+import {
+  normalizeProductListQuery,
+  orderByFromSortMode,
+  productFiltersFromSearchParams,
+} from "@/lib/validators/product-list.query";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { publicProductId } from "@/lib/ids/public-ref";
+import { getSessionFromRequest } from "@/lib/auth/get-session";
+import { buildProductWhere } from "@/lib/products/product-list-where";
 
 export const runtime = "nodejs";
 
+function serializeProduct(p: Prisma.ProductGetPayload<object>) {
+  return {
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
+    effectivePriceCents: p.discountPriceCents ?? p.priceCents,
+  };
+}
+
 export async function GET(req: Request) {
   try {
+    const session = await getSessionFromRequest(req);
+    const isAdmin = session?.user?.role === "admin";
+
     const { searchParams } = new URL(req.url);
     const q = normalizeProductListQuery({
       q: searchParams.get("q") ?? "",
@@ -17,20 +38,23 @@ export async function GET(req: Request) {
       order: searchParams.get("order") ?? undefined,
       page: searchParams.get("page") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
+      sortMode: searchParams.get("sortMode") ?? undefined,
     });
 
-    const where: Prisma.ProductWhereInput =
-      q.q.length > 0
-        ? {
-            OR: [
-              { name: { contains: q.q, mode: "insensitive" } },
-              { slug: { contains: q.q, mode: "insensitive" } },
-              { sku: { contains: q.q, mode: "insensitive" } },
-            ],
-          }
-        : {};
+    const filters = productFiltersFromSearchParams(searchParams);
+    const includeInactive = Boolean(isAdmin && filters.includeInactive);
+    const requireActive = !includeInactive;
 
-    const orderBy = { [q.sort]: q.order } as Prisma.ProductOrderByWithRelationInput;
+    const where = buildProductWhere({
+      q: q.q,
+      filters,
+      requireActive,
+    });
+
+    const ob = orderByFromSortMode(q.sortMode, { sort: q.sort, order: q.order });
+    const orderBy = {
+      [ob.field]: ob.order,
+    } as Prisma.ProductOrderByWithRelationInput;
 
     const total = await prisma.product.count({ where });
     const totalPages = Math.max(1, Math.ceil(total / q.limit));
@@ -45,17 +69,14 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json({
-      items: products.map((p) => ({
-        ...p,
-        createdAt: p.createdAt.toISOString(),
-        updatedAt: p.updatedAt.toISOString(),
-      })),
+      items: products.map(serializeProduct),
       total,
       page,
       limit: q.limit,
       totalPages,
-      sort: q.sort,
-      order: q.order,
+      sort: ob.field,
+      order: ob.order,
+      sortMode: q.sortMode ?? null,
       q: q.q,
     });
   } catch {
@@ -69,7 +90,13 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const json = await req.json();
-    const input = productSchema.parse(json);
+    const parsed = productSchema.parse(json);
+    const input = productInputToPersist(parsed);
+
+    const discountPriceCents =
+      input.discountPrice != null && Number.isFinite(input.discountPrice)
+        ? Math.round(input.discountPrice * 100)
+        : null;
 
     for (let attempt = 0; attempt < 25; attempt++) {
       try {
@@ -81,24 +108,33 @@ export async function POST(req: Request) {
             sku: input.sku,
             description: input.description ?? null,
             priceCents: Math.round(input.price * 100),
-            discountPriceCents:
-              input.discountPrice != null &&
-              Number.isFinite(input.discountPrice)
-                ? Math.round(input.discountPrice * 100)
-                : null,
+            discountPriceCents,
             currency: "BDT",
             images: input.images ?? [],
             isActive: input.status === "active",
             stockQuantity: input.stockQuantity,
             trackInventory: input.trackInventory,
+            category: input.category,
+            tags: input.tags,
+            brand: input.brand ?? null,
+            sizes: input.sizes,
+            colors: input.colors,
+            fabricType: input.fabricType ?? null,
+            embroideryType: input.embroideryType ?? null,
+            ratingAverage: input.ratingAverage,
+            ratingCount: input.ratingCount,
+            showInHero: input.showInHero,
+            featured: input.featured,
+            isTopRated: input.isTopRated,
+            isCombo: input.isCombo,
+            trending: input.trending,
+            handmade: input.handmade,
+            boutiquePick: input.boutiquePick,
+            newArrival: input.newArrival,
           },
         });
 
-        return NextResponse.json({
-          ...created,
-          createdAt: created.createdAt.toISOString(),
-          updatedAt: created.updatedAt.toISOString(),
-        });
+        return NextResponse.json(serializeProduct(created));
       } catch (err) {
         if (
           err instanceof Prisma.PrismaClientKnownRequestError &&
@@ -131,4 +167,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

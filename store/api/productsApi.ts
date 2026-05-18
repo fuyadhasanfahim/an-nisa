@@ -1,6 +1,12 @@
 import { baseApi } from "@/store/api/baseApi";
 import type { ProductInput } from "@/lib/validators/product.schema";
-import type { ProductListQuery } from "@/lib/validators/product-list.query";
+import {
+  normalizeProductListQuery,
+  type ProductListFilters,
+  type ProductListQuery,
+  type ProductListSortField,
+} from "@/lib/validators/product-list.query";
+import { appendProductFilters } from "@/lib/products/append-product-filters";
 
 export type ProductDto = {
   id: string;
@@ -10,14 +16,35 @@ export type ProductDto = {
   description: string | null;
   priceCents: number;
   discountPriceCents: number | null;
+  effectivePriceCents: number;
   currency: string;
   images: string[];
   isActive: boolean;
   stockQuantity: number;
   trackInventory: boolean;
+  category: string;
+  tags: string[];
+  brand: string | null;
+  sizes: string[];
+  colors: string[];
+  fabricType: string | null;
+  embroideryType: string | null;
+  ratingAverage: number;
+  ratingCount: number;
+  showInHero: boolean;
+  featured: boolean;
+  isTopRated: boolean;
+  isCombo: boolean;
+  trending: boolean;
+  handmade: boolean;
+  boutiquePick: boolean;
+  newArrival: boolean;
   createdAt: string;
   updatedAt: string;
 };
+
+export type ProductListApiParams = ProductListQuery &
+  Partial<ProductListFilters>;
 
 export type ProductListResponse = {
   items: ProductDto[];
@@ -25,23 +52,71 @@ export type ProductListResponse = {
   page: number;
   limit: number;
   totalPages: number;
-  sort: ProductListQuery["sort"];
-  order: ProductListQuery["order"];
+  /** Effective Prisma field used for sorting. */
+  sort: ProductListSortField;
+  order: "asc" | "desc";
+  sortMode?: string | null;
   q: string;
 };
 
+function serializeProductListParams(p: Partial<ProductListApiParams>): string {
+  const normalized = normalizeProductListQuery({
+    q: p.q,
+    sort: p.sort,
+    order: p.order,
+    page: p.page,
+    limit: p.limit,
+    sortMode: p.sortMode,
+  });
+
+  const sp = new URLSearchParams();
+  if (normalized.q) sp.set("q", normalized.q);
+  sp.set("sort", normalized.sort);
+  sp.set("order", normalized.order);
+  sp.set("page", String(normalized.page));
+  sp.set("limit", String(normalized.limit));
+  if (normalized.sortMode) sp.set("sortMode", normalized.sortMode);
+
+  const filterKeys: Array<keyof ProductListFilters> = [
+    "category",
+    "priceMinCents",
+    "priceMaxCents",
+    "size",
+    "color",
+    "fabricType",
+    "embroideryType",
+    "minRating",
+    "inStockOnly",
+    "brand",
+    "onSaleOnly",
+    "trendingOnly",
+    "handmadeOnly",
+    "featuredOnly",
+    "includeInactive",
+    "heroOnly",
+    "topRatedOnly",
+    "comboOnly",
+    "boutiquePickOnly",
+    "newArrivalOnly",
+    "embroideryCollection",
+    "handmadeCollection",
+  ];
+
+  const filters: Partial<ProductListFilters> = {};
+  for (const k of filterKeys) {
+    const v = p[k];
+    if (v !== undefined) (filters as Record<string, unknown>)[k as string] = v;
+  }
+  appendProductFilters(sp, filters);
+  const qs = sp.toString();
+  return qs.length ? `?${qs}` : "";
+}
+
 export const productsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    listProducts: build.query<ProductListResponse, ProductListQuery>({
+    listProducts: build.query<ProductListResponse, Partial<ProductListApiParams>>({
       query: (params) => ({
-        url: "/products",
-        params: {
-          ...(params.q ? { q: params.q } : {}),
-          sort: params.sort,
-          order: params.order,
-          page: params.page,
-          limit: params.limit,
-        },
+        url: `/products${serializeProductListParams(params)}`,
       }),
       providesTags: (result) =>
         result
@@ -115,4 +190,3 @@ export const {
   usePatchProductMutation,
   useDeleteProductMutation,
 } = productsApi;
-

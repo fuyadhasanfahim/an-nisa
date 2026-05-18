@@ -1,12 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #fffbfc;
   --foreground: #0b0b0f;
   --brand-pink: #fcc4c8;
+  --muted: #fcf4f7;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.dark {
+  --background: #0b090c;
+  --foreground: #f7f5f8;
+  --muted: rgba(247, 245, 248, 0.08);
 }
 
 body {

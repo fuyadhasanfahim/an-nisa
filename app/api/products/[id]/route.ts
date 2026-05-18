@@ -4,10 +4,20 @@ import { NextResponse } from "next/server";
 import {
   productPatchSchema,
   productSchema,
+  productInputToPersist,
 } from "@/lib/validators/product.schema";
 import { z } from "zod";
 
 export const runtime = "nodejs";
+
+function serializeProduct(p: Prisma.ProductGetPayload<object>) {
+  return {
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
+    effectivePriceCents: p.discountPriceCents ?? p.priceCents,
+  };
+}
 
 export async function GET(
   _req: Request,
@@ -18,11 +28,7 @@ export async function GET(
   if (!product) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json({
-    ...product,
-    createdAt: product.createdAt.toISOString(),
-    updatedAt: product.updatedAt.toISOString(),
-  });
+  return NextResponse.json(serializeProduct(product));
 }
 
 export async function PUT(
@@ -32,7 +38,13 @@ export async function PUT(
   try {
     const { id } = await params;
     const json = await req.json();
-    const input = productSchema.parse(json);
+    const parsed = productSchema.parse(json);
+    const input = productInputToPersist(parsed);
+
+    const discountPriceCents =
+      input.discountPrice != null && Number.isFinite(input.discountPrice)
+        ? Math.round(input.discountPrice * 100)
+        : null;
 
     const updated = await prisma.product.update({
       where: { id },
@@ -42,22 +54,32 @@ export async function PUT(
         sku: input.sku,
         description: input.description ?? null,
         priceCents: Math.round(input.price * 100),
-        discountPriceCents:
-          input.discountPrice != null && Number.isFinite(input.discountPrice)
-            ? Math.round(input.discountPrice * 100)
-            : null,
+        discountPriceCents,
         images: input.images ?? [],
         isActive: input.status === "active",
         stockQuantity: input.stockQuantity,
         trackInventory: input.trackInventory,
+        category: input.category,
+        tags: input.tags,
+        brand: input.brand ?? null,
+        sizes: input.sizes,
+        colors: input.colors,
+        fabricType: input.fabricType ?? null,
+        embroideryType: input.embroideryType ?? null,
+        ratingAverage: input.ratingAverage,
+        ratingCount: input.ratingCount,
+        showInHero: input.showInHero,
+        featured: input.featured,
+        isTopRated: input.isTopRated,
+        isCombo: input.isCombo,
+        trending: input.trending,
+        handmade: input.handmade,
+        boutiquePick: input.boutiquePick,
+        newArrival: input.newArrival,
       },
     });
 
-    return NextResponse.json({
-      ...updated,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
-    });
+    return NextResponse.json(serializeProduct(updated));
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
@@ -83,11 +105,7 @@ export async function PATCH(
       data: { isActive: body.isActive },
     });
 
-    return NextResponse.json({
-      ...updated,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
-    });
+    return NextResponse.json(serializeProduct(updated));
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
@@ -138,4 +156,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
   }
 }
-

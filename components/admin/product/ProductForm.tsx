@@ -106,6 +106,22 @@ export function ProductForm({
       status: "active",
       stockQuantity: 0,
       trackInventory: false,
+      tagsText: "",
+      brand: "",
+      sizesText: "",
+      colorsText: "",
+      fabricType: "",
+      embroideryType: "",
+      ratingAverage: 4.8,
+      ratingCount: 0,
+      showInHero: false,
+      featured: false,
+      isTopRated: false,
+      isCombo: false,
+      trending: false,
+      handmade: false,
+      boutiquePick: false,
+      newArrival: false,
     },
     mode: "onBlur",
   });
@@ -242,6 +258,9 @@ export function ProductForm({
                 <FormSelect {...register("category")}>
                   <option value="embroidery">Embroidery</option>
                   <option value="abaya">Abaya</option>
+                  <option value="fashion">Women&apos;s fashion</option>
+                  <option value="textiles">Fabrics</option>
+                  <option value="handmade">Handmade</option>
                   <option value="custom">Custom</option>
                   <option value="accessories">Accessories</option>
                 </FormSelect>
@@ -303,6 +322,158 @@ export function ProductForm({
             onChange={(v) => setValue("trackInventory", v, { shouldDirty: true })}
             disabled={isSaving}
             error={errors.trackInventory?.message}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Storefront details"
+        description="Filters, badges, search — powering the boutique shop experience."
+      >
+        <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+          <FormField label="Brand" error={errors.brand?.message}>
+            <FormInput placeholder="Studio / line name (optional)" {...register("brand")} />
+          </FormField>
+          <FormField label="Fabric" error={errors.fabricType?.message}>
+            <FormInput placeholder="Silk linen, velvet…" {...register("fabricType")} />
+          </FormField>
+        </div>
+
+        <div className="mt-5 grid gap-5 sm:grid-cols-2 sm:items-stretch">
+          <FormField label="Embroidery technique" error={errors.embroideryType?.message}>
+            <FormInput placeholder="Zardozi, motif, tonal…" {...register("embroideryType")} />
+          </FormField>
+          <div className="grid gap-5 sm:grid-cols-2 sm:items-stretch">
+            <FormField label="Rating (average)" hint="0–5 display score" error={errors.ratingAverage?.message}>
+              <FormInput
+                type="number"
+                step="0.1"
+                min={0}
+                max={5}
+                {...register("ratingAverage")}
+              />
+            </FormField>
+            <FormField label="Review count" error={errors.ratingCount?.message}>
+              <FormInput type="number" min={0} step={1} {...register("ratingCount")} />
+            </FormField>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-5 md:grid-cols-3">
+          <FormField
+            label="Tags"
+            hint="Comma or newline separated • used for search"
+            error={errors.tagsText?.message}
+          >
+            <FormTextarea rows={4} placeholder="heritage • bridal • gifting" {...register("tagsText")} />
+          </FormField>
+          <FormField
+            label="Sizes"
+            hint="Comma separated — XS, S, M…"
+            error={errors.sizesText?.message}
+          >
+            <FormTextarea rows={4} placeholder="Free size, XS, S, M…" {...register("sizesText")} />
+          </FormField>
+          <FormField
+            label="Colors"
+            hint="Comma separated palette names"
+            error={errors.colorsText?.message}
+          >
+            <FormTextarea rows={4} placeholder="Pearl blush, noir, porcelain…" {...register("colorsText")} />
+          </FormField>
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Merchandising"
+        description="Control how this piece appears across carousels and hero sliders."
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormToggleRow
+            label="Show in hero slider"
+            switchAriaLabel={watch("showInHero") ? "Remove from hero slider" : "Add to hero slider"}
+            caption="Large banner placement on the storefront"
+            checked={watch("showInHero")}
+            onChange={(v) => setValue("showInHero", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.showInHero?.message}
+          />
+          <FormToggleRow
+            label="Featured collection"
+            switchAriaLabel={
+              watch("featured") ? "Remove from featured" : "Promote as featured product"
+            }
+            caption='Appears inside "Featured products"'
+            checked={watch("featured")}
+            onChange={(v) => setValue("featured", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.featured?.message}
+          />
+          <FormToggleRow
+            label="Top rated spotlight"
+            switchAriaLabel={
+              watch("isTopRated") ? "Remove top rated spotlight" : "Highlight as top rated"
+            }
+            caption='Maps to "Top Rated" carousel'
+            checked={watch("isTopRated")}
+            onChange={(v) => setValue("isTopRated", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.isTopRated?.message}
+          />
+          <FormToggleRow
+            label="Combo offer"
+            switchAriaLabel={
+              watch("isCombo") ? "Remove combo offer flag" : "Mark as curated combo kit"
+            }
+            caption='Surfaces inside "Combo offers"'
+            checked={watch("isCombo")}
+            onChange={(v) => setValue("isCombo", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.isCombo?.message}
+          />
+          <FormToggleRow
+            label="Trending pulse"
+            switchAriaLabel={
+              watch("trending") ? "Remove trending ribbon" : "Mark as trending"
+            }
+            caption="Trending carousel + ribbons"
+            checked={watch("trending")}
+            onChange={(v) => setValue("trending", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.trending?.message}
+          />
+          <FormToggleRow
+            label="Handmade heirloom"
+            switchAriaLabel={
+              watch("handmade") ? "Remove handmade flag" : "Show as handcrafted"
+            }
+            caption="Handmade capsule collection lane"
+            checked={watch("handmade")}
+            onChange={(v) => setValue("handmade", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.handmade?.message}
+          />
+          <FormToggleRow
+            label="Premium boutique pick"
+            switchAriaLabel={
+              watch("boutiquePick") ? "Remove boutique pick ribbon" : "Curate boutique pick"
+            }
+            caption='"Premium boutique picks"'
+            checked={watch("boutiquePick")}
+            onChange={(v) => setValue("boutiquePick", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.boutiquePick?.message}
+          />
+          <FormToggleRow
+            label="New arrival"
+            switchAriaLabel={
+              watch("newArrival") ? "Remove new arrival sparkle" : "Feature as fresh drop"
+            }
+            caption='"New arrivals" lane'
+            checked={watch("newArrival")}
+            onChange={(v) => setValue("newArrival", v, { shouldDirty: true })}
+            disabled={isSaving}
+            error={errors.newArrival?.message}
           />
         </div>
       </FormSection>
