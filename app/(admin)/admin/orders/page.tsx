@@ -14,12 +14,8 @@ function OrdersTableFallback() {
 export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-serif text-3xl tracking-tight">Orders</h1>
-          <p className="mt-2 text-sm text-black/65">Track and fulfill orders</p>
-        </div>
-
+      <h1 className="sr-only">Orders</h1>
+      <div className="flex justify-end">
         <Link
           href="/admin/orders/new"
           className={[

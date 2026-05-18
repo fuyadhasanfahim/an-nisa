@@ -199,6 +199,20 @@ model CustomOrder {
   @@map("custom_order")
 }
 
+model Expense {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  category     String?
+  amountCents  Int
+  currency     String   @default("BDT")
+  spentAt      DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("expense")
+}
+
 model CustomerProfile {
   id        String   @id @default(cuid())
   userId    String   @unique

@@ -169,7 +169,7 @@ export function CustomerModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/10"
+        className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/10"
       >
         <div className="flex items-start justify-between gap-4">
           <div>

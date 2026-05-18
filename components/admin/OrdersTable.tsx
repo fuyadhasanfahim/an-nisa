@@ -16,25 +16,17 @@ import {
     usePatchOrderMutation,
 } from '@/store/api/ordersApi';
 import Link from 'next/link';
-import {
-    IconChevronLeft,
-    IconChevronRight,
-    IconEye,
-    IconPencil,
-    IconPlus,
-    IconTrash,
-} from '@tabler/icons-react';
+import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/components/shared/toast/useToast';
 import { ConfirmAlertDialog } from '@/components/ui/ConfirmAlertDialog';
 import { OrderDetailModal } from '@/components/admin/OrderDetailModal';
 import {
-    ORDER_PAGE_SIZES,
+    ORDER_LIST_FULL_LIMIT,
     ORDER_SORT_FIELDS,
     normalizeOrderListQuery,
     type OrderListQuery,
     type OrderListSortField,
-    type OrderPageSize,
 } from '@/lib/validators/order-list.query';
 import { ORDER_STATUSES } from '@/lib/validators/order.schema';
 import { adminControlClass, FormSelect } from '@/components/admin/form';
@@ -70,13 +62,14 @@ function sortTupleFromSelect(v: string): {
     return { sort, order };
 }
 
-function listQueryToSearchString(p: OrderListQuery): string {
+/** Orders list URL: search + sort only (no pagination). */
+function ordersToolbarQueryToSearchString(
+    p: Pick<OrderListQuery, 'q' | 'sort' | 'order' | 'withoutInvoice'>,
+): string {
     const sp = new URLSearchParams();
     if (p.q) sp.set('q', p.q);
     sp.set('sort', p.sort);
     sp.set('order', p.order);
-    sp.set('page', String(p.page));
-    sp.set('limit', String(p.limit));
     if (p.withoutInvoice) sp.set('withoutInvoice', '1');
     return sp.toString();
 }
@@ -392,18 +385,17 @@ export function OrdersTable() {
         setViewOrderId(id);
     }, []);
 
-    const listQuery = useMemo(
-        () =>
-            normalizeOrderListQuery({
-                q: searchParams.get('q'),
-                sort: searchParams.get('sort'),
-                order: searchParams.get('order'),
-                page: searchParams.get('page'),
-                limit: searchParams.get('limit'),
-                withoutInvoice: searchParams.get('withoutInvoice'),
-            }),
-        [searchParams],
-    );
+    const listQuery = useMemo(() => {
+        const parsed = normalizeOrderListQuery({
+            q: searchParams.get('q'),
+            sort: searchParams.get('sort'),
+            order: searchParams.get('order'),
+            page: 1,
+            limit: ORDER_LIST_FULL_LIMIT,
+            withoutInvoice: searchParams.get('withoutInvoice'),
+        });
+        return { ...parsed, page: 1, limit: ORDER_LIST_FULL_LIMIT };
+    }, [searchParams]);
 
     const { data, isLoading, isFetching } = useListOrdersQuery(listQuery);
 
@@ -422,16 +414,26 @@ export function OrdersTable() {
                 ...listQuery,
                 q: nextQ,
                 page: 1,
+                limit: ORDER_LIST_FULL_LIMIT,
             };
-            router.replace(`${pathname}?${listQueryToSearchString(next)}`);
+            router.replace(
+                `${pathname}?${ordersToolbarQueryToSearchString(next)}`,
+            );
         }, 400);
         return () => window.clearTimeout(t);
     }, [searchDraft, listQuery, pathname, router]);
 
     const pushQuery = useCallback(
         (patch: Partial<OrderListQuery>) => {
-            const next = { ...listQuery, ...patch };
-            router.replace(`${pathname}?${listQueryToSearchString(next)}`);
+            const next = {
+                ...listQuery,
+                ...patch,
+                page: 1,
+                limit: ORDER_LIST_FULL_LIMIT,
+            };
+            router.replace(
+                `${pathname}?${ordersToolbarQueryToSearchString(next)}`,
+            );
         },
         [listQuery, pathname, router],
     );
@@ -455,11 +457,6 @@ export function OrdersTable() {
 
     const sortSelectValue =
         `${listQuery.sort}:${listQuery.order}` as (typeof SORT_OPTIONS)[number]['value'];
-
-    const rangeStart = data?.total ? (data.page - 1) * data.limit + 1 : 0;
-    const rangeEnd = data?.total
-        ? Math.min(data.page * data.limit, data.total)
-        : 0;
 
     if (isLoading && !data) {
         return (
@@ -535,34 +532,13 @@ export function OrdersTable() {
                             const { sort, order } = sortTupleFromSelect(
                                 e.target.value,
                             );
-                            pushQuery({ sort, order, page: 1 });
+                            pushQuery({ sort, order });
                         }}
                         aria-label="Sort orders"
                     >
                         {SORT_OPTIONS.map((o) => (
                             <option key={o.value} value={o.value}>
                                 {o.label}
-                            </option>
-                        ))}
-                    </FormSelect>
-                </label>
-                <label className="grid w-full gap-1.5 sm:w-36">
-                    <span className="text-xs font-medium text-black/55">
-                        Per page
-                    </span>
-                    <FormSelect
-                        value={listQuery.limit}
-                        onChange={(e) => {
-                            const n = Number(e.target.value);
-                            const limit: OrderPageSize =
-                                n === 50 || n === 100 ? n : 20;
-                            pushQuery({ limit, page: 1 });
-                        }}
-                        aria-label="Orders per page"
-                    >
-                        {ORDER_PAGE_SIZES.map((n) => (
-                            <option key={n} value={n}>
-                                {n}
                             </option>
                         ))}
                     </FormSelect>
@@ -585,50 +561,11 @@ export function OrdersTable() {
                 </div>
             )}
 
-            {data && data.total > 0 ? (
-                <div
-                    className={[
-                        'flex flex-col gap-3 rounded-xl bg-white px-4 py-3 text-sm text-black/65 shadow-sm ring-1 ring-black/5',
-                        'sm:flex-row sm:items-center sm:justify-between',
-                    ].join(' ')}
-                >
-                    <p className="tabular-nums">
-                        Showing {rangeStart}–{rangeEnd} of {data.total}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <button
-                            type="button"
-                            disabled={data.page <= 1}
-                            onClick={() => pushQuery({ page: data.page - 1 })}
-                            className={[
-                                'inline-flex items-center gap-1 rounded-xl bg-white px-3 py-2 text-sm font-medium text-brand-black',
-                                'ring-1 ring-black/10 transition hover:bg-black/5',
-                                'disabled:cursor-not-allowed disabled:opacity-45',
-                                'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40',
-                            ].join(' ')}
-                        >
-                            <IconChevronLeft className="h-4 w-4" stroke={2} />
-                            Previous
-                        </button>
-                        <span className="px-1 tabular-nums">
-                            Page {data.page} of {data.totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            disabled={data.page >= data.totalPages}
-                            onClick={() => pushQuery({ page: data.page + 1 })}
-                            className={[
-                                'inline-flex items-center gap-1 rounded-xl bg-white px-3 py-2 text-sm font-medium text-brand-black',
-                                'ring-1 ring-black/10 transition hover:bg-black/5',
-                                'disabled:cursor-not-allowed disabled:opacity-45',
-                                'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40',
-                            ].join(' ')}
-                        >
-                            Next
-                            <IconChevronRight className="h-4 w-4" stroke={2} />
-                        </button>
-                    </div>
-                </div>
+            {data && data.total > ORDER_LIST_FULL_LIMIT ? (
+                <p className="text-xs text-black/50">
+                    Showing the first {ORDER_LIST_FULL_LIMIT} orders (
+                    {data.total} total). Refine search to narrow results.
+                </p>
             ) : null}
         </div>
     );

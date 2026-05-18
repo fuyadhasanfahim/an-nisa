@@ -115,11 +115,7 @@ export function EarningsDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <p className="text-sm text-black/60">
-          Paid orders drive recognized revenue. Pending totals show unsettled
-          payments in your pipeline.
-        </p>
+      <div className="flex justify-end">
         <div className="flex rounded-xl bg-white p-1 shadow-sm ring-1 ring-black/10">
           {RANGE_OPTIONS.map((opt) => (
             <button

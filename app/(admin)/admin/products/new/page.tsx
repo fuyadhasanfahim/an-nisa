@@ -12,7 +12,7 @@ export default function NewProductPage() {
       transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
       className="space-y-6"
     >
-      <AdminTitle title="Add Product" subtitle="Create a new product in your catalog" />
+      <AdminTitle title="Add Product" />
 
       <div className="mx-auto w-full max-w-4xl">
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">

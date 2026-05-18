@@ -1,14 +1,12 @@
-import { AdminTitle } from "@/components/admin/AdminTitle";
 import { EarningsDashboard } from "@/components/admin/EarningsDashboard";
+import { ExpensesSection } from "@/components/admin/ExpensesSection";
 
 export default function AdminEarningsPage() {
   return (
     <div className="space-y-6">
-      <AdminTitle
-        title="Earnings"
-        subtitle="Revenue and order mix from your shop — paid orders, trends, and pipeline."
-      />
+      <h1 className="sr-only">Earnings</h1>
       <EarningsDashboard />
+      <ExpensesSection />
     </div>
   );
 }

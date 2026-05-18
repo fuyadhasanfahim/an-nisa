@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { AdminTitle } from "@/components/admin/AdminTitle";
 import { InvoicesSection } from "@/components/admin/InvoicesSection";
 
 function InvoicesFallback() {
@@ -15,10 +14,7 @@ function InvoicesFallback() {
 export default function AdminInvoicesPage() {
   return (
     <div className="space-y-6">
-      <AdminTitle
-        title="Invoices"
-        subtitle="Issue invoices from orders and download PDFs aligned with totals."
-      />
+      <h1 className="sr-only">Invoices</h1>
       <Suspense fallback={<InvoicesFallback />}>
         <InvoicesSection />
       </Suspense>

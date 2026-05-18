@@ -85,10 +85,7 @@ export default function ProductDetailsPage() {
       className="space-y-6"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <AdminTitle
-          title={p.name}
-          subtitle="Read-only overview — edit to make changes."
-        />
+        <AdminTitle title={p.name} />
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/admin/products/${p.id}`}

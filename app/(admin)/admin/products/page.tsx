@@ -14,12 +14,8 @@ function ProductsTableFallback() {
 export default function AdminProductsPage() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-serif text-3xl tracking-tight">Products</h1>
-          <p className="mt-2 text-sm text-black/65">Manage your catalog</p>
-        </div>
-
+      <h1 className="sr-only">Products</h1>
+      <div className="flex justify-end">
         <Link
           href="/admin/products/new"
           className={[

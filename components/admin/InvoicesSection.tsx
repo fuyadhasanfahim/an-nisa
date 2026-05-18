@@ -137,9 +137,8 @@ function IssueInvoicePanel() {
           <h2 className="font-serif text-xl tracking-tight text-brand-black">
             Issue from order
           </h2>
-          <p className="mt-1 text-sm text-black/60">
-            Pick an order that doesn&apos;t have an invoice yet. PDF uses live
-            line items and totals from that order.
+          <p className="mt-1 text-xs text-black/50">
+            Orders without an invoice yet.
           </p>
         </div>
         <Link
@@ -372,9 +371,7 @@ export function InvoicesSection() {
           <h2 className="font-serif text-xl tracking-tight text-brand-black">
             Issued invoices
           </h2>
-          <p className="text-sm text-black/60">
-            Search by invoice number, order id, or customer.
-          </p>
+          <p className="text-xs text-black/50">Search invoice, order, or customer.</p>
         </div>
 
         {data && data.total === 0 && !listQuery.q ? (

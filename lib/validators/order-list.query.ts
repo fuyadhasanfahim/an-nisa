@@ -1,6 +1,9 @@
 export const ORDER_PAGE_SIZES = [20, 50, 100] as const;
 export type OrderPageSize = (typeof ORDER_PAGE_SIZES)[number];
 
+/** Admin orders list without pagination (single request cap). */
+export const ORDER_LIST_FULL_LIMIT = 1000 as const;
+
 export const ORDER_SORT_FIELDS = [
   "createdAt",
   "updatedAt",
@@ -14,7 +17,7 @@ export type OrderListQuery = {
   sort: OrderListSortField;
   order: "asc" | "desc";
   page: number;
-  limit: OrderPageSize;
+  limit: OrderPageSize | typeof ORDER_LIST_FULL_LIMIT;
   /** When true, only orders that do not yet have an invoice. */
   withoutInvoice: boolean;
 };
@@ -42,8 +45,12 @@ export function normalizeOrderListQuery(input: {
   page = Math.floor(page);
   let rawLimit = Number(input.limit ?? 20);
   if (!Number.isFinite(rawLimit)) rawLimit = 20;
-  const limit: OrderPageSize =
-    rawLimit === 50 || rawLimit === 100 ? rawLimit : 20;
+  const limit: OrderListQuery["limit"] =
+    rawLimit === ORDER_LIST_FULL_LIMIT
+      ? ORDER_LIST_FULL_LIMIT
+      : rawLimit === 50 || rawLimit === 100
+        ? rawLimit
+        : 20;
   const withoutInvoice =
     input.withoutInvoice === "1" || input.withoutInvoice === "true";
   return { q, sort, order, page, limit, withoutInvoice };

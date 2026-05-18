@@ -6,10 +6,12 @@ export function AdminTitle({
   subtitle?: string;
 }) {
   return (
-    <div>
-      <h1 className="font-serif text-3xl tracking-tight">{title}</h1>
+    <div className="space-y-1">
+      <h1 className="text-lg font-semibold tracking-tight text-brand-black">
+        {title}
+      </h1>
       {subtitle ? (
-        <p className="mt-2 text-sm text-black/65">{subtitle}</p>
+        <p className="text-xs text-black/50">{subtitle}</p>
       ) : null}
     </div>
   );

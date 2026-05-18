@@ -4,7 +4,9 @@ import "@/store/api/productsApi";
 import "@/store/api/ordersApi";
 import "@/store/api/invoicesApi";
 import "@/store/api/earningsApi";
+import "@/store/api/expensesApi";
 import "@/store/api/usersApi";
+import "@/store/api/overviewApi";
 
 export const store = configureStore({
   reducer: {
