@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { IconSearch } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { formatBdtFromCents } from "@/lib/money/format-bdt-from-cents";
 
 async function fetchSuggest(q: string) {
   const res = await fetch(`/api/products/suggest?q=${encodeURIComponent(q)}`);
@@ -19,6 +20,10 @@ async function fetchSuggest(q: string) {
     name: string;
     slug: string;
     category: string;
+    images: string[];
+    priceCents: number;
+    discountPriceCents: number | null;
+    effectivePriceCents: number;
   }[];
 }
 
@@ -120,20 +125,53 @@ export function BoutiqueSearchBar({
             className="glass-strong absolute left-0 right-0 top-[calc(100%+6px)] z-[80] overflow-hidden rounded-xl shadow-lg"
           >
             {suggestions.length ? (
-              <ul className="max-h-64 divide-y divide-brand-pink/10 overflow-y-auto">
+              <ul className="max-h-96 divide-y divide-[#fcc4c8]/25 overflow-y-auto">
                 {suggestions.map((item) => (
                   <li key={item.id}>
                     <button
                       type="button"
-                      className="flex w-full flex-col items-start gap-0.5 px-4 py-2.5 text-left transition hover:bg-brand-pink/15"
-                      onClick={() => commitSearch(item.name)}
+                      className="flex w-full items-center gap-3.5 px-4 py-3 text-left transition hover:bg-[#fcc4c8]/20"
+                      onClick={() => {
+                        router.push(`/product/${item.slug}`);
+                        setOpen(false);
+                        setSuggestions([]);
+                      }}
                     >
-                      <span className="text-sm font-medium text-brand-black">
-                        {item.name}
-                      </span>
-                      <span className="text-[11px] text-black/35">
-                        {item.category}
-                      </span>
+                      {/* Product Image */}
+                      {item.images?.[0] ? (
+                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-[#fcc4c8]/30 bg-white shadow-sm">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={item.images[0]}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-14 w-14 shrink-0 rounded-lg bg-[#fcc4c8]/10 flex items-center justify-center border border-[#fcc4c8]/20">
+                          <IconSearch className="h-5 w-5 text-[#fcc4c8]" />
+                        </div>
+                      )}
+
+                      {/* Product Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-brand-black truncate">
+                          {item.name}
+                        </div>
+                        <div className="text-[10px] font-semibold tracking-wider uppercase text-black/40 mt-0.5">
+                          {item.category}
+                        </div>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-brand-black">
+                            {formatBdtFromCents(item.effectivePriceCents)}
+                          </span>
+                          {item.discountPriceCents && (
+                            <span className="text-[10px] text-black/35 line-through">
+                              {formatBdtFromCents(item.priceCents)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </button>
                   </li>
                 ))}
