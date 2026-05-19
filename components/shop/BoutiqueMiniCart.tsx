@@ -46,7 +46,7 @@ export function BoutiqueMiniCart() {
         type="button"
         aria-label="Open heirloom cart"
         onClick={() => setOpen(true)}
-        className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-brand-pink/30 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-brand-pink/15 hover:border-brand-pink/60"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8]"
       >
         <IconShoppingBagHeart className="h-[20px] w-[20px] text-brand-black/75" stroke={1.8} />
         {summary.qty ? (

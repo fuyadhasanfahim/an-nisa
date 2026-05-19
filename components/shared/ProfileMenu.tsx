@@ -65,9 +65,9 @@ export function ProfileMenu({
         aria-controls={menuId}
         onClick={() => setOpen((v) => !v)}
         className={[
-          "flex items-center gap-3 rounded-xl bg-white px-2 py-2 shadow-sm ring-1 ring-black/5 transition",
-          "hover:shadow-softSm",
-          "focus:outline-none focus:ring-2 focus:ring-brand-pink/40",
+          "flex items-center gap-2.5 rounded-full bg-white/75 pl-2 pr-2 sm:pr-4 py-2 shadow-sm border border-[#fcc4c8]/50 transition-all duration-300",
+          "hover:shadow-softSm hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8]",
+          "focus:outline-none focus:ring-2 focus:ring-[#fcc4c8]/40",
         ].join(" ")}
       >
         <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-black/5">

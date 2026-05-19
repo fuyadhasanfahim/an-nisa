@@ -76,7 +76,7 @@ export function BoutiqueSearchBar({
     <div className={cn(containerClass, "isolate")}>
       <form
         onSubmit={(e) => void handleSubmit(e)}
-        className="flex items-center justify-between gap-2 rounded-xl border border-brand-pink/35 bg-white/70 pl-3.5 pr-2 py-1.5 text-sm backdrop-blur-sm transition-all duration-300 focus-within:border-brand-pink/60 focus-within:bg-white focus-within:shadow-[0_4px_16px_rgba(252,196,200,0.12)] focus-within:ring-4 focus-within:ring-brand-pink/10"
+        className="flex h-11 items-center justify-between gap-2 rounded-full border border-[#fcc4c8] bg-white/70 pl-4 pr-1.5 text-sm backdrop-blur-sm transition-all duration-300 focus-within:border-[#fcc4c8] focus-within:bg-white focus-within:shadow-[0_4px_16px_rgba(252,196,200,0.12)] focus-within:ring-4 focus-within:ring-[#fcc4c8]/20"
       >
         <div className="flex flex-1 items-center min-w-0">
           <IconSearch className="mr-2.5 h-4 w-4 shrink-0 text-[#fcc4c8]" stroke={2.2} />
@@ -100,12 +100,12 @@ export function BoutiqueSearchBar({
               if (suggestions.length) setOpen(true);
             }}
             placeholder="Search for premium embroidery, abayas, fashion..."
-            className="w-full bg-transparent text-sm text-brand-black placeholder:text-black/35 focus:outline-none"
+            className="w-full bg-transparent text-xs text-brand-black placeholder:text-black/35 focus:outline-none"
           />
         </div>
         <button
           type="submit"
-          className="flex h-7 items-center justify-center rounded-lg bg-[#fcc4c8] px-3.5 text-xs font-semibold text-brand-black transition-all hover:bg-[#fcc4c8]/85 hover:scale-[1.02] active:scale-[0.98] shadow-sm shrink-0"
+          className="flex h-8 items-center justify-center rounded-full bg-[#fcc4c8] px-4 text-xs font-semibold text-brand-black transition-all hover:bg-[#fcc4c8]/85 hover:scale-[1.02] active:scale-[0.98] shadow-sm shrink-0"
         >
           Search
         </button>
