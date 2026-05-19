@@ -9,6 +9,7 @@ import { formatBdtFromCents } from "@/lib/money/format-bdt-from-cents";
 import { cn } from "@/lib/utils/cn";
 import { useToast } from "@/components/shared/toast/useToast";
 import { useState, useEffect } from "react";
+import { ConfirmAlertDialog } from "@/components/ui/ConfirmAlertDialog";
 
 export default function BoutiqueOrderDetailPage() {
   const params = useParams<{ id?: string | string[] }>();
@@ -28,6 +29,8 @@ export default function BoutiqueOrderDetailPage() {
   const [editCity, setEditCity] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editPaymentId, setEditPaymentId] = useState("");
+  const [editItems, setEditItems] = useState<Array<{ productId: string; quantity: number }>>([]);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   // Sync state values when data arrives
   useEffect(() => {
@@ -36,14 +39,15 @@ export default function BoutiqueOrderDetailPage() {
       setEditCity(data.shippingCity ?? "");
       setEditPhone(data.shippingPhone ?? "");
       setEditPaymentId(data.paymentId ?? "");
+      setEditItems(data.items.map((it) => ({ productId: it.product.id, quantity: it.quantity })));
     }
   }, [data]);
 
   async function handleCancel() {
     if (!data) return;
-    if (!confirm("Are you sure you want to cancel this order?")) return;
     try {
       await updateOrder({ id: data.id, status: "cancelled" }).unwrap();
+      setCancelDialogOpen(false);
       toast({ title: "Order Cancelled", message: "Your order thread has been gently cancelled.", variant: "success" });
     } catch (e: any) {
       toast({ title: "Failed to cancel", message: e.data?.error || "Please try again.", variant: "error" });
@@ -63,9 +67,10 @@ export default function BoutiqueOrderDetailPage() {
         shippingCity: editCity,
         shippingPhone: editPhone,
         paymentId: editPaymentId,
+        items: editItems,
       }).unwrap();
       setIsEditing(false);
-      toast({ title: "Changes Saved", message: "Your shipping information was updated successfully.", variant: "success" });
+      toast({ title: "Changes Saved", message: "Your shipping information and item quantities were updated successfully.", variant: "success" });
     } catch (e: any) {
       toast({ title: "Failed to update", message: e.data?.error || "Please try again.", variant: "error" });
     }
@@ -176,6 +181,56 @@ export default function BoutiqueOrderDetailPage() {
                         onChange={(e) => setEditPaymentId(e.target.value)}
                       />
                     </div>
+                    
+                    <div className="space-y-3.5 border-t border-[#fcc4c8]/25 pt-4">
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-black/55 select-none">
+                        Order Item Quantities
+                      </label>
+                      <div className="space-y-2">
+                        {data.items.map((item) => {
+                          const currentQty = editItems.find((it) => it.productId === item.product.id)?.quantity ?? item.quantity;
+                          return (
+                            <div key={item.id} className="flex items-center justify-between text-xs bg-[#fcc4c8]/5 border border-[#fcc4c8]/15 rounded-2xl p-3 select-none">
+                              <span className="font-serif font-bold text-brand-black pr-2 truncate">{item.product.name}</span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  className="h-7 w-7 rounded-full bg-white border border-[#fcc4c8]/40 hover:bg-[#fcc4c8]/10 flex items-center justify-center font-bold text-brand-black cursor-pointer shadow-sm active:scale-[0.9] transition-transform select-none"
+                                  onClick={() => {
+                                    setEditItems((prev) =>
+                                      prev.map((it) =>
+                                        it.productId === item.product.id
+                                          ? { ...it, quantity: Math.max(1, it.quantity - 1) }
+                                          : it
+                                      )
+                                    );
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center font-bold text-sm text-brand-black">{currentQty}</span>
+                                <button
+                                  type="button"
+                                  className="h-7 w-7 rounded-full bg-white border border-[#fcc4c8]/40 hover:bg-[#fcc4c8]/10 flex items-center justify-center font-bold text-brand-black cursor-pointer shadow-sm active:scale-[0.9] transition-transform select-none"
+                                  onClick={() => {
+                                    setEditItems((prev) =>
+                                      prev.map((it) =>
+                                        it.productId === item.product.id
+                                          ? { ...it, quantity: it.quantity + 1 }
+                                          : it
+                                      )
+                                    );
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     <div className="flex gap-2 pt-2">
                       <button
                         type="button"
@@ -218,7 +273,7 @@ export default function BoutiqueOrderDetailPage() {
                         <button
                           type="button"
                           disabled={isUpdating}
-                          onClick={() => void handleCancel()}
+                          onClick={() => setCancelDialogOpen(true)}
                           className="rounded-full border border-red-200 bg-white hover:bg-red-50 text-red-600 font-bold text-xs uppercase tracking-wider px-6 py-2.5 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                         >
                           Cancel Order
@@ -314,6 +369,18 @@ export default function BoutiqueOrderDetailPage() {
           </section>
         </div>
       </Container>
+      
+      <ConfirmAlertDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        title="Cancel Keepsake Order?"
+        description="Are you absolutely sure you want to wind down and cancel this pending order? This action cannot be undone."
+        confirmLabel="Cancel Order"
+        cancelLabel="Keep Order"
+        variant="destructive"
+        loading={isUpdating}
+        onConfirm={handleCancel}
+      />
     </main>
   );
 }

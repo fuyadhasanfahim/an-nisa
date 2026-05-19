@@ -36,6 +36,7 @@ export const customerOrdersApi = baseApi.injectEndpoints({
         shippingPhone?: string;
         paymentId?: string;
         status?: string;
+        items?: Array<{ productId: string; quantity: number }>;
       }
     >({
       query: ({ id, ...body }) => ({

@@ -269,7 +269,10 @@ export function EarningsDashboard() {
                     borderRadius: 12,
                     border: "1px solid rgba(11,11,15,0.08)",
                     boxShadow: "0 8px 20px rgba(11,11,15,0.06)",
+                    backgroundColor: "#ffffff",
                   }}
+                  labelStyle={{ color: "#0b0b0f", fontWeight: "bold", fontSize: "12px" }}
+                  itemStyle={{ color: "#0b0b0f", fontWeight: "500", fontSize: "12px" }}
                   formatter={(value) => {
                     const n =
                       typeof value === "number"
@@ -341,7 +344,10 @@ export function EarningsDashboard() {
                     contentStyle={{
                       borderRadius: 12,
                       border: "1px solid rgba(11,11,15,0.08)",
+                      backgroundColor: "#ffffff",
                     }}
+                    labelStyle={{ color: "#0b0b0f", fontWeight: "bold", fontSize: "12px" }}
+                    itemStyle={{ color: "#0b0b0f", fontWeight: "500", fontSize: "12px" }}
                     formatter={(value) => {
                       const n =
                         typeof value === "number"
@@ -400,7 +406,10 @@ export function EarningsDashboard() {
                     contentStyle={{
                       borderRadius: 12,
                       border: "1px solid rgba(11,11,15,0.08)",
+                      backgroundColor: "#ffffff",
                     }}
+                    labelStyle={{ color: "#0b0b0f", fontWeight: "bold", fontSize: "12px" }}
+                    itemStyle={{ color: "#0b0b0f", fontWeight: "500", fontSize: "12px" }}
                   />
                 </PieChart>
               </ResponsiveContainer>
