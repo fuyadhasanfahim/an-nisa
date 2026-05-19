@@ -16,6 +16,7 @@ import {
 } from "@tabler/icons-react";
 import type { ProductListFilters } from "@/lib/validators/product-list.query";
 import { cn } from "@/lib/utils/cn";
+import { useGetProductFiltersQuery } from "@/store/api/productsApi";
 
 const CATEGORIES = [
   { label: "All", value: "" },
@@ -75,12 +76,14 @@ export function ShopSidebar({
   mobileOpen: boolean;
   onMobileClose: () => void;
 }) {
+  const { data: dynamicFilters } = useGetProductFiltersQuery();
+
   return (
     <>
       {/* Desktop sidebar — premium glass effect */}
       <aside className="hidden lg:block lg:w-[264px] lg:shrink-0">
         <div className="sticky top-[72px] max-h-[calc(100vh-80px)] overflow-y-auto sidebar-scroll rounded-2xl p-5 border border-[#fcc4c8]/35 bg-white/90 backdrop-blur-md bg-gradient-to-b from-white/95 to-[#fff5f6]/95 shadow-[0_8px_32px_rgba(252,196,200,0.08)]">
-          <SidebarContent filters={filters} pushParams={pushParams} />
+          <SidebarContent filters={filters} pushParams={pushParams} dynamicFilters={dynamicFilters} />
         </div>
       </aside>
 
@@ -116,7 +119,7 @@ export function ShopSidebar({
                   <IconX className="h-5 w-5" />
                 </button>
               </div>
-              <SidebarContent filters={filters} pushParams={pushParams} />
+              <SidebarContent filters={filters} pushParams={pushParams} dynamicFilters={dynamicFilters} />
             </motion.aside>
           </>
         )}
@@ -128,16 +131,39 @@ export function ShopSidebar({
 function SidebarContent({
   filters,
   pushParams,
+  dynamicFilters,
 }: {
   filters: ProductListFilters;
   pushParams: PushParams;
+  dynamicFilters?: {
+    categories: Array<{ label: string; value: string }>;
+    fabricTypes: string[];
+    sizes: string[];
+    colors: Array<{ name: string; value: string; hex: string }>;
+  };
 }) {
+  const categories = dynamicFilters?.categories?.length
+    ? [{ label: "All", value: "" }, ...dynamicFilters.categories]
+    : CATEGORIES;
+
+  const sizes = dynamicFilters?.sizes?.length
+    ? dynamicFilters.sizes
+    : SIZE_OPTIONS;
+
+  const colorSwatches = dynamicFilters?.colors?.length
+    ? dynamicFilters.colors
+    : COLOR_SWATCHES;
+
+  const fabricTypes = dynamicFilters?.fabricTypes?.length
+    ? dynamicFilters.fabricTypes
+    : FABRIC_TYPES;
+
   return (
     <div className="space-y-5">
       {/* Categories */}
       <FilterSection title="Categories" defaultOpen>
         <div className="space-y-1">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat.label}
               type="button"
@@ -203,7 +229,7 @@ function SidebarContent({
       {/* Sizes */}
       <FilterSection title="Sizes">
         <div className="flex flex-wrap gap-1.5">
-          {SIZE_OPTIONS.map((s) => (
+          {sizes.map((s) => (
             <button
               key={s}
               type="button"
@@ -230,9 +256,9 @@ function SidebarContent({
       {/* Colors */}
       <FilterSection title="Colors">
         <div className="flex flex-wrap gap-2.5 pt-1">
-          {COLOR_SWATCHES.map((c) => {
+          {colorSwatches.map((c) => {
             const isSelected = filters.color === c.value;
-            const isWhite = c.value === "white";
+            const isWhite = c.name.toLowerCase() === "white" || c.hex.toLowerCase() === "#ffffff";
             return (
               <button
                 key={c.value}
@@ -260,7 +286,7 @@ function SidebarContent({
                     xmlns="http://www.w3.org/2000/svg"
                     className={cn(
                       "h-3.5 w-3.5 stroke-[3]",
-                      isWhite || c.value === "gold" || c.value === "pink" ? "text-brand-black" : "text-white"
+                      isWhite || c.name.toLowerCase() === "gold" || c.name.toLowerCase() === "pink" ? "text-brand-black" : "text-white"
                     )}
                     viewBox="0 0 24 24"
                     fill="none"
@@ -278,7 +304,7 @@ function SidebarContent({
       {/* Fabric Type */}
       <FilterSection title="Fabric Type">
         <div className="flex flex-wrap gap-1.5">
-          {FABRIC_TYPES.map((f) => (
+          {fabricTypes.map((f) => (
             <button
               key={f}
               type="button"

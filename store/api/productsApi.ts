@@ -179,6 +179,15 @@ export const productsApi = baseApi.injectEndpoints({
         { type: "Product" as const, id: "LIST" },
       ],
     }),
+    getProductFilters: build.query<{
+      categories: Array<{ label: string; value: string }>;
+      fabricTypes: string[];
+      sizes: string[];
+      colors: Array<{ name: string; value: string; hex: string }>;
+    }, void>({
+      query: () => "/products/filters",
+      providesTags: [{ type: "Product" as const, id: "LIST" }],
+    }),
   }),
 });
 
@@ -189,4 +198,5 @@ export const {
   useUpdateProductMutation,
   usePatchProductMutation,
   useDeleteProductMutation,
+  useGetProductFiltersQuery,
 } = productsApi;

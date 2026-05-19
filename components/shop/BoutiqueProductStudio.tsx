@@ -140,21 +140,40 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
           <div className="space-y-2.5">
             <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/45">Select Color</span>
             <div className="flex flex-wrap gap-2">
-              {colors.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  className={cn(
-                    "rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
-                    color === c
-                      ? "bg-[#fcc4c8] text-brand-black shadow-sm font-bold"
-                      : "border border-[#fcc4c8]/30 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
-                  )}
-                  onClick={() => setColor(c)}
-                >
-                  {c}
-                </button>
-              ))}
+              {colors.map((c) => {
+                let displayName = c;
+                let hexCode = "";
+                if (c.includes("#")) {
+                  const parts = c.split("#");
+                  displayName = parts[0]?.trim() || c;
+                  const rawHex = parts[1]?.trim();
+                  if (rawHex) {
+                    hexCode = rawHex.startsWith("#") ? rawHex : `#${rawHex}`;
+                  }
+                }
+
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    className={cn(
+                      "rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2",
+                      color === c
+                        ? "bg-[#fcc4c8] text-brand-black shadow-sm font-bold scale-[1.02]"
+                        : "border border-[#fcc4c8]/30 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
+                    )}
+                    onClick={() => setColor(c)}
+                  >
+                    {hexCode && (
+                      <span
+                        className="h-3.5 w-3.5 rounded-full border border-black/10 shadow-sm shrink-0"
+                        style={{ backgroundColor: hexCode }}
+                      />
+                    )}
+                    <span>{displayName}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ) : null}

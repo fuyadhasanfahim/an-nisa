@@ -12,9 +12,12 @@ import { useToast } from "@/components/shared/toast/useToast";
 import {
   IconCircleCheckFilled,
   IconCircleDotted,
+  IconPlus,
+  IconX,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import { cn } from "@/lib/utils/cn";
 import {
   AdminFormButton,
   FormActions,
@@ -140,6 +143,96 @@ export function ProductForm({
   const status = watch("status");
   const trackInventory = watch("trackInventory");
   const images = watch("images") ?? [];
+
+  const tagsText = watch("tagsText") ?? "";
+  const sizesText = watch("sizesText") ?? "";
+  const colorsText = watch("colorsText") ?? "";
+
+  const tagsList = useMemo(() => {
+    return tagsText.split(",").map((t) => t.trim()).filter(Boolean);
+  }, [tagsText]);
+
+  const sizesList = useMemo(() => {
+    return sizesText.split(",").map((s) => s.trim()).filter(Boolean);
+  }, [sizesText]);
+
+  const colorsList = useMemo(() => {
+    return colorsText.split(",").map((c) => c.trim()).filter(Boolean);
+  }, [colorsText]);
+
+  const parsedColors = useMemo(() => {
+    return colorsList.map((colorStr) => {
+      let name = colorStr;
+      let hex = "#1a1a1a";
+      if (colorStr.includes("#")) {
+        const parts = colorStr.split("#");
+        name = parts[0]?.trim() || colorStr;
+        const rawHex = parts[1]?.trim() || "";
+        hex = rawHex.startsWith("#") ? rawHex : `#${rawHex}`;
+      }
+      return { name, hex, raw: colorStr };
+    });
+  }, [colorsList]);
+
+  const [newTagInput, setNewTagInput] = useState("");
+  const [newSizeInput, setNewSizeInput] = useState("");
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorHex, setNewColorHex] = useState("#fcc4c8");
+
+  const handleAddTag = (tagStr: string) => {
+    const trimmed = tagStr.trim().toLowerCase();
+    if (!trimmed) return;
+    if (tagsList.includes(trimmed)) {
+      setNewTagInput("");
+      return;
+    }
+    setValue("tagsText", [...tagsList, trimmed].join(", "), { shouldDirty: true });
+    setNewTagInput("");
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    setValue("tagsText", tagsList.filter((t) => t !== tag).join(", "), { shouldDirty: true });
+  };
+
+  const handleToggleSize = (sizeVal: string) => {
+    const trimmed = sizeVal.trim();
+    if (!trimmed) return;
+    let nextSizes: string[];
+    if (sizesList.includes(trimmed)) {
+      nextSizes = sizesList.filter((s) => s !== trimmed);
+    } else {
+      nextSizes = [...sizesList, trimmed];
+    }
+    setValue("sizesText", nextSizes.join(", "), { shouldDirty: true });
+  };
+
+  const handleAddCustomSize = (sz: string) => {
+    const trimmed = sz.trim();
+    if (!trimmed) return;
+    if (sizesList.includes(trimmed)) {
+      setNewSizeInput("");
+      return;
+    }
+    setValue("sizesText", [...sizesList, trimmed].join(", "), { shouldDirty: true });
+    setNewSizeInput("");
+  };
+
+  const handleAddColor = (nameVal: string, hexVal: string) => {
+    const nameTrimmed = nameVal.trim();
+    const hexTrimmed = hexVal.trim();
+    if (!nameTrimmed || !hexTrimmed) return;
+    const rawVal = `${nameTrimmed}#${hexTrimmed.replace(/^#+/, "")}`;
+    if (colorsList.includes(rawVal)) {
+      setNewColorName("");
+      return;
+    }
+    setValue("colorsText", [...colorsList, rawVal].join(", "), { shouldDirty: true });
+    setNewColorName("");
+  };
+
+  const handleRemoveColor = (rawVal: string) => {
+    setValue("colorsText", colorsList.filter((c) => c !== rawVal).join(", "), { shouldDirty: true });
+  };
 
   useEffect(() => {
     if (isEdit) return;
@@ -362,24 +455,267 @@ export function ProductForm({
         <div className="mt-5 grid gap-5 md:grid-cols-3">
           <FormField
             label="Tags"
-            hint="Comma or newline separated • used for search"
+            hint="Press Enter or Comma to add tags"
             error={errors.tagsText?.message}
           >
-            <FormTextarea rows={4} placeholder="heritage • bridal • gifting" {...register("tagsText")} />
+            <div className="rounded-2xl border border-black/10 bg-white p-4 space-y-3 shadow-sm min-h-[160px] flex flex-col justify-between">
+              {/* List of current tags */}
+              <div className="flex flex-wrap gap-1.5 align-top">
+                {tagsList.length === 0 ? (
+                  <span className="text-xs text-black/35 font-medium italic">No tags added yet.</span>
+                ) : (
+                  tagsList.map((tag) => (
+                    <div
+                      key={tag}
+                      className="inline-flex items-center gap-1 rounded-full bg-[#fcc4c8]/20 border border-[#fcc4c8]/35 px-2.5 py-0.5 text-xs font-semibold text-brand-black"
+                    >
+                      <span>{tag}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="rounded-full p-0.5 hover:bg-[#fcc4c8]/40 transition text-black/50 hover:text-brand-black"
+                      >
+                        <IconX className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+              {/* Add input */}
+              <div className="flex items-center gap-2 mt-auto">
+                <input
+                  type="text"
+                  placeholder="Type a tag..."
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault();
+                      handleAddTag(newTagInput);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-2 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleAddTag(newTagInput)}
+                  className="rounded-xl bg-[#0b0b0f] p-2 text-white hover:bg-black transition active:scale-95 shadow-sm"
+                >
+                  <IconPlus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           </FormField>
+
           <FormField
             label="Sizes"
-            hint="Comma separated — XS, S, M…"
+            hint="Select standard sizes or type custom ones"
             error={errors.sizesText?.message}
           >
-            <FormTextarea rows={4} placeholder="Free size, XS, S, M…" {...register("sizesText")} />
+            <div className="rounded-2xl border border-black/10 bg-white p-4 space-y-4 shadow-sm min-h-[160px]">
+              {/* Curated selector */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Presets</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {["S", "M", "L", "XL", "XXL", "Free Size"].map((sz) => {
+                    const active = sizesList.includes(sz);
+                    return (
+                      <button
+                        key={sz}
+                        type="button"
+                        onClick={() => handleToggleSize(sz)}
+                        className={cn(
+                          "rounded-xl px-2.5 py-1 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border",
+                          active
+                            ? "bg-[#fcc4c8] border-[#fcc4c8] text-brand-black shadow-sm font-bold scale-[1.02]"
+                            : "border-black/5 bg-black/5 text-black/60 hover:bg-black/10"
+                        )}
+                      >
+                        {sz}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* All selected values, including custom ones */}
+              <div className="space-y-1.5 border-t border-black/5 pt-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Added Sizes</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {sizesList.length === 0 ? (
+                     <span className="text-xs text-black/35 font-medium italic">No sizes enabled.</span>
+                  ) : (
+                    sizesList.map((sz) => (
+                      <div
+                        key={sz}
+                        className="inline-flex items-center gap-1 rounded-xl bg-[#fcc4c8]/25 border border-[#fcc4c8]/40 px-2.5 py-0.5 text-xs font-semibold text-brand-black"
+                      >
+                        <span>{sz}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSize(sz)}
+                          className="rounded-full p-0.5 hover:bg-[#fcc4c8]/40 transition text-black/50 hover:text-brand-black"
+                        >
+                          <IconX className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Add custom size */}
+              <div className="flex items-center gap-2 border-t border-black/5 pt-3">
+                <input
+                  type="text"
+                  placeholder="Custom size (e.g. 3XL)..."
+                  value={newSizeInput}
+                  onChange={(e) => setNewSizeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCustomSize(newSizeInput);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-2 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleAddCustomSize(newSizeInput)}
+                  className="rounded-xl bg-[#0b0b0f] p-2 text-white hover:bg-black transition active:scale-95 shadow-sm"
+                >
+                  <IconPlus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           </FormField>
+
           <FormField
             label="Colors"
-            hint="Comma separated palette names"
+            hint="Define beautiful color pills with precise hex codes"
             error={errors.colorsText?.message}
           >
-            <FormTextarea rows={4} placeholder="Pearl blush, noir, porcelain…" {...register("colorsText")} />
+            <div className="rounded-2xl border border-black/10 bg-white p-4 space-y-4 shadow-sm min-h-[160px]">
+              {/* Preset Colors Fast Toggles */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Atelier Presets</span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { name: "Black", hex: "#1a1a1a" },
+                    { name: "White", hex: "#ffffff" },
+                    { name: "Red", hex: "#dc2626" },
+                    { name: "Pink", hex: "#fcc4c8" },
+                    { name: "Navy", hex: "#1e3a5f" },
+                    { name: "Gold", hex: "#d4a853" },
+                    { name: "Green", hex: "#16a34a" },
+                    { name: "Maroon", hex: "#7f1d1d" },
+                  ].map((preset) => {
+                    const isAdded = parsedColors.some(
+                      (pc) => pc.name.toLowerCase() === preset.name.toLowerCase()
+                    );
+                    return (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => {
+                          if (isAdded) {
+                            const matched = parsedColors.find(
+                              (pc) => pc.name.toLowerCase() === preset.name.toLowerCase()
+                            );
+                            if (matched) handleRemoveColor(matched.raw);
+                          } else {
+                            handleAddColor(preset.name, preset.hex);
+                          }
+                        }}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border transition cursor-pointer shadow-sm",
+                          isAdded
+                            ? "bg-[#fcc4c8] border-[#fcc4c8] text-brand-black scale-105"
+                            : "border-black/5 bg-white text-black/60 hover:bg-black/5"
+                        )}
+                      >
+                        <span
+                          className="h-3 w-3 rounded-full border border-black/10 shadow-sm shrink-0"
+                          style={{ backgroundColor: preset.hex }}
+                        />
+                        <span>{preset.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* List of current added colors with circles and names */}
+              <div className="space-y-1.5 border-t border-black/5 pt-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Added Colors</span>
+                <div className="flex flex-wrap gap-2">
+                  {parsedColors.length === 0 ? (
+                    <span className="text-xs text-black/35 font-medium italic">No colors configured.</span>
+                  ) : (
+                    parsedColors.map((col) => (
+                      <div
+                        key={col.raw}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-white border border-black/10 px-2.5 py-0.5 text-xs font-semibold text-brand-black shadow-sm animate-fadeIn"
+                      >
+                        <span
+                          className="h-3.5 w-3.5 rounded-full border border-black/15 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] shrink-0"
+                          style={{ backgroundColor: col.hex }}
+                        />
+                        <span className="font-medium text-black/75">{col.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveColor(col.raw)}
+                          className="rounded-full p-0.5 hover:bg-black/5 transition text-black/40 hover:text-black"
+                        >
+                          <IconX className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Add new custom color */}
+              <div className="border-t border-black/5 pt-3 space-y-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-black/45 block">Custom Color Creator</span>
+                <div className="flex items-center gap-2">
+                  {/* Hex Picker Box */}
+                  <div className="flex items-center gap-1 shrink-0 rounded-xl border border-black/10 bg-white p-1 shadow-sm">
+                    <input
+                      type="color"
+                      value={newColorHex}
+                      onChange={(e) => setNewColorHex(e.target.value)}
+                      className="h-7 w-7 rounded-lg border-0 cursor-pointer p-0 bg-transparent"
+                    />
+                    <span className="text-[11px] font-mono font-bold text-black/60 pr-2 uppercase select-all">
+                      {newColorHex}
+                    </span>
+                  </div>
+
+                  <input
+                    type="text"
+                    placeholder="Color Name (e.g. Sapphire Blue)..."
+                    value={newColorName}
+                    onChange={(e) => setNewColorName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddColor(newColorName, newColorHex);
+                      }
+                    }}
+                    className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-2 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all shadow-sm"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddColor(newColorName, newColorHex)}
+                    className="rounded-xl bg-[#0b0b0f] p-2 text-white hover:bg-black transition active:scale-95 shadow-sm"
+                  >
+                    <IconPlus className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </FormField>
         </div>
       </FormSection>
