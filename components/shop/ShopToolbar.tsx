@@ -1,19 +1,100 @@
 "use client";
 
-import { IconFilter, IconArrowsSort } from "@tabler/icons-react";
+import { useState, useRef, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { IconFilter, IconArrowsSort, IconChevronDown } from "@tabler/icons-react";
 import type { ProductSortMode } from "@/lib/validators/product-list.query";
 
-const SORT_MENU: { mode: ProductSortMode; label: string }[] = [
-  { mode: "latest", label: "Latest" },
-  { mode: "popular", label: "Popular" },
-  { mode: "price_asc", label: "Price: Low → High" },
-  { mode: "price_desc", label: "Price: High → Low" },
-  { mode: "top_rated", label: "Top Rated" },
+const SORT_MENU: { value: ProductSortMode; label: string }[] = [
+  { value: "latest", label: "Latest" },
+  { value: "popular", label: "Popular" },
+  { value: "price_asc", label: "Price: Low → High" },
+  { value: "price_desc", label: "Price: High → Low" },
+  { value: "top_rated", label: "Top Rated" },
 ];
 
-const LIMIT_OPTS = [20, 50, 100] as const;
+const LIMIT_OPTS = [
+  { value: 20, label: "20 / page" },
+  { value: 50, label: "50 / page" },
+  { value: 100, label: "100 / page" },
+];
 
 type PushParams = (mutate: (sp: URLSearchParams) => void) => void;
+
+function CustomDropdown<T extends string | number>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (val: T) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedOpt = options.find((o) => o.value === value) ?? options[0];
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative z-30 inline-block text-left">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center justify-between gap-1.5 rounded-full border border-[#fcc4c8]/60 bg-white px-3.5 py-1.5 text-xs font-semibold text-brand-black shadow-sm transition-all duration-300 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10 focus:ring-2 focus:ring-[#fcc4c8]/25 outline-none min-w-[110px] cursor-pointer"
+      >
+        <span className="truncate">{selectedOpt.label}</span>
+        <IconChevronDown
+          className={`h-3.5 w-3.5 text-brand-black transition-transform duration-300 shrink-0 ${
+            open ? "rotate-180 text-[#fcc4c8]" : ""
+          }`}
+          stroke={2.2}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 mt-2 w-44 rounded-2xl border border-[#fcc4c8]/30 bg-white/95 p-1 shadow-lg backdrop-blur-md focus:outline-none z-40"
+          >
+            <div className="py-1 space-y-0.5">
+              {options.map((opt) => (
+                <button
+                  key={String(opt.value)}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                    opt.value === value
+                      ? "bg-[#fcc4c8] text-brand-black shadow-sm"
+                      : "text-black/75 hover:bg-[#fcc4c8]/25 hover:text-brand-black"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function ShopToolbar({
   total,
@@ -32,6 +113,8 @@ export function ShopToolbar({
 }) {
   const from = total > 0 ? (page - 1) * limit + 1 : 0;
   const to = Math.min(page * limit, total);
+
+  const activeSort = (sortMode ?? "latest") as ProductSortMode;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-full border border-[#fcc4c8]/35 bg-white/95 px-5 py-2.5 shadow-[0_8px_32px_rgba(252,196,200,0.06)] backdrop-blur-md bg-gradient-to-r from-white to-[#fff5f6]">
@@ -68,40 +151,28 @@ export function ShopToolbar({
       <div className="flex items-center gap-2.5">
         <div className="flex items-center gap-1.5 text-xs text-black/45">
           <IconArrowsSort className="h-3.5 w-3.5 text-brand-black" />
-          <select
-            className="rounded-full border border-[#fcc4c8]/50 bg-white/90 px-3 py-1.5 text-xs font-semibold text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all cursor-pointer hover:bg-[#fcc4c8]/10"
-            value={sortMode ?? "latest"}
-            onChange={(e) =>
+          <CustomDropdown
+            value={activeSort}
+            options={SORT_MENU}
+            onChange={(val) =>
               pushParams((sp) => {
-                sp.set("sortMode", e.target.value);
+                sp.set("sortMode", String(val));
                 sp.set("page", "1");
               })
             }
-          >
-            {SORT_MENU.map((m) => (
-              <option key={m.mode} value={m.mode}>
-                {m.label}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
-        <select
-          className="rounded-full border border-[#fcc4c8]/50 bg-white/90 px-3 py-1.5 text-xs font-semibold text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all cursor-pointer hover:bg-[#fcc4c8]/10"
+        <CustomDropdown
           value={limit}
-          onChange={(e) =>
+          options={LIMIT_OPTS as unknown as { value: number; label: string }[]}
+          onChange={(val) =>
             pushParams((sp) => {
-              sp.set("limit", e.target.value);
+              sp.set("limit", String(val));
               sp.set("page", "1");
             })
           }
-        >
-          {LIMIT_OPTS.map((l) => (
-            <option key={l} value={l}>
-              {l} / page
-            </option>
-          ))}
-        </select>
+        />
       </div>
     </div>
   );

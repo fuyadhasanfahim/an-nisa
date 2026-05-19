@@ -65,8 +65,7 @@ export function BoutiqueProductCard({
         }
         onMouseLeave={() => setHoverIdx(0)}
       >
-        {/* Modern blur effect overlay on hover */}
-        <div className="absolute inset-0 z-10 bg-[#fcc4c8]/3 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100" />
+
 
         {/* Discount badge */}
         {discountPct ? (
@@ -139,8 +138,8 @@ export function BoutiqueProductCard({
         </div>
       </div>
 
-      {/* Product info */}
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      {/* Product info - animated primary tinted glassmorphic panel on hover */}
+      <div className="relative z-20 flex flex-1 flex-col gap-3 p-4 bg-white border-t border-[#fcc4c8]/15 transition-all duration-500 ease-out group-hover:bg-[#fff9fa]/90 group-hover:backdrop-blur-md group-hover:border-t-[#fcc4c8]/65 shadow-[0_-8px_20px_-8px_rgba(252,196,200,0)] group-hover:shadow-[0_-8px_20px_-8px_rgba(252,196,200,0.25)]">
         {/* Title + rating */}
         <div className="flex items-start justify-between gap-2">
           <Link

@@ -384,7 +384,7 @@ function SidebarContent({
             sp.set("sortMode", "latest");
           })
         }
-        className="w-full rounded-full border border-[#fcc4c8]/50 py-2 text-xs font-semibold text-black/45 transition-all duration-200 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8] hover:text-brand-black"
+        className="w-full rounded-full border border-[#fcc4c8]/60 bg-[#fcc4c8]/10 py-2.5 text-xs font-bold text-brand-black transition-all duration-300 hover:bg-[#fcc4c8] hover:shadow-sm active:scale-95 cursor-pointer"
       >
         Clear all filters
       </button>
