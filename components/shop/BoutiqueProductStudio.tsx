@@ -4,7 +4,7 @@ import Image from "next/image";
 import { IconHeart, IconShoppingBagPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils/cn";
 import { formatBdtFromCents } from "@/lib/money/format-bdt-from-cents";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addToCart, toggleWishlist } from "@/store/slices/boutiqueUISlice";
@@ -65,28 +65,28 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
       {/* Product Information */}
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-black/45">{product.category}</p>
-          <h1 className="font-serif text-3xl font-medium tracking-tight text-brand-black md:text-[2.6rem]">{product.name}</h1>
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/45 font-serif">{product.category}</p>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-brand-black md:text-[2.6rem] leading-tight">{product.name}</h1>
         </div>
 
         {product.fabricType ? (
           <p className="text-sm font-medium text-black/55">
-            Fabric: <span className="text-brand-black">{product.fabricType}</span>
+            Fabric: <span className="text-brand-black font-semibold">{product.fabricType}</span>
           </p>
         ) : null}
 
-        <p className="text-[15px] leading-relaxed text-black/65">{product.description}</p>
+        <p className="text-sm leading-relaxed text-black/65 font-medium">{product.description}</p>
 
         {/* Premium Tariff Glass Card */}
-        <div className="glass rounded-2xl p-5 text-brand-black">
-          <div className="text-[10px] font-semibold uppercase tracking-widest text-black/45">Atelier tariff</div>
+        <div className="rounded-2xl border border-[#fcc4c8]/35 bg-white p-5 shadow-[0_12px_40px_rgba(252,196,200,0.12)]">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-black/45">Atelier tariff</div>
           <div className="mt-3 flex items-baseline gap-4">
             {product.discountPriceCents != null ? (
-              <span className="text-sm text-black/40 line-through tabular-nums">
+              <span className="text-sm font-serif font-medium text-black/40 line-through tabular-nums">
                 {formatBdtFromCents(product.priceCents, product.currency)}
               </span>
             ) : null}
-            <span className="text-3xl font-semibold tracking-tight text-brand-black tabular-nums">
+            <span className="text-3xl font-serif font-bold tracking-tight text-brand-black tabular-nums">
               {formatBdtFromCents(product.effectivePriceCents, product.currency)}
             </span>
           </div>
@@ -94,17 +94,17 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
 
         {/* Sizes Selector */}
         {sizes.length ? (
-          <div className="space-y-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">Select Size</span>
+          <div className="space-y-2.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/45">Select Size</span>
             <div className="flex flex-wrap gap-2">
               {sizes.map((s) => (
                 <button
                   key={s}
                   type="button"
-                  className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
+                  className={`rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                     size === s
-                      ? "bg-[#1a1a1a] text-white shadow-sm"
-                      : "border border-brand-pink/25 text-black/55 hover:border-brand-pink/60 hover:bg-brand-pink/10"
+                      ? "bg-[#fcc4c8] text-brand-black shadow-sm font-bold"
+                      : "border border-brand-pink/35 text-black/55 hover:border-brand-pink/60 hover:bg-brand-pink/10"
                   }`}
                   onClick={() => setSize(s)}
                 >
@@ -117,10 +117,9 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 pt-2">
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="rounded-xl px-6 text-xs py-3"
+            className="rounded-full border border-[#fcc4c8]/60 bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-brand-black hover:bg-[#fcc4c8]/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer"
             onClick={() => {
               dispatch(toggleWishlist(product.id));
               toast({
@@ -130,15 +129,18 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
               });
             }}
           >
-            <IconHeart className={`h-4 w-4 mr-1 transition-all ${liked ? "fill-brand-pink text-brand-pink" : "text-black/50"}`} />
+            <IconHeart className={`h-4 w-4 mr-1.5 transition-all ${liked ? "fill-[#fcc4c8] text-[#fcc4c8]" : "text-black/50"}`} />
             Moodboard toggle
-          </Button>
+          </button>
 
-          <Button
+          <button
             type="button"
-            className={`rounded-xl px-8 text-xs py-3 bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]/85 ${
-              commerceBlocked ? "cursor-not-allowed opacity-70" : ""
-            }`}
+            className={cn(
+              "flex-1 rounded-full px-8 py-3.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm flex items-center justify-center gap-1.5 border-none cursor-pointer",
+              commerceBlocked
+                ? "bg-black/5 text-black/35 cursor-not-allowed shadow-none"
+                : "bg-[#fcc4c8] text-brand-black hover:bg-[#fcc4c8]/85 hover:scale-[1.02] active:scale-[0.98]"
+            )}
             disabled={commerceBlocked}
             onClick={() => {
               if (commerceBlocked) {
@@ -165,7 +167,7 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
           >
             <IconShoppingBagPlus className="h-4 w-4 mr-1" />
             Add heirloom
-          </Button>
+          </button>
         </div>
       </div>
     </div>
