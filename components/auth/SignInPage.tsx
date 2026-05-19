@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { authClient } from "@/lib/auth/auth-client";
 import { Container } from "@/components/shared/Container";
 import { AuthCard } from "@/components/auth/AuthCard";
@@ -32,10 +33,10 @@ export function SignInPage() {
   }
 
   return (
-    <main className="flex-1 bg-white">
+    <main className="flex-1 bg-gradient-to-br from-[#fffbfa] via-white to-[#fff5f6] flex items-center justify-center py-12 md:py-24">
       <AuthToasts />
       <Container>
-        <div className="py-16">
+        <div>
           <AuthCard
             brandText="AN NISA'S WORLD"
             title="Sign in"
@@ -46,8 +47,13 @@ export function SignInPage() {
 
               <p className="text-center text-xs leading-relaxed text-black/55">
                 By continuing, you agree to our{" "}
-                <span className="text-black/70">Terms</span> and{" "}
-                <span className="text-black/70">Privacy</span>.
+                <Link href="/terms" className="text-black/70 underline hover:text-[#fcc4c8] transition duration-200">
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="text-black/70 underline hover:text-[#fcc4c8] transition duration-200">
+                  Privacy
+                </Link>.
               </p>
             </div>
           </AuthCard>
