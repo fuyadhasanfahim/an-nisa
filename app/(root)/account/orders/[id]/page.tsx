@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useParams } from "next/navigation";
-import { useGetMyOrderQuery } from "@/store/api/customerOrdersApi";
+import { useGetMyOrderQuery, useUpdateMyOrderMutation } from "@/store/api/customerOrdersApi";
 import { Container } from "@/components/shared/Container";
-import { Button } from "@/components/ui/Button";
 import { formatBdtFromCents } from "@/lib/money/format-bdt-from-cents";
+import { cn } from "@/lib/utils/cn";
+import { useToast } from "@/components/shared/toast/useToast";
+import { useState, useEffect } from "react";
 
 export default function BoutiqueOrderDetailPage() {
   const params = useParams<{ id?: string | string[] }>();
@@ -18,12 +20,62 @@ export default function BoutiqueOrderDetailPage() {
         : undefined;
 
   const { data, isLoading } = useGetMyOrderQuery(id ?? skipToken);
+  const [updateOrder, { isLoading: isUpdating }] = useUpdateMyOrderMutation();
+  const { toast } = useToast();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editAddress, setEditAddress] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editPaymentId, setEditPaymentId] = useState("");
+
+  // Sync state values when data arrives
+  useEffect(() => {
+    if (data) {
+      setEditAddress(data.shippingAddress ?? "");
+      setEditCity(data.shippingCity ?? "");
+      setEditPhone(data.shippingPhone ?? "");
+      setEditPaymentId(data.paymentId ?? "");
+    }
+  }, [data]);
+
+  async function handleCancel() {
+    if (!data) return;
+    if (!confirm("Are you sure you want to cancel this order?")) return;
+    try {
+      await updateOrder({ id: data.id, status: "cancelled" }).unwrap();
+      toast({ title: "Order Cancelled", message: "Your order thread has been gently cancelled.", variant: "success" });
+    } catch (e: any) {
+      toast({ title: "Failed to cancel", message: e.data?.error || "Please try again.", variant: "error" });
+    }
+  }
+
+  async function handleSaveEdits() {
+    if (!data) return;
+    if (!editAddress.trim() || !editCity.trim() || !editPhone.trim()) {
+      toast({ title: "Validation Error", message: "Shipping Address, City, and Phone are required.", variant: "error" });
+      return;
+    }
+    try {
+      await updateOrder({
+        id: data.id,
+        shippingAddress: editAddress,
+        shippingCity: editCity,
+        shippingPhone: editPhone,
+        paymentId: editPaymentId,
+      }).unwrap();
+      setIsEditing(false);
+      toast({ title: "Changes Saved", message: "Your shipping information was updated successfully.", variant: "success" });
+    } catch (e: any) {
+      toast({ title: "Failed to update", message: e.data?.error || "Please try again.", variant: "error" });
+    }
+  }
 
   if (!id || isLoading) {
     return (
-      <main className="flex-1">
+      <main className="flex-1 bg-[radial-gradient(circle,_rgba(252,196,200,0.12),transparent_70%)] py-20">
         <Container>
-          <div className="py-20 text-sm text-black/70 dark:text-white/75">
+          <div className="py-20 text-center rounded-[32px] border border-[#fcc4c8]/35 bg-white p-8 shadow-[0_12px_40px_rgba(252,196,200,0.08)] max-w-lg mx-auto text-sm text-black/55 font-semibold animate-pulse">
             Gathering stitch ledger…
           </div>
         </Container>
@@ -33,13 +85,14 @@ export default function BoutiqueOrderDetailPage() {
 
   if (!data) {
     return (
-      <main className="flex-1">
+      <main className="flex-1 bg-[radial-gradient(circle,_rgba(252,196,200,0.12),transparent_70%)] py-20">
         <Container>
-          <div className="py-24 text-sm">
-            Order not traced. Try from{" "}
-            <Link href="/account/orders" className="text-brand-black underline dark:text-white">
-              orders ribbon
+          <div className="py-20 text-center rounded-[32px] border border-[#fcc4c8]/35 bg-white p-8 shadow-[0_12px_40px_rgba(252,196,200,0.08)] max-w-lg mx-auto text-sm text-black/55 font-semibold">
+            Order not traced. Try returning to the{" "}
+            <Link href="/account/orders" className="text-brand-black underline hover:text-[#fcc4c8]">
+              orders lounge
             </Link>
+            .
           </div>
         </Container>
       </main>
@@ -47,98 +100,215 @@ export default function BoutiqueOrderDetailPage() {
   }
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-[radial-gradient(circle,_rgba(252,196,200,0.12),transparent_70%)] py-14">
       <Container>
-        <div className="py-14 space-y-10">
+        <div className="py-8 space-y-10">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.28em] text-black/53 dark:text-white/62">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/45 font-serif">
                 Receipt thread
               </p>
-              <h1 className="mt-2 font-serif text-4xl tracking-tight text-brand-black dark:text-white">
+              <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-brand-black md:text-[2.6rem]">
                 Invoice for {data.id}
               </h1>
             </div>
-            <Button asChild variant="outline" className="rounded-full px-9">
-              <Link href="/account/orders">All orders</Link>
-            </Button>
+            <Link
+              href="/account/orders"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#fcc4c8]/60 bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-brand-black hover:bg-[#fcc4c8]/10 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 shadow-sm cursor-pointer select-none"
+            >
+              All orders
+            </Link>
           </div>
 
-          <section className="grid gap-6 rounded-[38px] border border-black/10 bg-white px-8 py-8 shadow-soft dark:border-white/12 dark:bg-black/45 md:grid-cols-2">
+          <section className="grid gap-8 rounded-[32px] border border-[#fcc4c8]/35 bg-white p-8 shadow-[0_12px_40px_rgba(252,196,200,0.08)] md:grid-cols-2">
             <div>
-              <div className="text-xs uppercase tracking-[0.24em] text-black/53 dark:text-white/62">
-                Recipient
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/45 border-b border-[#fcc4c8]/25 pb-2 select-none">
+                Recipient Details
               </div>
-              <div className="mt-4 text-brand-black dark:text-white">
-                <div className="text-lg font-semibold">{data.user.name}</div>
-                <div className="mt-2 text-[13px] text-black/70 dark:text-white/73">{data.user.email}</div>
-              </div>
-              <div className="mt-6 text-[13px] text-black/70 dark:text-white/72">
-                {data.shippingPhone ? <div>Phone • {data.shippingPhone}</div> : null}
-                {data.shippingAddress ? <div className="mt-2">{data.shippingAddress}</div> : null}
-                {data.shippingCity ? <div className="mt-2">{data.shippingCity}</div> : null}
+              
+              <div className="mt-4">
+                {isEditing ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-black/55 mb-1.5 select-none">
+                        Shipping Address *
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="w-full rounded-xl border border-[#fcc4c8]/50 bg-white px-3 py-2 text-xs focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all text-brand-black font-semibold placeholder-black/30"
+                        value={editAddress}
+                        onChange={(e) => setEditAddress(e.target.value)}
+                        placeholder="Street details..."
+                      />
+                    </div>
+                    <div className="grid gap-3 grid-cols-2">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-black/55 mb-1.5 select-none">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full rounded-xl border border-[#fcc4c8]/50 bg-white px-3 py-2 text-xs focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all text-brand-black font-semibold"
+                          value={editCity}
+                          onChange={(e) => setEditCity(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-black/55 mb-1.5 select-none">
+                          Phone *
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full rounded-xl border border-[#fcc4c8]/50 bg-white px-3 py-2 text-xs focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all text-brand-black font-semibold"
+                          value={editPhone}
+                          onChange={(e) => setEditPhone(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-black/55 mb-1.5 select-none">
+                        Transaction ID (Advance Payment)
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full rounded-xl border border-[#fcc4c8]/50 bg-white px-3 py-2 text-xs focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all text-brand-black font-bold uppercase"
+                        value={editPaymentId}
+                        onChange={(e) => setEditPaymentId(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="button"
+                        disabled={isUpdating}
+                        onClick={() => void handleSaveEdits()}
+                        className="rounded-full bg-[#fcc4c8] hover:bg-[#fcc4c8]/85 text-brand-black font-bold text-[10px] uppercase tracking-wider px-5 py-2.5 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] border-none cursor-pointer"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        className="rounded-full border border-[#fcc4c8]/60 bg-white hover:bg-[#fcc4c8]/10 text-brand-black font-bold text-[10px] uppercase tracking-wider px-5 py-2.5 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-brand-black">
+                      <div className="text-lg font-serif font-bold">{data.user.name}</div>
+                      <div className="mt-1 text-sm font-semibold text-black/60">{data.user.email}</div>
+                    </div>
+                    <div className="mt-6 text-xs text-black/60 font-semibold space-y-2">
+                      {data.shippingPhone ? <div>📱 Phone • {data.shippingPhone}</div> : null}
+                      {data.shippingAddress ? <div className="mt-2">📍 Address • {data.shippingAddress}</div> : null}
+                      {data.shippingCity ? <div className="mt-1">🌆 City • {data.shippingCity}</div> : null}
+                      {data.paymentId ? <div className="mt-1">🔑 Payment TrxID • <span className="font-bold uppercase">{data.paymentId}</span></div> : null}
+                    </div>
+                    {data.status === "pending" ? (
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(true)}
+                          className="rounded-full border border-[#fcc4c8]/60 bg-white hover:bg-[#fcc4c8]/10 text-brand-black font-bold text-xs uppercase tracking-wider px-6 py-2.5 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                        >
+                          Edit Details
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isUpdating}
+                          onClick={() => void handleCancel()}
+                          className="rounded-full border border-red-200 bg-white hover:bg-red-50 text-red-600 font-bold text-xs uppercase tracking-wider px-6 py-2.5 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                        >
+                          Cancel Order
+                        </button>
+                      </div>
+                    ) : null}
+                  </>
+                )}
               </div>
             </div>
+            
             <div>
-              <div className="text-xs uppercase tracking-[0.24em] text-black/53 dark:text-white/62">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/45 border-b border-[#fcc4c8]/25 pb-2 select-none">
                 Order status
               </div>
-              <div className="mt-4 text-2xl font-semibold text-brand-black dark:text-white">{data.status}</div>
-              <div className="mt-4 text-sm text-black/70 dark:text-white/72">
-                Payment • {data.paymentMethod} / {data.paymentStatus}
+              <div className="mt-4 flex flex-col gap-1.5">
+                <div className="text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full bg-[#fcc4c8]/10 text-brand-black border border-[#fcc4c8]/25 select-none w-fit">
+                  {data.status}
+                </div>
+                <div className="mt-3 text-xs font-semibold text-black/60">
+                  💳 Payment • {data.paymentMethod} / {data.paymentStatus}
+                </div>
               </div>
               {data.invoice ? (
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <Button asChild className="rounded-full px-7">
-                    <a href={`/api/invoices/${data.invoice.id}/pdf`} download>
-                      Download PDF
-                    </a>
-                  </Button>
-                  <Button
+                  <a
+                    href={`/api/invoices/${data.invoice.id}/pdf`}
+                    download
+                    className="rounded-full bg-[#fcc4c8] hover:bg-[#fcc4c8]/85 text-brand-black font-bold text-xs uppercase tracking-wider px-6 py-3 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center select-none border-none"
+                  >
+                    Download PDF
+                  </a>
+                  <button
                     type="button"
-                    variant="outline"
-                    className="rounded-full px-7"
+                    className="rounded-full border border-[#fcc4c8]/60 bg-white hover:bg-[#fcc4c8]/10 text-brand-black font-bold text-xs uppercase tracking-wider px-6 py-3 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center select-none"
                     onClick={() => window.print()}
                   >
                     Print keepsake
-                  </Button>
+                  </button>
                 </div>
               ) : (
-                <p className="mt-6 text-sm text-black/65 dark:text-white/70">
+                <p className="mt-6 text-xs text-black/45 font-semibold">
                   Invoice will appear once the atelier finalizes accounting.
                 </p>
               )}
             </div>
           </section>
 
-          <section className="rounded-[34px] border border-black/10 bg-[color-mix(in_srgb,var(--background)_94%,transparent)] px-8 py-8 dark:border-white/12">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="text-left text-[11px] uppercase tracking-[0.24em] text-black/50 dark:text-white/62">
-                  <th className="pb-6">Keepsake</th>
-                  <th>Qty</th>
-                  <th>Unit</th>
-                  <th>Line sum</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((item) => (
-                  <tr key={item.id} className="border-t border-black/12 text-sm dark:border-white/10">
-                    <td className="py-6 font-semibold text-brand-black dark:text-white">{item.product.name}</td>
-                    <td>{item.quantity}</td>
-                    <td>{formatBdtFromCents(item.unitCents, data.currency)}</td>
-                    <td>{formatBdtFromCents(item.unitCents * item.quantity, data.currency)}</td>
+          <section className="rounded-[32px] border border-[#fcc4c8]/35 bg-white p-8 shadow-[0_12px_40px_rgba(252,196,200,0.08)]">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="text-left text-[10px] font-bold uppercase tracking-[0.2em] text-black/45 pb-6">
+                    <th className="pb-4 select-none">Keepsake</th>
+                    <th className="pb-4 select-none">Qty</th>
+                    <th className="pb-4 select-none">Unit</th>
+                    <th className="pb-4 select-none">Line sum</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="mt-8 ml-auto grid w-full max-w-sm gap-4 text-sm font-semibold text-brand-black dark:text-white md:text-[15px]">
-              <div className="flex justify-between"><span className="text-black/62 dark:text-white/73">Goods</span><span>{formatBdtFromCents(data.subtotalCents, data.currency)}</span></div>
-              <div className="flex justify-between"><span className="text-black/62 dark:text-white/73">Courtesy trims</span><span>− {formatBdtFromCents(data.discountCents, data.currency)}</span></div>
-              <div className="flex justify-between"><span className="text-black/62 dark:text-white/73">Courier</span><span>{formatBdtFromCents(data.shippingFeeCents, data.currency)}</span></div>
-              <div className="flex justify-between border-t border-black/14 pt-4 text-xl dark:border-white/12">
-                <span>Golden total</span>
-                <span>{formatBdtFromCents(data.totalCents, data.currency)}</span>
+                </thead>
+                <tbody className="divide-y divide-[#fcc4c8]/20">
+                  {data.items.map((item) => (
+                    <tr key={item.id} className="text-sm">
+                      <td className="py-5 font-serif text-base font-bold text-brand-black">{item.product.name}</td>
+                      <td className="py-5 font-semibold text-black/75">{item.quantity}</td>
+                      <td className="py-5 font-semibold text-black/75 font-serif">{formatBdtFromCents(item.unitCents, data.currency)}</td>
+                      <td className="py-5 font-semibold text-brand-black font-serif">{formatBdtFromCents(item.unitCents * item.quantity, data.currency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="mt-8 ml-auto grid w-full max-w-sm gap-3.5 text-sm font-semibold text-brand-black md:text-[15px] border-t border-[#fcc4c8]/25 pt-6">
+              <div className="flex justify-between text-black/55 font-semibold">
+                <span>Goods</span>
+                <span className="font-serif">{formatBdtFromCents(data.subtotalCents, data.currency)}</span>
+              </div>
+              {data.discountCents > 0 ? (
+                <div className="flex justify-between text-black/55 font-semibold">
+                  <span>Courtesy trims</span>
+                  <span className="font-serif">− {formatBdtFromCents(data.discountCents, data.currency)}</span>
+                </div>
+              ) : null}
+              <div className="flex justify-between text-black/55 font-semibold">
+                <span>Courier</span>
+                <span className="font-serif">{formatBdtFromCents(data.shippingFeeCents, data.currency)}</span>
+              </div>
+              <div className="flex justify-between pt-4 text-brand-black border-t border-[#fcc4c8]/15 select-none">
+                <span className="text-base font-bold">Golden total</span>
+                <span className="text-xl font-serif font-bold text-brand-black">{formatBdtFromCents(data.totalCents, data.currency)}</span>
               </div>
             </div>
           </section>

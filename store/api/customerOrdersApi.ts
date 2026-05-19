@@ -27,8 +27,34 @@ export const customerOrdersApi = baseApi.injectEndpoints({
       query: (id) => `/me/orders/${id}`,
       providesTags: (_res, _e, id) => [{ type: "Order", id: `MY:${id}` }],
     }),
+    updateMyOrder: build.mutation<
+      MyOrderDetail,
+      {
+        id: string;
+        shippingAddress?: string;
+        shippingCity?: string;
+        shippingPhone?: string;
+        paymentId?: string;
+        status?: string;
+      }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/me/orders/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_res, _e, { id }) => [
+        { type: "Order", id: `MY:${id}` },
+        { type: "Order", id: "MY_LIST" },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
   }),
 });
 
-export const { useCheckoutMutation, useListMyOrdersQuery, useGetMyOrderQuery } =
-  customerOrdersApi;
+export const {
+  useCheckoutMutation,
+  useListMyOrdersQuery,
+  useGetMyOrderQuery,
+  useUpdateMyOrderMutation,
+} = customerOrdersApi;
