@@ -77,9 +77,9 @@ export function ShopSidebar({
 }) {
   return (
     <>
-      {/* Desktop sidebar — glass effect */}
+      {/* Desktop sidebar — premium glass effect */}
       <aside className="hidden lg:block lg:w-[264px] lg:shrink-0">
-        <div className="glass sticky top-[72px] max-h-[calc(100vh-80px)] overflow-y-auto sidebar-scroll rounded-2xl p-5">
+        <div className="sticky top-[72px] max-h-[calc(100vh-80px)] overflow-y-auto sidebar-scroll rounded-2xl p-5 border border-[#fcc4c8]/35 bg-white/90 backdrop-blur-md bg-gradient-to-b from-white/95 to-[#fff5f6]/95 shadow-[0_8px_32px_rgba(252,196,200,0.08)]">
           <SidebarContent filters={filters} pushParams={pushParams} />
         </div>
       </aside>
@@ -100,7 +100,7 @@ export function ShopSidebar({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="glass-strong fixed inset-y-0 left-0 z-[110] w-[300px] max-w-[85vw] overflow-y-auto p-5 shadow-xl sidebar-scroll lg:hidden"
+              className="fixed inset-y-0 left-0 z-[110] w-[300px] max-w-[85vw] overflow-y-auto p-5 shadow-xl sidebar-scroll lg:hidden border-r border-[#fcc4c8]/35 bg-white/95 backdrop-blur-md bg-gradient-to-b from-white/98 to-[#fff8f9]/98"
             >
               <div className="mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-semibold text-brand-black">
@@ -110,7 +110,7 @@ export function ShopSidebar({
                 <button
                   type="button"
                   onClick={onMobileClose}
-                  className="rounded-lg p-1.5 hover:bg-brand-pink/15"
+                  className="rounded-full p-1.5 hover:bg-[#fcc4c8]/20"
                   aria-label="Close filters"
                 >
                   <IconX className="h-5 w-5" />
@@ -150,10 +150,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "flex w-full items-center rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex w-full items-center rounded-full px-3.5 py-2 text-sm transition-all duration-200",
                 (filters.category ?? "") === cat.value
-                  ? "bg-brand-pink/35 font-medium text-brand-black"
-                  : "text-black/65 hover:bg-brand-pink/15"
+                  ? "bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
+                  : "text-black/65 hover:bg-[#fcc4c8]/20 hover:text-brand-black"
               )}
             >
               {cat.label}
@@ -168,7 +168,7 @@ function SidebarContent({
           <input
             type="number"
             placeholder="Min"
-            className="w-full rounded-lg border border-brand-pink/20 bg-white/80 px-3 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none"
+            className="w-full rounded-full border border-[#fcc4c8]/50 bg-white/85 px-4 py-1.5 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all"
             value={filters.priceMinCents ? Math.floor(filters.priceMinCents / 100) : ""}
             onChange={(e) =>
               pushParams((sp) => {
@@ -184,7 +184,7 @@ function SidebarContent({
           <input
             type="number"
             placeholder="Max"
-            className="w-full rounded-lg border border-brand-pink/20 bg-white/80 px-3 py-2 text-sm text-brand-black focus:border-brand-pink focus:outline-none"
+            className="w-full rounded-full border border-[#fcc4c8]/50 bg-white/85 px-4 py-1.5 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all"
             value={filters.priceMaxCents ? Math.floor(filters.priceMaxCents / 100) : ""}
             onChange={(e) =>
               pushParams((sp) => {
@@ -215,10 +215,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200",
                 filters.size === s
-                  ? "border-brand-pink bg-brand-pink/30 text-brand-black"
-                  : "border-brand-pink/15 text-black/55 hover:border-brand-pink/50 hover:bg-brand-pink/10"
+                  ? "border-[#fcc4c8] bg-[#fcc4c8] text-brand-black shadow-sm"
+                  : "border-[#fcc4c8]/40 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
               )}
             >
               {s}
@@ -273,10 +273,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "rounded-lg border px-2.5 py-1.5 text-xs transition-colors",
+                "rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
                 filters.fabricType === f.toLowerCase()
-                  ? "border-brand-pink bg-brand-pink/30 font-medium text-brand-black"
-                  : "border-brand-pink/15 text-black/55 hover:border-brand-pink/50 hover:bg-brand-pink/10"
+                  ? "border-[#fcc4c8] bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
+                  : "border-[#fcc4c8]/40 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
               )}
             >
               {f}
@@ -299,7 +299,7 @@ function SidebarContent({
                 sp.set("page", "1");
               })
             }
-            className="h-4 w-4 rounded border-brand-pink/30 accent-brand-pink"
+            className="h-4 w-4 rounded border-[#fcc4c8] accent-[#fcc4c8] focus:ring-0 cursor-pointer"
           />
           In Stock Only
         </label>
@@ -322,10 +322,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex w-full items-center gap-2 rounded-full px-3.5 py-2 text-sm transition-all duration-200",
                 filters.minRating === r.value
-                  ? "bg-brand-pink/30 font-medium text-brand-black"
-                  : "text-black/55 hover:bg-brand-pink/10"
+                  ? "bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
+                  : "text-black/55 hover:bg-[#fcc4c8]/15 hover:text-brand-black"
               )}
             >
               <IconStar className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
@@ -359,10 +359,10 @@ function SidebarContent({
                   })
                 }
                 className={cn(
-                  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+                  "flex w-full items-center gap-2.5 rounded-full px-3.5 py-2 text-sm transition-all duration-200",
                   active
-                    ? "bg-brand-pink/30 font-medium text-brand-black"
-                    : "text-black/60 hover:bg-brand-pink/10"
+                    ? "bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
+                    : "text-black/60 hover:bg-[#fcc4c8]/15 hover:text-brand-black"
                 )}
               >
                 <Icon className="h-4 w-4" stroke={1.8} />
@@ -384,7 +384,7 @@ function SidebarContent({
             sp.set("sortMode", "latest");
           })
         }
-        className="w-full rounded-lg border border-brand-pink/20 py-2 text-xs font-medium text-black/45 transition hover:bg-brand-pink/15 hover:text-brand-black"
+        className="w-full rounded-full border border-[#fcc4c8]/50 py-2 text-xs font-semibold text-black/45 transition-all duration-200 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8] hover:text-brand-black"
       >
         Clear all filters
       </button>

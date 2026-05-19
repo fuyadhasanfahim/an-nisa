@@ -53,7 +53,7 @@ export function BoutiqueProductCard({
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-brand-pink/15 bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-pink/10",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#fcc4c8]/35 bg-white/95 shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(252,196,200,0.35)] hover:border-[#fcc4c8]",
         className
       )}
     >
@@ -65,10 +65,13 @@ export function BoutiqueProductCard({
         }
         onMouseLeave={() => setHoverIdx(0)}
       >
+        {/* Modern blur effect overlay on hover */}
+        <div className="absolute inset-0 z-10 bg-[#fcc4c8]/3 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100" />
+
         {/* Discount badge */}
         {discountPct ? (
-          <span className="absolute left-3 top-3 z-20 rounded-lg bg-brand-pink/90 px-2.5 py-1 text-[11px] font-semibold text-brand-black backdrop-blur-sm">
-            −{discountPct}%
+          <span className="absolute left-3 top-3 z-20 rounded-full bg-red-500/90 text-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm border border-red-400/20">
+            Save {discountPct}%
           </span>
         ) : null}
 
@@ -81,14 +84,14 @@ export function BoutiqueProductCard({
               : `Add ${product.name} to wishlist`
           }
           onClick={() => dispatch(toggleWishlist(product.id))}
-          className="absolute right-3 top-3 z-20 rounded-full bg-white/80 p-1.5 shadow-sm backdrop-blur-sm transition hover:bg-white"
+          className="absolute right-3 top-3 z-20 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white border border-[#fcc4c8]/30"
         >
           <IconHeart
             className={cn(
-              "h-4 w-4",
+              "h-4 w-4 transition-all duration-300",
               liked
-                ? "fill-brand-pink stroke-brand-pink"
-                : "text-black/40"
+                ? "fill-[#fcc4c8] stroke-[#fcc4c8] scale-110"
+                : "text-black/40 hover:text-black/60"
             )}
             stroke={1.8}
           />
@@ -104,7 +107,7 @@ export function BoutiqueProductCard({
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               loading="lazy"
               className={cn(
-                "object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]",
+                "object-cover transition-all duration-700 ease-out group-hover:scale-[1.04]",
                 hoverIdx === 1 && gallery[1] ? "opacity-0" : "opacity-100"
               )}
             />
@@ -116,54 +119,60 @@ export function BoutiqueProductCard({
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 loading="lazy"
                 className={cn(
-                  "object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]",
+                  "object-cover transition-all duration-700 ease-out group-hover:scale-[1.04]",
                   hoverIdx === 1 ? "opacity-100" : "opacity-0"
                 )}
               />
             ) : null}
           </>
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-pink/15 to-brand-cream">
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#fcc4c8]/15 to-brand-cream">
             <span className="text-sm text-black/25">No image</span>
           </div>
         )}
 
         {/* Category label */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 to-transparent px-3 pb-2 pt-8">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-white/80">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent px-3.5 pb-2.5 pt-8 z-20">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-white/90">
             {product.category}
           </span>
         </div>
       </div>
 
       {/* Product info */}
-      <div className="flex flex-1 flex-col gap-2.5 p-3.5">
+      <div className="flex flex-1 flex-col gap-3 p-4">
         {/* Title + rating */}
         <div className="flex items-start justify-between gap-2">
           <Link
             href={`/product/${product.slug}`}
-            className="line-clamp-2 text-sm font-medium leading-snug text-brand-black transition hover:text-black/65"
+            className="line-clamp-2 text-sm font-semibold leading-snug text-brand-black transition hover:text-[#fcc4c8]"
           >
             {product.name}
           </Link>
-          <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-brand-pink/25 px-1.5 py-0.5 text-[11px] font-semibold text-brand-black">
+          <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 border border-amber-200/40 px-2 py-0.5 text-[10px] font-bold text-amber-700 shadow-sm">
             <IconStar className="h-3 w-3 fill-amber-400 text-amber-500" />
             {(product.ratingAverage ?? 0).toFixed(1)}
           </div>
         </div>
 
         {/* Meta */}
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-black/40">
+        <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
           {product.fabricType && (
-            <span className="rounded-md border border-brand-pink/15 bg-brand-pink/8 px-1.5 py-0.5">
+            <span className="rounded-full border border-[#fcc4c8]/40 bg-[#fcc4c8]/8 px-2 py-0.5 font-medium text-black/60">
               {product.fabricType}
             </span>
           )}
-          <span>
-            {product.trackInventory && product.stockQuantity <= 4
-              ? "Limited stock"
-              : "In stock"}
-          </span>
+          {product.trackInventory && product.stockQuantity <= 4 ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-bold uppercase tracking-wider text-amber-600 border border-amber-200/50">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Limited Stock
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-bold uppercase tracking-wider text-emerald-600 border border-emerald-200/50">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              In Stock
+            </span>
+          )}
         </div>
 
         {/* Sizes */}
@@ -175,10 +184,10 @@ export function BoutiqueProductCard({
                 type="button"
                 onClick={() => setSize(s)}
                 className={cn(
-                  "rounded-md px-2 py-0.5 text-[10px] font-medium uppercase transition-colors",
+                  "rounded-full px-2.5 py-0.5 text-[9px] font-semibold uppercase transition-all duration-200",
                   size === s
-                    ? "bg-[#1a1a1a] text-white"
-                    : "border border-brand-pink/15 text-black/50 hover:border-brand-pink/40"
+                    ? "bg-[#1a1a1a] text-white shadow-sm"
+                    : "border border-[#fcc4c8]/30 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
                 )}
               >
                 {s}
@@ -188,14 +197,14 @@ export function BoutiqueProductCard({
         )}
 
         {/* Price + actions */}
-        <div className="mt-auto flex items-end justify-between gap-3 pt-2">
-          <div>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+          <div className="flex flex-col">
             {product.discountPriceCents != null && (
-              <span className="block text-[11px] text-black/35 line-through">
+              <span className="text-[10px] font-semibold text-black/35 line-through tracking-tight">
                 {formatBdtFromCents(product.priceCents, product.currency)}
               </span>
             )}
-            <span className="text-lg font-semibold tracking-tight text-brand-black">
+            <span className="text-lg font-extrabold tracking-tight text-brand-black leading-none mt-0.5">
               {formatBdtFromCents(
                 product.effectivePriceCents,
                 product.currency
@@ -206,10 +215,10 @@ export function BoutiqueProductCard({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wide transition",
+              "inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm shrink-0",
               commerceBlocked
                 ? "cursor-not-allowed bg-black/8 text-black/35"
-                : "bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]/85"
+                : "bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]/85 hover:scale-105 active:scale-95"
             )}
             disabled={commerceBlocked}
             onClick={() => {
