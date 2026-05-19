@@ -114,10 +114,11 @@ export function SiteHeader() {
 
                     {/* Auth */}
                     {!user ? (
-                        <Link href="/sign-in">
-                            <Button className="rounded-xl px-4 py-2 text-xs">
-                                Login
-                            </Button>
+                        <Link
+                            href="/sign-in"
+                            className="inline-flex h-11 items-center justify-center rounded-full bg-[#fcc4c8] px-5 text-xs font-bold text-brand-black shadow-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/85 active:scale-95 border border-[#fcc4c8]/20 cursor-pointer min-w-[76px]"
+                        >
+                            Sign in
                         </Link>
                     ) : (
                         <ProfileMenu
