@@ -229,30 +229,49 @@ function SidebarContent({
 
       {/* Colors */}
       <FilterSection title="Colors">
-        <div className="flex flex-wrap gap-2">
-          {COLOR_SWATCHES.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              title={c.name}
-              onClick={() =>
-                pushParams((sp) => {
-                  const cur = sp.get("color");
-                  cur === c.value
-                    ? sp.delete("color")
-                    : sp.set("color", c.value);
-                  sp.set("page", "1");
-                })
-              }
-              className={cn(
-                "h-7 w-7 rounded-full border-2 transition-transform hover:scale-110",
-                filters.color === c.value
-                  ? "border-brand-pink ring-2 ring-brand-pink/40 scale-110"
-                  : "border-brand-pink/20"
-              )}
-              style={{ backgroundColor: c.hex }}
-            />
-          ))}
+        <div className="flex flex-wrap gap-2.5 pt-1">
+          {COLOR_SWATCHES.map((c) => {
+            const isSelected = filters.color === c.value;
+            const isWhite = c.value === "white";
+            return (
+              <button
+                key={c.value}
+                type="button"
+                title={c.name}
+                onClick={() =>
+                  pushParams((sp) => {
+                    const cur = sp.get("color");
+                    cur === c.value
+                      ? sp.delete("color")
+                      : sp.set("color", c.value);
+                    sp.set("page", "1");
+                  })
+                }
+                className={cn(
+                  "h-7.5 w-7.5 rounded-full transition-all duration-300 relative flex items-center justify-center cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-[#fcc4c8]/25",
+                  isSelected
+                    ? "scale-110 ring-2 ring-[#fcc4c8] ring-offset-2"
+                    : "hover:scale-105"
+                )}
+                style={{ backgroundColor: c.hex }}
+              >
+                {isSelected && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={cn(
+                      "h-3.5 w-3.5 stroke-[3]",
+                      isWhite || c.value === "gold" || c.value === "pink" ? "text-brand-black" : "text-white"
+                    )}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
       </FilterSection>
 
