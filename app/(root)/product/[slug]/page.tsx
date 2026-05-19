@@ -53,6 +53,9 @@ export default async function BoutiqueProductSlugPage({
     embroideryType: product.embroideryType,
     category: product.category,
     sizes: product.sizes,
+    colors: product.colors,
+    ratingAverage: product.ratingAverage,
+    ratingCount: product.ratingCount,
   };
 
   return (

@@ -12,4 +12,7 @@ export type BoutiqueProductStudioModel = {
   embroideryType?: string | null;
   category: string;
   sizes: string[];
+  colors?: string[];
+  ratingAverage?: number;
+  ratingCount?: number;
 };

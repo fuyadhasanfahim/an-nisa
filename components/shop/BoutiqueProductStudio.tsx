@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { IconHeart, IconShoppingBagPlus } from "@tabler/icons-react";
+import { IconHeart, IconShoppingBagPlus, IconStar } from "@tabler/icons-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
@@ -24,6 +24,8 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
   const liked = useAppSelector((state) => state.boutiqueUi.wishlist.includes(product.id));
   const sizes = product.sizes?.length ? product.sizes : [];
   const [size, setSize] = useState<string | undefined>(sizes[0]);
+  const colors = product.colors?.length ? product.colors : [];
+  const [color, setColor] = useState<string | undefined>(colors[0]);
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.06fr_minmax(0,0.9fr)]">
@@ -67,13 +69,31 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
         <div className="space-y-2">
           <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/45 font-serif">{product.category}</p>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-brand-black md:text-[2.6rem] leading-tight">{product.name}</h1>
+          
+          {/* Star Rating details */}
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/40 px-2.5 py-0.5 text-xs font-bold text-amber-700 shadow-sm select-none">
+              <IconStar className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
+              {(product.ratingAverage ?? 0).toFixed(1)}
+            </div>
+            <span className="text-xs font-semibold text-black/45">
+              ({product.ratingCount ?? 0} keepsakes reviewed)
+            </span>
+          </div>
         </div>
 
-        {product.fabricType ? (
-          <p className="text-sm font-medium text-black/55">
-            Fabric: <span className="text-brand-black font-semibold">{product.fabricType}</span>
-          </p>
-        ) : null}
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-black/55">
+          {product.fabricType ? (
+            <p>
+              Fabric: <span className="text-brand-black font-semibold">{product.fabricType}</span>
+            </p>
+          ) : null}
+          {product.embroideryType ? (
+            <p>
+              Embroidery: <span className="text-brand-black font-semibold">{product.embroideryType}</span>
+            </p>
+          ) : null}
+        </div>
 
         <p className="text-sm leading-relaxed text-black/65 font-medium">{product.description}</p>
 
@@ -109,6 +129,30 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
                   onClick={() => setSize(s)}
                 >
                   {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Colors Selector */}
+        {colors.length ? (
+          <div className="space-y-2.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/45">Select Color</span>
+            <div className="flex flex-wrap gap-2">
+              {colors.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={cn(
+                    "rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                    color === c
+                      ? "bg-[#fcc4c8] text-brand-black shadow-sm font-bold"
+                      : "border border-[#fcc4c8]/30 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
+                  )}
+                  onClick={() => setColor(c)}
+                >
+                  {c}
                 </button>
               ))}
             </div>
