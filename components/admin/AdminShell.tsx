@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AuthToasts } from "@/components/shared/AuthToasts";
 import { ProfileMenu } from "@/components/shared/ProfileMenu";
@@ -12,6 +14,8 @@ import {
   IconPackage,
   IconReceipt2,
   IconUsers,
+  IconChevronLeft,
+  IconChevronRight,
 } from "@tabler/icons-react";
 
 const items = [
@@ -30,22 +34,51 @@ type AdminShellProps = {
 
 export function AdminShell({ children, user }: AdminShellProps) {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Compute active page title dynamically
+  const activeItem = items.find((item) => {
+    if (item.href === "/admin") {
+      return pathname === "/admin";
+    }
+    return pathname === item.href || pathname?.startsWith(item.href + "/");
+  });
+  const pageTitle = activeItem ? activeItem.label : "Admin";
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
       <AuthToasts />
-      <aside className="fixed inset-y-0 left-0 w-[240px] bg-white">
+      <aside className={[
+        "fixed inset-y-0 left-0 bg-white transition-all duration-300 z-30 flex flex-col",
+        collapsed ? "w-[70px]" : "w-[240px]"
+      ].join(" ")}>
         <div className="absolute inset-y-0 right-0 w-px bg-black/10" />
 
-        <div className="px-5 py-6">
-          <div className="font-serif text-xl tracking-tight text-brand-black">
-            Admin
-          </div>
-          <div className="mt-1 text-xs text-black/55">An Nisa’s World</div>
+        <div className={[
+          "py-6 transition-all duration-300 flex items-center justify-center",
+          collapsed ? "px-3" : "px-5"
+        ].join(" ")}>
+          {collapsed ? (
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fcc4c8]/25 border border-[#fcc4c8]/30 font-serif text-sm font-bold text-brand-black select-none animate-fade-in shadow-sm">
+              AN
+            </div>
+          ) : (
+            <Image
+              src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png"
+              alt="An Nisa's World Logo"
+              width={150}
+              height={46}
+              className="h-10 w-auto object-contain animate-fade-in"
+              priority
+            />
+          )}
         </div>
 
-        <nav className="px-3">
-          <div className="grid gap-1">
+        <nav className={[
+          "transition-all duration-300",
+          collapsed ? "px-2" : "px-3"
+        ].join(" ")}>
+          <div className="grid gap-1.5">
             {items.map((item) => {
               const active =
                 item.href === "/admin"
@@ -57,21 +90,23 @@ export function AdminShell({ children, user }: AdminShellProps) {
                   key={item.href}
                   href={item.href}
                   className={[
-                    "group flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition",
+                    "group flex items-center rounded-xl transition-all duration-300",
+                    collapsed ? "justify-center p-3" : "gap-3 px-3 py-2 text-sm",
                     "focus:outline-none focus:ring-2 focus:ring-brand-pink/40",
                     active
-                      ? "bg-[#fcc4c8] text-brand-black"
+                      ? "bg-[#fcc4c8] text-brand-black shadow-sm font-semibold"
                       : "text-black/70 hover:bg-black/5 hover:text-brand-black",
                   ].join(" ")}
+                  title={collapsed ? item.label : undefined}
                 >
                   <Icon
                     className={[
-                      "h-5 w-5 transition",
+                      "h-5 w-5 transition-transform duration-300 group-hover:scale-105 shrink-0",
                       active ? "text-brand-black" : "text-black/55",
                     ].join(" ")}
                     stroke={1.8}
                   />
-                  <span className="font-medium">{item.label}</span>
+                  {!collapsed && <span className="font-medium truncate">{item.label}</span>}
                 </Link>
               );
             })}
@@ -79,10 +114,27 @@ export function AdminShell({ children, user }: AdminShellProps) {
         </nav>
       </aside>
 
-      <div className="pl-[240px]">
+      <div className={[
+        "transition-all duration-300",
+        collapsed ? "pl-[70px]" : "pl-[240px]"
+      ].join(" ")}>
         <header className="sticky top-0 z-20 border-b border-black/5 bg-[#f9fafb]/80 backdrop-blur">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3">
-            <div className="text-sm text-black/45">Admin</div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCollapsed(!collapsed)}
+                className="p-1.5 rounded-lg hover:bg-black/5 text-black/55 hover:text-brand-black transition duration-200 cursor-pointer flex items-center justify-center border border-black/5 bg-white shadow-sm"
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label="Toggle sidebar collapse"
+              >
+                {collapsed ? (
+                  <IconChevronRight className="h-4 w-4" stroke={2} />
+                ) : (
+                  <IconChevronLeft className="h-4 w-4" stroke={2} />
+                )}
+              </button>
+              <span className="text-sm font-bold tracking-tight text-brand-black">{pageTitle}</span>
+            </div>
 
             <ProfileMenu
               user={user}

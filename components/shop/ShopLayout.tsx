@@ -12,13 +12,16 @@ import { useListProductsQuery, type ProductListApiParams } from "@/store/api/pro
 import { ShopSidebar } from "@/components/shop/ShopSidebar";
 import { ShopToolbar } from "@/components/shop/ShopToolbar";
 import { ProductGrid } from "@/components/shop/ProductGrid";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setMobileFiltersOpen } from "@/store/slices/boutiqueUISlice";
 
 export function ShopLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
-  const [mobileFilters, setMobileFilters] = useState(false);
+  const dispatch = useAppDispatch();
+  const mobileFilters = useAppSelector((state) => state.boutiqueUi.mobileFiltersOpen);
 
   const normalized = useMemo(
     () =>
@@ -68,7 +71,7 @@ export function ShopLayout() {
           filters={filters}
           pushParams={pushParams}
           mobileOpen={mobileFilters}
-          onMobileClose={() => setMobileFilters(false)}
+          onMobileClose={() => dispatch(setMobileFiltersOpen(false))}
         />
 
         {/* Right content */}
@@ -80,7 +83,7 @@ export function ShopLayout() {
             limit={normalized.limit}
             sortMode={sortMode}
             pushParams={pushParams}
-            onMobileFilterToggle={() => setMobileFilters(true)}
+            onMobileFilterToggle={() => dispatch(setMobileFiltersOpen(true))}
           />
 
           {/* Product grid + pagination */}

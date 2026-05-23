@@ -38,16 +38,18 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-[#fcc4c8]/35 bg-gradient-to-b from-white via-[#fffbfa] to-[#fff5f6] pt-16 pb-10">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           {/* Brand & Description */}
           <div className="space-y-5">
             <div className="flex items-center">
               <Link href="/" className="inline-block select-none transition duration-300 active:scale-[0.98]">
-                <div className="bg-[#fcc4c8] px-4 py-2 border border-[#fcc4c8]/10">
-                  <span className="font-serif text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-brand-black whitespace-nowrap leading-none">
-                    An Nisa&apos;s World
-                  </span>
-                </div>
+                <Image
+                  src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png"
+                  alt="An Nisa's World Logo"
+                  width={180}
+                  height={55}
+                  className="h-10 w-auto object-contain sm:h-14"
+                />
               </Link>
             </div>
             <p className="max-w-[300px] text-sm leading-relaxed text-brand-black/55">
@@ -69,7 +71,7 @@ export function SiteFooter() {
             {/* Social handles */}
             <div className="flex items-center gap-3 pt-1">
               <a
-                href="https://www.instagram.com/annisasworld"
+                href="https://www.instagram.com/annisasworldin?igsh=MWwyNHIzdmZiNzd1ag=="
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"

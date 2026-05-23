@@ -1,16 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { IconSparkles } from "@tabler/icons-react";
 
 type AuthCardProps = {
   brandText?: string;
+  showBrandLogo?: boolean;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
 };
 
-export function AuthCard({ brandText, title, subtitle, children }: AuthCardProps) {
+export function AuthCard({ brandText, showBrandLogo, title, subtitle, children }: AuthCardProps) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
@@ -20,11 +22,23 @@ export function AuthCard({ brandText, title, subtitle, children }: AuthCardProps
     >
       <div className="relative">
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-[#fcc4c8]/10 text-brand-black">
-            <IconSparkles className="h-5 w-5" stroke={1.8} />
-          </div>
+          {showBrandLogo ? (
+            <div className="mt-2 flex justify-center">
+              <Image
+                src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png"
+                alt="An Nisa's World Logo"
+                width={120}
+                height={35}
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-[#fcc4c8]/10 text-brand-black">
+              <IconSparkles className="h-5 w-5" stroke={1.8} />
+            </div>
+          )}
 
-          {brandText ? (
+          {brandText && !showBrandLogo ? (
             <div className="mt-3.5 text-[10px] font-bold tracking-[0.25em] text-black/45 uppercase">
               {brandText}
             </div>

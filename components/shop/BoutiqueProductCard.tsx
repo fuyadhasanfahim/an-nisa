@@ -139,16 +139,16 @@ export function BoutiqueProductCard({
       </div>
 
       {/* Product info - animated primary tinted glassmorphic panel on hover */}
-      <div className="relative z-20 flex flex-1 flex-col gap-3 p-4 bg-white border-t border-[#fcc4c8]/15 transition-all duration-500 ease-out group-hover:bg-[#fff9fa]/90 group-hover:backdrop-blur-md group-hover:border-t-[#fcc4c8]/65 shadow-[0_-8px_20px_-8px_rgba(252,196,200,0)] group-hover:shadow-[0_-8px_20px_-8px_rgba(252,196,200,0.25)]">
+      <div className="relative z-20 flex flex-1 flex-col gap-2 sm:gap-3 p-3 sm:p-4 bg-white border-t border-[#fcc4c8]/15 transition-all duration-500 ease-out group-hover:bg-[#fff9fa]/90 group-hover:backdrop-blur-md group-hover:border-t-[#fcc4c8]/65 shadow-[0_-8px_20px_-8px_rgba(252,196,200,0)] group-hover:shadow-[0_-8px_20px_-8px_rgba(252,196,200,0.25)]">
         {/* Title + rating */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-1.5 sm:gap-2">
           <Link
             href={`/product/${product.slug}`}
-            className="line-clamp-1 font-serif text-base font-semibold leading-snug text-brand-black transition hover:text-[#fcc4c8]"
+            className="line-clamp-1 font-serif text-sm sm:text-base font-semibold leading-snug text-brand-black transition hover:text-[#fcc4c8]"
           >
             {product.name}
           </Link>
-          <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 border border-amber-200/40 px-2 py-0.5 text-[10px] font-bold text-amber-700 shadow-sm">
+          <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 border border-amber-200/40 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-700 shadow-sm">
             <IconStar className="h-3 w-3 fill-amber-400 text-amber-500" />
             {(product.ratingAverage ?? 0).toFixed(1)}
           </div>
@@ -183,7 +183,7 @@ export function BoutiqueProductCard({
                 type="button"
                 onClick={() => setSize(s)}
                 className={cn(
-                  "rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                  "rounded-full px-1.5 sm:px-2.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer",
                   size === s
                     ? "bg-[#fcc4c8] text-brand-black shadow-sm font-bold"
                     : "border border-[#fcc4c8]/30 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
@@ -196,14 +196,14 @@ export function BoutiqueProductCard({
         )}
 
         {/* Price + actions */}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1.5 sm:pt-2">
           <div className="flex flex-col">
             {product.discountPriceCents != null && (
-              <span className="text-[10px] font-serif font-medium text-black/35 line-through tracking-tight">
+              <span className="text-[9px] sm:text-[10px] font-serif font-medium text-black/35 line-through tracking-tight">
                 {formatBdtFromCents(product.priceCents, product.currency)}
               </span>
             )}
-            <span className="text-lg font-serif font-bold tracking-tight text-brand-black leading-none mt-0.5">
+            <span className="text-base sm:text-lg font-serif font-bold tracking-tight text-brand-black leading-none mt-0.5">
               {formatBdtFromCents(
                 product.effectivePriceCents,
                 product.currency
@@ -214,7 +214,7 @@ export function BoutiqueProductCard({
           <button
             type="button"
             className={cn(
-              "inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm shrink-0 cursor-pointer border-none",
+              "inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-2.5 sm:px-4 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm shrink-0 cursor-pointer border-none",
               commerceBlocked
                 ? "cursor-not-allowed bg-black/8 text-black/35"
                 : "bg-[#fcc4c8] text-brand-black hover:bg-[#fcc4c8]/85 hover:scale-105 active:scale-95"
@@ -248,7 +248,7 @@ export function BoutiqueProductCard({
             }}
           >
             <IconShoppingBagPlus className="h-3.5 w-3.5" stroke={1.8} />
-            Add
+            <span className="hidden sm:inline">Add</span>
           </button>
         </div>
       </div>

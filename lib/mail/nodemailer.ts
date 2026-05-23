@@ -74,10 +74,8 @@ function generateOrderHtml(order: any, isAdminAlert = false): string {
               <!-- Header -->
               <tr>
                 <td style="background: linear-gradient(135deg, #fff5f6 0%, #fffbfa 100%); padding: 40px 30px; text-align: center; border-bottom: 1px solid #fcc4c8;">
-                  <div style="display: inline-block; background-color: #fcc4c8; padding: 12px 24px; margin-bottom: 15px;">
-                    <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: bold; letter-spacing: 0.3em; text-transform: uppercase; color: #1c1917;">
-                      An Nisa's World
-                    </span>
+                  <div style="margin-bottom: 15px;">
+                    <img src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png" alt="An Nisa's World Logo" style="height: 40px; width: auto; display: block; margin: 0 auto;" />
                   </div>
                   <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; color: #1c1917; margin: 10px 0 5px 0;">
                     ${isAdminAlert ? "New Order Placed!" : "Thank You For Your Order"}
@@ -298,10 +296,8 @@ function generateStatusUpdateHtml(order: any, newStatus: string): string {
               <!-- Header -->
               <tr>
                 <td style="background: linear-gradient(135deg, #fff5f6 0%, #fffbfa 100%); padding: 40px 30px; text-align: center; border-bottom: 1px solid #fcc4c8;">
-                  <div style="display: inline-block; background-color: #fcc4c8; padding: 12px 24px; margin-bottom: 15px;">
-                    <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: bold; letter-spacing: 0.3em; text-transform: uppercase; color: #1c1917;">
-                      An Nisa's World
-                    </span>
+                  <div style="margin-bottom: 15px;">
+                    <img src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png" alt="An Nisa's World Logo" style="height: 40px; width: auto; display: block; margin: 0 auto;" />
                   </div>
                   <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; color: #1c1917; margin: 10px 0 5px 0;">
                     ${statusTitle}
@@ -420,10 +416,8 @@ function generateInvoicePaidHtml(order: any, invoiceNumber: string): string {
               <!-- Header -->
               <tr>
                 <td style="background: linear-gradient(135deg, #fff5f6 0%, #fffbfa 100%); padding: 40px 30px; text-align: center; border-bottom: 1px solid #fcc4c8;">
-                  <div style="display: inline-block; background-color: #fcc4c8; padding: 12px 24px; margin-bottom: 15px;">
-                    <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: bold; letter-spacing: 0.3em; text-transform: uppercase; color: #1c1917;">
-                      An Nisa's World
-                    </span>
+                  <div style="margin-bottom: 15px;">
+                    <img src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png" alt="An Nisa's World Logo" style="height: 40px; width: auto; display: block; margin: 0 auto;" />
                   </div>
                   <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; color: #1c1917; margin: 10px 0 5px 0;">
                     Payment Received!
@@ -523,6 +517,106 @@ export async function sendInvoicePaidEmail(order: any, invoiceNumber: string, pd
     }
   } catch (error) {
     console.error("[nodemailer] Failed to deliver invoice paid email:", error);
+    return false;
+  }
+}
+
+// Generate premium HTML for contact enquiry email
+function generateContactEnquiryHtml(enquiry: { name: string; email: string; subject: string; message: string }): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Contact Enquiry — An Nisa's World</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #fffbfa; font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fffbfa; padding: 30px 10px;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #fcc4c8; box-shadow: 0 10px 30px rgba(252, 196, 200, 0.15);">
+              
+              <!-- Header -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #fff5f6 0%, #fffbfa 100%); padding: 40px 30px; text-align: center; border-bottom: 1px solid #fcc4c8;">
+                  <div style="margin-bottom: 15px;">
+                    <img src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png" alt="An Nisa's World Logo" style="height: 40px; width: auto; display: block; margin: 0 auto;" />
+                  </div>
+                  <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; color: #1c1917; margin: 10px 0 5px 0;">
+                    New Enquiry Received
+                  </h1>
+                  <p style="font-size: 14px; color: #78716c; margin: 0; font-weight: 500;">
+                    Subject: ${enquiry.subject}
+                  </p>
+                </td>
+              </tr>
+
+              <!-- Greeting & Content -->
+              <tr>
+                <td style="padding: 40px 30px 30px 30px;">
+                  <p style="font-size: 16px; color: #1c1917; font-weight: 600; margin: 0 0 15px 0;">
+                    Hello Admin,
+                  </p>
+                  <p style="font-size: 15px; color: #44403c; line-height: 1.6; margin: 0 0 20px 0;">
+                    You have received a new contact message from <strong>${enquiry.name}</strong> (${enquiry.email}). Below are the details of the enquiry.
+                  </p>
+                  
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fffbfa; border: 1px solid #fcc4c8; border-radius: 16px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #fcc4c8;">
+                    <tr>
+                      <td style="font-size: 14px; color: #1c1917; line-height: 1.6;">
+                        <strong>From:</strong> ${enquiry.name} (${enquiry.email})<br>
+                        <strong>Subject:</strong> ${enquiry.subject}<br><br>
+                        <strong>Message:</strong><br>
+                        ${enquiry.message.replace(/\n/g, "<br>")}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Signature Footer -->
+              <tr>
+                <td style="padding: 30px; background-color: #fffbfa; border-top: 1px solid #fcc4c8; text-align: center;">
+                  <p style="font-size: 11px; color: #a8a29e; font-weight: 500; margin: 0;">
+                    © ${new Date().getFullYear()} An-Nisa's World. All rights reserved. Dhaka, Bangladesh.
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+// Send contact enquiry email to store admin
+export async function sendContactEnquiryEmail(enquiry: { name: string; email: string; subject: string; message: string }): Promise<boolean> {
+  if (!SMTP_MAIL || !SMTP_PASS) {
+    console.warn("[nodemailer] Missing SMTP credentials. Contact enquiry notification skipped.");
+    return false;
+  }
+
+  try {
+    if (PUBLIC_EMAIL) {
+      const mailOptions = {
+        from: `"${SMTP_USER} Atelier" <${SMTP_MAIL}>`,
+        to: PUBLIC_EMAIL,
+        replyTo: enquiry.email,
+        subject: `✉️ [NEW ENQUIRY] ${enquiry.subject} — from ${enquiry.name}`,
+        html: generateContactEnquiryHtml(enquiry),
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`[nodemailer] Contact enquiry email successfully sent to ${PUBLIC_EMAIL}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("[nodemailer] Failed to deliver contact enquiry email:", error);
     return false;
   }
 }

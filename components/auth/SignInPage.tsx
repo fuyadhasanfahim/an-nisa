@@ -38,7 +38,7 @@ export function SignInPage() {
       <Container>
         <div>
           <AuthCard
-            brandText="AN NISA'S WORLD"
+            showBrandLogo={true}
             title="Sign in"
             subtitle="Continue with Google to access your account."
           >

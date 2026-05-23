@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   IconFilter,
@@ -13,10 +13,17 @@ import {
   IconTag,
   IconNeedle,
   IconRosetteDiscount,
+  IconHeart,
+  IconTrash,
 } from "@tabler/icons-react";
 import type { ProductListFilters } from "@/lib/validators/product-list.query";
 import { cn } from "@/lib/utils/cn";
-import { useGetProductFiltersQuery } from "@/store/api/productsApi";
+import { useGetProductFiltersQuery, useListProductsQuery } from "@/store/api/productsApi";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { toggleWishlist } from "@/store/slices/boutiqueUISlice";
+import { formatBdtFromCents } from "@/lib/money/format-bdt-from-cents";
+import Image from "next/image";
+import Link from "next/link";
 
 const CATEGORIES = [
   { label: "All", value: "" },
@@ -65,6 +72,90 @@ const QUICK_FILTERS = [
 
 type PushParams = (mutate: (sp: URLSearchParams) => void) => void;
 
+function WishlistSidebarSection({ onClose }: { onClose?: () => void }) {
+  const dispatch = useAppDispatch();
+  const wishlistIds = useAppSelector((state) => state.boutiqueUi.wishlist);
+  const { data } = useListProductsQuery({ limit: 100, page: 1 });
+
+  const items = data?.items.filter((p) => wishlistIds.includes(p.id)) ?? [];
+
+  if (wishlistIds.length === 0) {
+    return (
+      <div className="border-b border-[#fcc4c8]/25 pb-5">
+        <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-black/45 mb-3">
+          <IconHeart className="h-4 w-4 text-[#fcc4c8] fill-current" />
+          Wishlist
+        </h4>
+        <p className="text-xs text-black/40 italic font-semibold pl-1">
+          Your sanctuary is vacant.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-b border-[#fcc4c8]/25 pb-5">
+      <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-black/45 mb-3">
+        <IconHeart className="h-4 w-4 text-[#fcc4c8] fill-[#fcc4c8]" />
+        Wishlist ({items.length})
+      </h4>
+      <div className="space-y-2.5 max-h-48 overflow-y-auto sidebar-scroll pr-1">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="group/wish flex items-center gap-3 rounded-xl border border-[#fcc4c8]/25 bg-white/70 p-2 transition hover:border-[#fcc4c8] hover:bg-[#fff9fa]/80 shadow-sm"
+          >
+            {/* Thumbnail */}
+            {item.images?.[0] ? (
+              <Link
+                href={`/product/${item.slug}`}
+                onClick={onClose}
+                className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-[#fcc4c8]/20 bg-white"
+              >
+                <Image
+                  src={item.images[0]}
+                  alt={item.name}
+                  fill
+                  sizes="44px"
+                  className="object-cover transition duration-300 group-hover/wish:scale-105"
+                />
+              </Link>
+            ) : (
+              <div className="h-11 w-11 shrink-0 rounded-lg bg-[#fcc4c8]/10" />
+            )}
+
+            {/* Title & Price */}
+            <div className="flex-1 min-w-0">
+              <Link
+                href={`/product/${item.slug}`}
+                onClick={onClose}
+                className="block text-xs font-bold text-brand-black truncate hover:text-[#fcc4c8] transition"
+              >
+                {item.name}
+              </Link>
+              <div className="text-[10px] font-bold text-black/55 mt-0.5">
+                {formatBdtFromCents(item.effectivePriceCents)}
+              </div>
+            </div>
+
+            {/* Quick action buttons */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => dispatch(toggleWishlist(item.id))}
+                className="rounded-full p-1 text-black/30 hover:bg-rose-50 hover:text-rose-500 transition cursor-pointer"
+                title="Remove"
+              >
+                <IconTrash className="h-3.5 w-3.5" stroke={2} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ShopSidebar({
   filters,
   pushParams,
@@ -103,7 +194,8 @@ export function ShopSidebar({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 z-[110] w-[300px] max-w-[85vw] overflow-y-auto p-5 shadow-xl sidebar-scroll lg:hidden border-r border-[#fcc4c8]/35 bg-white/95 backdrop-blur-md bg-gradient-to-b from-white/98 to-[#fff8f9]/98"
+              className="fixed top-0 bottom-0 left-0 z-[110] w-[300px] max-w-[85vw] h-[100dvh] max-h-[100dvh] overflow-y-scroll overscroll-contain p-5 shadow-xl sidebar-scroll lg:hidden border-r border-[#fcc4c8]/35 bg-white/95 backdrop-blur-md bg-gradient-to-b from-white/98 to-[#fff8f9]/98"
+              style={{ WebkitOverflowScrolling: "touch" }}
             >
               <div className="mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-semibold text-brand-black">
@@ -119,7 +211,7 @@ export function ShopSidebar({
                   <IconX className="h-5 w-5" />
                 </button>
               </div>
-              <SidebarContent filters={filters} pushParams={pushParams} dynamicFilters={dynamicFilters} />
+              <SidebarContent filters={filters} pushParams={pushParams} dynamicFilters={dynamicFilters} onClose={onMobileClose} />
             </motion.aside>
           </>
         )}
@@ -132,6 +224,7 @@ function SidebarContent({
   filters,
   pushParams,
   dynamicFilters,
+  onClose,
 }: {
   filters: ProductListFilters;
   pushParams: PushParams;
@@ -141,6 +234,7 @@ function SidebarContent({
     sizes: string[];
     colors: Array<{ name: string; value: string; hex: string }>;
   };
+  onClose?: () => void;
 }) {
   const categories = dynamicFilters?.categories?.length
     ? [{ label: "All", value: "" }, ...dynamicFilters.categories]
@@ -159,7 +253,10 @@ function SidebarContent({
     : FABRIC_TYPES;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
+      {/* Wishlist Sidebar Section */}
+      <WishlistSidebarSection onClose={onClose} />
+
       {/* Categories */}
       <FilterSection title="Categories" defaultOpen>
         <div className="space-y-1.5">

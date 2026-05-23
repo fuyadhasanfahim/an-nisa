@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Container } from "@/components/shared/Container";
 import { IconAward, IconHeart, IconSparkles, IconScissors } from "@tabler/icons-react";
 
@@ -36,11 +37,13 @@ export default function AboutUsPage() {
             {/* Visual branding showcase card */}
             <div className="relative rounded-3xl stitch-border bg-gradient-to-br from-[#fffbfa] to-white p-8 sm:p-12 shadow-softSm flex flex-col justify-between min-h-[340px]">
               <div>
-                <div className="bg-[#fcc4c8] px-4 py-2 border border-[#fcc4c8]/10 inline-block rounded-md shadow-sm">
-                  <span className="font-sans text-[11px] sm:text-xs font-bold uppercase tracking-[0.3em] text-brand-black leading-none">
-                    An Nisa&apos;s World
-                  </span>
-                </div>
+                <Image
+                  src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png"
+                  alt="An Nisa's World Logo"
+                  width={140}
+                  height={45}
+                  className="h-10 w-auto object-contain"
+                />
                 <h3 className="mt-8 font-serif text-2xl font-bold text-brand-black">
                   Slow Fashion, Handcrafted with Infinite Love.
                 </h3>

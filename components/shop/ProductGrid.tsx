@@ -22,7 +22,7 @@ export function ProductGrid({
 }) {
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, idx) => (
           <BoutiqueProductCardSkeleton key={idx} />
         ))}
@@ -59,7 +59,7 @@ export function ProductGrid({
     <>
       {/* Product grid */}
       <div
-        className={`stagger-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ${
+        className={`stagger-grid grid gap-3 grid-cols-2 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4 ${
           isFetching ? "opacity-80 transition-opacity" : ""
         }`}
       >

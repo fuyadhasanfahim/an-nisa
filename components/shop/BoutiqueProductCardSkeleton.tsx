@@ -56,7 +56,7 @@ export function BoutiqueProductCardSkeleton({
             <div className="h-5 w-16 rounded bg-black/[0.08] animate-pulse" />
           </div>
 
-          <div className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#fcc4c8]/40 px-4 text-xs font-bold transition-all duration-300 animate-pulse w-20">
+          <div className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#fcc4c8]/40 px-2.5 sm:px-4 text-xs font-bold transition-all duration-300 animate-pulse w-9 sm:w-20 shrink-0">
             <IconShoppingBagPlus className="h-3.5 w-3.5 text-brand-black/20" stroke={1.8} />
           </div>
         </div>

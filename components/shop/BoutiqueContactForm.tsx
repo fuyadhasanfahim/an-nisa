@@ -40,26 +40,43 @@ export function BoutiqueContactForm({
     e.preventDefault();
     setPending(true);
 
-    // Mock API submission delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    setPending(false);
-    setSuccess(true);
-    toast({
-      title: "Enquiry Sent",
-      message: "Thank you! We have received your message and will reach out shortly.",
-      variant: "success",
-    });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to deliver enquiry.");
+      }
 
-    setFormData({
-      name: user?.name || "",
-      email: user?.email || "",
-      subject: defaultSubject,
-      message: "",
-    });
+      setSuccess(true);
+      toast({
+        title: "Enquiry Sent",
+        message: "Thank you! We have received your message and will reach out shortly.",
+        variant: "success",
+      });
 
-    // Reset success state after a few seconds
-    setTimeout(() => setSuccess(false), 5000);
+      setFormData({
+        name: user?.name || "",
+        email: user?.email || "",
+        subject: defaultSubject,
+        message: "",
+      });
+
+      // Reset success state after a few seconds
+      setTimeout(() => setSuccess(false), 5000);
+    } catch (err: any) {
+      toast({
+        title: "Submission Failed",
+        message: err.message || "Something went wrong while delivering your message.",
+        variant: "error",
+      });
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -128,10 +145,10 @@ export function BoutiqueContactForm({
       <button
         type="submit"
         disabled={pending}
-        className={`h-11 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-softSm transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
+        className={`h-11 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 shadow-softSm border border-[#fcc4c8]/30 ${
           success
-            ? "bg-emerald-500 hover:bg-emerald-600"
-            : "bg-brand-black hover:opacity-95 active:scale-[0.99]"
+            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+            : "bg-[#fcc4c8] text-brand-black hover:bg-[#fcc4c8]/85 hover:scale-[1.01] active:scale-[0.99]"
         }`}
       >
         {pending ? (

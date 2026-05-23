@@ -34,6 +34,7 @@ export type BoutiqueUIState = {
   hydrated: boolean;
   cart: CartLine[];
   wishlist: string[];
+  mobileFiltersOpen: boolean;
 };
 
 function sortUnique(ids: string[]) {
@@ -47,8 +48,12 @@ export const boutiqueUISlice = createSlice({
     hydrated: false,
     cart: [] as CartLine[],
     wishlist: [] as string[],
+    mobileFiltersOpen: false,
   },
   reducers: {
+    setMobileFiltersOpen(state, action: PayloadAction<boolean>) {
+      state.mobileFiltersOpen = action.payload;
+    },
     hydrateFromStorage(state) {
       state.theme =
         readJson<{ theme?: ThemeMode }>("annisa_theme", {}).theme ??
@@ -170,4 +175,5 @@ export const {
   setLineQuantity,
   clearCart,
   toggleWishlist,
+  setMobileFiltersOpen,
 } = boutiqueUISlice.actions;

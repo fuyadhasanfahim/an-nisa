@@ -3,14 +3,17 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Suspense, useMemo, useState, useEffect } from 'react';
-import { IconHeart, IconLayoutDashboard, IconShoppingBag } from '@tabler/icons-react';
+import { IconHeart, IconLayoutDashboard, IconShoppingBag, IconSearch, IconUser, IconMenu2 } from '@tabler/icons-react';
 import { ProfileMenu } from '@/components/shared/ProfileMenu';
 import { authClient } from '@/lib/auth/auth-client';
 import { Button } from '@/components/ui/Button';
 import { BoutiqueSearchBar } from '@/components/shop/BoutiqueSearchBar';
 import { BoutiqueMiniCart } from '@/components/shop/BoutiqueMiniCart';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { cn } from '@/lib/utils/cn';
+import { AnimatePresence, motion } from 'framer-motion';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { setMobileFiltersOpen } from '@/store/slices/boutiqueUISlice';
 
 export function SiteHeader() {
     const { data: session } = authClient.useSession();
@@ -19,9 +22,17 @@ export function SiteHeader() {
     const wishlistQty = useAppSelector(
         (state) => state.boutiqueUi.wishlist.length,
     );
+    const dispatch = useAppDispatch();
 
     const [visible, setVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+    useEffect(() => {
+        setMobileSearchOpen(false);
+    }, [pathname, searchParams]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -67,18 +78,21 @@ export function SiteHeader() {
             "glass-strong sticky top-0 z-[90] border-b border-brand-pink/15 transition-transform duration-300 ease-in-out",
             visible ? "translate-y-0" : "-translate-y-full"
         )}>
-            <div className="mx-auto flex items-center gap-2 sm:gap-4 p-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex items-center gap-1.5 sm:gap-4 p-3.5 sm:px-6 lg:px-8">
                 {/* Logo */}
                 <Link href="/" className="flex shrink-0 items-center select-none transition duration-300 active:scale-[0.98]">
-                    <div className="bg-[#fcc4c8] px-4 py-2 border border-[#fcc4c8]/10">
-                        <span className="font-serif text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-brand-black whitespace-nowrap leading-none">
-                            An Nisa&apos;s World
-                        </span>
-                    </div>
+                    <Image
+                        src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png"
+                        alt="An Nisa's World Logo"
+                        width={180}
+                        height={55}
+                        className="h-10 w-auto object-contain sm:h-14 md:h-16"
+                        priority
+                    />
                 </Link>
 
                 {/* Search bar */}
-                <div className="flex-1 max-w-[460px] mx-2 sm:mx-4 md:mx-auto min-w-[120px]">
+                <div className="hidden md:block flex-1 max-w-[460px] mx-4 md:mx-auto">
                     <Suspense
                         fallback={
                             <div className="h-11 rounded-full bg-[#fcc4c8]/10" />
@@ -90,11 +104,27 @@ export function SiteHeader() {
 
                 {/* Right actions */}
                 <div className="ml-auto flex items-center gap-2">
+                    {/* Mobile Search Toggle */}
+                    <button
+                        type="button"
+                        onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8] md:hidden cursor-pointer"
+                        aria-label="Toggle search"
+                    >
+                        <IconSearch
+                            className={cn(
+                                "h-[20px] w-[20px] text-brand-black/75 transition-transform duration-300",
+                                mobileSearchOpen ? "rotate-90 text-[#fcc4c8]" : ""
+                            )}
+                            stroke={1.8}
+                        />
+                    </button>
+
                     {/* Wishlist */}
                     <Link
                         href="/wishlist"
                         aria-label={`Wishlist (${wishlistQty})`}
-                        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8]"
+                        className="relative hidden md:inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8]"
                     >
                         <IconHeart
                             className="h-[20px] w-[20px] text-brand-black/75"
@@ -112,12 +142,23 @@ export function SiteHeader() {
 
                     {/* Auth */}
                     {!user ? (
-                        <Link
-                            href="/sign-in"
-                            className="inline-flex h-11 items-center justify-center rounded-full bg-[#fcc4c8] px-5 text-xs font-bold text-brand-black shadow-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/85 active:scale-95 border border-[#fcc4c8]/20 cursor-pointer min-w-[76px]"
-                        >
-                            Sign in
-                        </Link>
+                        <>
+                            {/* Desktop Sign in */}
+                            <Link
+                                href="/sign-in"
+                                className="hidden md:inline-flex h-11 items-center justify-center rounded-full bg-[#fcc4c8] px-5 text-xs font-bold text-brand-black shadow-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/85 active:scale-95 border border-[#fcc4c8]/20 cursor-pointer min-w-[76px]"
+                            >
+                                Sign in
+                            </Link>
+                            {/* Mobile Sign in */}
+                            <Link
+                                href="/sign-in"
+                                aria-label="Sign in"
+                                className="inline-flex md:hidden h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-[#fcc4c8] text-brand-black shadow-sm transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+                            >
+                                <IconUser className="h-[20px] w-[20px]" stroke={1.8} />
+                            </Link>
+                        </>
                     ) : (
                         <ProfileMenu
                             user={{
@@ -148,9 +189,39 @@ export function SiteHeader() {
                             }
                         />
                     )}
+
+                    {/* Hamburger Menu Button */}
+                    <button
+                        type="button"
+                        onClick={() => dispatch(setMobileFiltersOpen(true))}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-white/75 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8] md:hidden cursor-pointer shrink-0"
+                        aria-label="Open menu"
+                    >
+                        <IconMenu2 className="h-[20px] w-[20px] text-brand-black/75" stroke={1.8} />
+                    </button>
                 </div>
             </div>
 
+            {/* Mobile search dropdown */}
+            <AnimatePresence>
+                {mobileSearchOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="border-t border-[#fcc4c8]/15 bg-white/95 px-4 py-3 md:hidden"
+                    >
+                        <Suspense
+                            fallback={
+                                <div className="h-11 rounded-full bg-[#fcc4c8]/10" />
+                            }
+                        >
+                            <BoutiqueSearchBar placement="inline" />
+                        </Suspense>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
     );
 }

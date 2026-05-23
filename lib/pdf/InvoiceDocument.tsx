@@ -4,6 +4,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer";
 
 export type InvoicePdfModel = {
@@ -67,16 +68,13 @@ const styles = StyleSheet.create({
     marginBottom: 22,
   },
   logoContainer: {
-    backgroundColor: pink,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    backgroundColor: "transparent",
+    paddingVertical: 4,
   },
-  logoText: {
-    fontFamily: "Times-Bold",
-    fontSize: 11,
-    letterSpacing: 3,
-    color: ink,
-    textTransform: "uppercase",
+  logoImage: {
+    width: 170,
+    height: 52,
+    objectFit: "contain",
   },
   invoicePill: {
     alignItems: "flex-end",
@@ -290,7 +288,10 @@ export function InvoiceDocument({ invoice }: { invoice: InvoicePdfModel }) {
           <View style={styles.pageMain}>
           <View style={styles.headerRow}>
             <View style={styles.logoContainer}>
-              <Text style={styles.logoText}>An Nisa's World</Text>
+              <Image
+                style={styles.logoImage}
+                src="https://res.cloudinary.com/dqc36sq78/image/upload/q_auto/f_auto/v1779542579/an-nisa-logo_rrjm1q.png"
+              />
             </View>
             <View style={styles.invoicePill}>
               <Text style={styles.invoicePillKicker}>INVOICE</Text>
