@@ -1,6 +1,7 @@
 "use client";
 
 import { BoutiqueProductCard } from "@/components/shop/BoutiqueProductCard";
+import { BoutiqueProductCardSkeleton } from "@/components/shop/BoutiqueProductCardSkeleton";
 import { Button } from "@/components/ui/Button";
 import type { ProductDto, ProductListResponse } from "@/store/api/productsApi";
 
@@ -23,10 +24,7 @@ export function ProductGrid({
     return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, idx) => (
-          <div
-            key={idx}
-            className="aspect-[3/4.5] animate-pulse rounded-2xl bg-brand-pink/10"
-          />
+          <BoutiqueProductCardSkeleton key={idx} />
         ))}
       </div>
     );

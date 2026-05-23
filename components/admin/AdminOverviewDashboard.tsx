@@ -20,7 +20,6 @@ import type { OrderListItemDto } from "@/store/api/ordersApi";
 import { DataTable } from "@/components/admin/DataTable";
 import {
   IconChartBar,
-  IconClipboardList,
   IconCoinOff,
   IconFileInvoice,
   IconLayoutDashboard,
@@ -370,25 +369,6 @@ export function AdminOverviewDashboard() {
               </div>
             </div>
           </Link>
-
-          <div className={kpiCardClass}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-xs font-medium tracking-wide text-black/55">
-                  Custom requests
-                </div>
-                <div className="mt-2 font-serif text-2xl tracking-tight text-brand-black tabular-nums">
-                  {stats.customOrdersNew}
-                </div>
-                <div className="mt-1 text-xs text-black/50">
-                  New bespoke enquiries (site form)
-                </div>
-              </div>
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-brand-black">
-                <IconClipboardList className="h-5 w-5" stroke={1.75} />
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 

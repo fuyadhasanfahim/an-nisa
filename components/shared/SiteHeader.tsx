@@ -69,14 +69,12 @@ export function SiteHeader() {
         )}>
             <div className="mx-auto flex items-center gap-2 sm:gap-4 p-4 sm:px-6 lg:px-8">
                 {/* Logo */}
-                <Link href="/" className="flex shrink-0 items-center">
-                    <Image
-                        src="https://res.cloudinary.com/dchvqlhdw/image/upload/v1779167222/an_nisa_s_world_mbnwbu.png"
-                        alt="An-Nisa Logo"
-                        width={130}
-                        height={40}
-                        priority
-                    />
+                <Link href="/" className="flex shrink-0 items-center select-none transition duration-300 active:scale-[0.98]">
+                    <div className="bg-[#fcc4c8] px-4 py-2 border border-[#fcc4c8]/10">
+                        <span className="font-serif text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-brand-black whitespace-nowrap leading-none">
+                            An Nisa&apos;s World
+                        </span>
+                    </div>
                 </Link>
 
                 {/* Search bar */}

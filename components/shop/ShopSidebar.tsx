@@ -159,10 +159,10 @@ function SidebarContent({
     : FABRIC_TYPES;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Categories */}
       <FilterSection title="Categories" defaultOpen>
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {categories.map((cat) => (
             <button
               key={cat.label}
@@ -176,10 +176,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "flex w-full items-center rounded-full px-3.5 py-2 text-sm transition-all duration-200",
+                "flex w-full items-center rounded-xl pl-3.5 pr-4 py-2.5 text-sm font-semibold border-l-4 transition-all duration-300 relative cursor-pointer",
                 (filters.category ?? "") === cat.value
-                  ? "bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
-                  : "text-black/65 hover:bg-[#fcc4c8]/20 hover:text-brand-black"
+                  ? "bg-[#fcc4c8]/25 text-brand-black border-l-[#fcc4c8] shadow-sm font-bold"
+                  : "text-black/60 border-l-transparent hover:bg-black/[0.03] hover:text-brand-black"
               )}
             >
               {cat.label}
@@ -194,7 +194,7 @@ function SidebarContent({
           <input
             type="number"
             placeholder="Min"
-            className="w-full rounded-full border border-[#fcc4c8]/50 bg-white/85 px-4 py-1.5 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all"
+            className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-2 text-xs font-semibold text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all shadow-sm"
             value={filters.priceMinCents ? Math.floor(filters.priceMinCents / 100) : ""}
             onChange={(e) =>
               pushParams((sp) => {
@@ -206,11 +206,11 @@ function SidebarContent({
               })
             }
           />
-          <span className="text-xs text-black/35">–</span>
+          <span className="text-xs text-black/35 font-bold">–</span>
           <input
             type="number"
             placeholder="Max"
-            className="w-full rounded-full border border-[#fcc4c8]/50 bg-white/85 px-4 py-1.5 text-xs text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all"
+            className="w-full rounded-xl border border-black/10 bg-white px-3.5 py-2 text-xs font-semibold text-brand-black focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all shadow-sm"
             value={filters.priceMaxCents ? Math.floor(filters.priceMaxCents / 100) : ""}
             onChange={(e) =>
               pushParams((sp) => {
@@ -223,7 +223,7 @@ function SidebarContent({
             }
           />
         </div>
-        <p className="mt-1 text-[11px] text-black/35">Values in BDT (৳)</p>
+        <p className="mt-1.5 text-[10px] text-black/35 font-bold uppercase tracking-wider">Values in BDT (৳)</p>
       </FilterSection>
 
       {/* Sizes */}
@@ -241,10 +241,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200",
+                "rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-300 cursor-pointer",
                 filters.size === s
-                  ? "border-[#fcc4c8] bg-[#fcc4c8] text-brand-black shadow-sm"
-                  : "border-[#fcc4c8]/40 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
+                  ? "border-[#fcc4c8] bg-[#fcc4c8]/20 text-brand-black border-2 font-bold shadow-sm"
+                  : "border-black/10 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
               )}
             >
               {s}
@@ -274,7 +274,7 @@ function SidebarContent({
                   })
                 }
                 className={cn(
-                  "h-7.5 w-7.5 rounded-full transition-all duration-300 relative flex items-center justify-center cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-[#fcc4c8]/25",
+                  "h-7.5 w-7.5 rounded-full transition-all duration-300 relative flex items-center justify-center cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/5",
                   isSelected
                     ? "scale-110 ring-2 ring-[#fcc4c8] ring-offset-2"
                     : "hover:scale-105"
@@ -318,10 +318,10 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
+                "rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-300 cursor-pointer",
                 filters.fabricType === f.toLowerCase()
-                  ? "border-[#fcc4c8] bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
-                  : "border-[#fcc4c8]/40 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
+                  ? "border-[#fcc4c8] bg-[#fcc4c8]/20 text-brand-black border-2 font-bold shadow-sm"
+                  : "border-black/10 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
               )}
             >
               {f}
@@ -332,7 +332,7 @@ function SidebarContent({
 
       {/* Availability */}
       <FilterSection title="Availability">
-        <label className="flex cursor-pointer items-center gap-3 text-sm text-black/65">
+        <label className="flex cursor-pointer items-center gap-3 text-sm text-black/65 font-semibold">
           <input
             type="checkbox"
             checked={Boolean(filters.inStockOnly)}
@@ -344,7 +344,7 @@ function SidebarContent({
                 sp.set("page", "1");
               })
             }
-            className="h-4 w-4 rounded border-[#fcc4c8] accent-[#fcc4c8] focus:ring-0 cursor-pointer"
+            className="h-4.5 w-4.5 rounded-lg border border-black/15 text-[#fcc4c8] accent-[#fcc4c8] focus:ring-[#fcc4c8]/20 cursor-pointer"
           />
           In Stock Only
         </label>
@@ -352,7 +352,7 @@ function SidebarContent({
 
       {/* Rating */}
       <FilterSection title="Rating">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {RATING_OPTIONS.map((r) => (
             <button
               key={r.value}
@@ -367,13 +367,13 @@ function SidebarContent({
                 })
               }
               className={cn(
-                "flex w-full items-center gap-2 rounded-full px-3.5 py-2 text-sm transition-all duration-200",
+                "flex w-full items-center gap-2 rounded-xl pl-3.5 pr-4 py-2.5 text-sm font-semibold border-l-4 transition-all duration-300 cursor-pointer",
                 filters.minRating === r.value
-                  ? "bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
-                  : "text-black/55 hover:bg-[#fcc4c8]/15 hover:text-brand-black"
+                  ? "bg-[#fcc4c8]/25 text-brand-black border-l-[#fcc4c8] shadow-sm font-bold"
+                  : "text-black/60 border-l-transparent hover:bg-[#fcc4c8]/15 hover:text-brand-black"
               )}
             >
-              <IconStar className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
+              <IconStar className="h-3.5 w-3.5 fill-amber-400 text-amber-500 animate-pulse" />
               {r.label}
             </button>
           ))}
@@ -382,7 +382,7 @@ function SidebarContent({
 
       {/* Quick Filters */}
       <FilterSection title="Quick Filters" defaultOpen>
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {QUICK_FILTERS.map((qf) => {
             const filterMap: Record<string, boolean | undefined> = {
               trending: filters.trendingOnly,
@@ -404,10 +404,10 @@ function SidebarContent({
                   })
                 }
                 className={cn(
-                  "flex w-full items-center gap-2.5 rounded-full px-3.5 py-2 text-sm transition-all duration-200",
+                  "flex w-full items-center gap-2.5 rounded-xl pl-3.5 pr-4 py-2.5 text-sm font-semibold border-l-4 transition-all duration-300 cursor-pointer",
                   active
-                    ? "bg-[#fcc4c8] font-semibold text-brand-black shadow-sm"
-                    : "text-black/60 hover:bg-[#fcc4c8]/15 hover:text-brand-black"
+                    ? "bg-[#fcc4c8]/25 text-brand-black border-l-[#fcc4c8] shadow-sm font-bold"
+                    : "text-black/60 border-l-transparent hover:bg-[#fcc4c8]/15 hover:text-brand-black"
                 )}
               >
                 <Icon className="h-4 w-4" stroke={1.8} />
@@ -429,7 +429,7 @@ function SidebarContent({
             sp.set("sortMode", "latest");
           })
         }
-        className="w-full rounded-full border border-[#fcc4c8]/60 bg-[#fcc4c8]/10 py-2.5 text-xs font-bold text-brand-black transition-all duration-300 hover:bg-[#fcc4c8] hover:shadow-sm active:scale-95 cursor-pointer"
+        className="w-full rounded-xl bg-brand-black text-white py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:opacity-95 shadow-softSm active:scale-95 cursor-pointer text-center"
       >
         Clear all filters
       </button>

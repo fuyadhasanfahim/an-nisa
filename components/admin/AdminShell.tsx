@@ -8,6 +8,7 @@ import {
   IconChartBar,
   IconCoinOff,
   IconFileInvoice,
+  IconHome,
   IconLayoutDashboard,
   IconPackage,
   IconReceipt2,
@@ -85,7 +86,20 @@ export function AdminShell({ children, user }: AdminShellProps) {
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3">
             <div className="text-sm text-black/45">Admin</div>
 
-            <ProfileMenu user={user} signOutMode="redirect-sign-in" />
+            <ProfileMenu
+              user={user}
+              signOutMode="redirect-sign-in"
+              menuExtras={
+                <Link
+                  href="/"
+                  role="menuitem"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-black/70 transition hover:bg-brand-pink/35 hover:text-brand-black"
+                >
+                  <IconHome className="h-4 w-4 text-brand-black/75" stroke={1.8} />
+                  Home Page
+                </Link>
+              }
+            />
           </div>
         </header>
 

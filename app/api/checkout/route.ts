@@ -15,6 +15,7 @@ import {
   allocateUniqueOrderId,
   ensureCustomerPublicId,
 } from "@/lib/ids/public-ref";
+import { sendOrderEmails } from "@/lib/mail/nodemailer";
 
 export const runtime = "nodejs";
 
@@ -122,6 +123,11 @@ export async function POST(req: Request) {
       }
 
       return order;
+    });
+
+    // Dispatch emails asynchronously in the background so it doesn't block the checkout response
+    sendOrderEmails(created).catch((err) => {
+      console.error("[checkout] Error sending background order emails:", err);
     });
 
     return NextResponse.json(serializeOrderDetail(created), { status: 201 });

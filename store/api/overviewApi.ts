@@ -23,7 +23,6 @@ export type OverviewResponse = {
     productsActive: number;
     invoicesCount: number;
     lifetimeExpenseCents: number;
-    customOrdersNew: number;
   };
   daily: OverviewDaily[];
   recentOrders: OrderListItemDto[];

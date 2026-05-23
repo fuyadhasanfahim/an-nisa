@@ -28,7 +28,6 @@ model User {
   orders       Order[]
   invoices     Invoice[]
   customers    CustomerProfile?
-  customOrders CustomOrder[]
 
   @@unique([email])
   @@map("user")
@@ -204,21 +203,6 @@ model Invoice {
 
   @@index([userId])
   @@map("invoice")
-}
-
-model CustomOrder {
-  id        String   @id @default(cuid())
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  name      String
-  email     String
-  details   String
-  status    String   @default("new")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@map("custom_order")
 }
 
 model Expense {

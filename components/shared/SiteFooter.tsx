@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { IconBrandInstagram, IconBrandFacebook, IconBrandTiktok, IconMail, IconPhone } from "@tabler/icons-react";
 
 const columns = [
@@ -9,7 +10,6 @@ const columns = [
     links: [
       { label: "All Products", href: "/#" },
       { label: "New Arrivals", href: "/?newArrival=true" },
-      { label: "Custom Orders", href: "/custom-order" },
       { label: "On Sale", href: "/?onSale=true" },
     ],
   },
@@ -18,14 +18,13 @@ const columns = [
     links: [
       { label: "Shipping & Delivery", href: "/policies/shipping" },
       { label: "Returns & Exchange", href: "/policies/returns" },
-      { label: "Care Guide", href: "/policies/care" },
-      { label: "Contact Us", href: "mailto:support@annisa.world" },
+      { label: "Contact Us", href: "/contact" },
     ],
   },
   {
     heading: "Company",
     links: [
-      { label: "About Us", href: "/policies/terms" },
+      { label: "About Us", href: "/about-us" },
       { label: "Privacy Policy", href: "/policies/privacy" },
       { label: "Terms of Service", href: "/policies/terms" },
     ],
@@ -33,19 +32,23 @@ const columns = [
 ];
 
 export function SiteFooter() {
+  const footerPhone = process.env.NEXT_PUBLIC_PHONE_NUMBER || "+880 1789-555666";
+  const footerEmail = process.env.NEXT_PUBLIC_EMAIL || "support@annisa.world";
+
   return (
     <footer className="mt-auto border-t border-[#fcc4c8]/35 bg-gradient-to-b from-white via-[#fffbfa] to-[#fff5f6] pt-16 pb-10">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           {/* Brand & Description */}
           <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#fcc4c8]/50 bg-[#fcc4c8]/15 text-xs font-bold text-brand-black shadow-sm select-none">
-                AN
-              </div>
-              <span className="font-serif text-2xl font-semibold tracking-tight text-brand-black">
-                An‑Nisa
-              </span>
+            <div className="flex items-center">
+              <Link href="/" className="inline-block select-none transition duration-300 active:scale-[0.98]">
+                <div className="bg-[#fcc4c8] px-4 py-2 border border-[#fcc4c8]/10">
+                  <span className="font-serif text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-brand-black whitespace-nowrap leading-none">
+                    An Nisa&apos;s World
+                  </span>
+                </div>
+              </Link>
             </div>
             <p className="max-w-[300px] text-sm leading-relaxed text-brand-black/55">
               Premium women&apos;s fashion — embroidery, handmade designs, and bespoke pieces crafted with care.
@@ -53,14 +56,14 @@ export function SiteFooter() {
 
             {/* Contact details */}
             <div className="space-y-2 text-sm text-brand-black/50">
-              <a href="mailto:support@annisa.world" className="flex items-center gap-2 hover:text-[#fcc4c8] transition duration-300">
+              <a href={`mailto:${footerEmail}`} className="flex items-center gap-2 hover:text-[#fcc4c8] transition duration-300">
                 <IconMail className="h-4 w-4 text-[#fcc4c8]" stroke={2} />
-                <span>support@annisa.world</span>
+                <span>{footerEmail}</span>
               </a>
-              <div className="flex items-center gap-2">
+              <a href={`tel:${footerPhone}`} className="flex items-center gap-2 hover:text-[#fcc4c8] transition duration-300">
                 <IconPhone className="h-4 w-4 text-[#fcc4c8]" stroke={2} />
-                <span>+880 1XXX-XXXXXX</span>
-              </div>
+                <span>{footerPhone}</span>
+              </a>
             </div>
 
             {/* Social handles */}

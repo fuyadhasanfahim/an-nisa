@@ -29,6 +29,7 @@ export default function BoutiqueCheckoutPage() {
   const [shippingPhone, setShippingPhone] = useState("");
   const [shippingLocation, setShippingLocation] = useState<"inside" | "outside">("inside");
   const [trxId, setTrxId] = useState("");
+  const walletPhone = process.env.NEXT_PUBLIC_PHONE_NUMBER || "+880 1789-555666";
 
   const subtotal = lines.reduce((s, line) => s + line.quantity * line.unitCents, 0);
   const shippingFee = Math.round(lines.length ? (shippingLocation === "inside" ? 6000 : 13000) : 0); // 60 BDT (6000 cents) inside, 130 BDT (13000 cents) outside
@@ -219,8 +220,8 @@ export default function BoutiqueCheckoutPage() {
                   <span className="font-bold text-brand-black">৳{shippingLocation === "inside" ? 60 : 130}</span> in advance to our official personal wallet:
                 </p>
                 <div className="bg-white/80 rounded-xl p-3 border border-[#fcc4c8]/30 font-semibold text-xs space-y-1.5 text-black/80">
-                  <div>📱 <span className="font-bold text-brand-black">bKash Personal:</span> +880 1712-345678</div>
-                  <div>📱 <span className="font-bold text-brand-black">Nagad Personal:</span> +880 1712-345678</div>
+                  <div>📱 <span className="font-bold text-brand-black">bKash Personal:</span> {walletPhone}</div>
+                  <div>📱 <span className="font-bold text-brand-black">Nagad Personal:</span> {walletPhone}</div>
                 </div>
                 <p className="text-xs text-black/55 font-medium leading-normal">
                   After sending the payment, copy the Transaction ID (TrxID) and paste it below to validate and complete your purchase.

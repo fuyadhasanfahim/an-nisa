@@ -37,7 +37,6 @@ export async function GET(req: Request) {
       productsActive,
       invoicesCount,
       expenseSumLifetime,
-      customOrdersNew,
       currencyRow,
       ordersInChartRange,
       recentOrdersRaw,
@@ -60,7 +59,6 @@ export async function GET(req: Request) {
       prisma.product.count({ where: { isActive: true } }),
       prisma.invoice.count(),
       prisma.expense.aggregate({ _sum: { amountCents: true } }),
-      prisma.customOrder.count({ where: { status: "new" } }),
       prisma.order.findFirst({
         select: { currency: true },
         orderBy: { createdAt: "desc" },
@@ -144,7 +142,6 @@ export async function GET(req: Request) {
         productsActive,
         invoicesCount,
         lifetimeExpenseCents: expenseSumLifetime._sum.amountCents ?? 0,
-        customOrdersNew,
       },
       daily,
       recentOrders,

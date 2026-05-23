@@ -50,12 +50,12 @@ function CustomDropdown<T extends string | number>({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center justify-between gap-1.5 rounded-full border border-[#fcc4c8]/60 bg-white px-3.5 py-1.5 text-xs font-semibold text-brand-black shadow-sm transition-all duration-300 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10 focus:ring-2 focus:ring-[#fcc4c8]/25 outline-none min-w-[110px] cursor-pointer"
+        className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-brand-black shadow-sm transition-all duration-300 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10 focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none min-w-[125px] cursor-pointer"
       >
         <span className="truncate">{selectedOpt.label}</span>
         <IconChevronDown
           className={`h-3.5 w-3.5 text-brand-black transition-transform duration-300 shrink-0 ${
-            open ? "rotate-180 text-[#fcc4c8]" : ""
+            open ? "rotate-180 text-brand-pink" : ""
           }`}
           stroke={2.2}
         />
@@ -68,7 +68,7 @@ function CustomDropdown<T extends string | number>({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-44 rounded-2xl border border-[#fcc4c8]/30 bg-white/95 p-1 shadow-lg backdrop-blur-md focus:outline-none z-40"
+            className="absolute right-0 mt-2 w-48 rounded-xl border border-[#fcc4c8]/25 bg-white/95 p-1 shadow-lg backdrop-blur-md focus:outline-none z-45"
           >
             <div className="py-1 space-y-0.5">
               {options.map((opt) => (
@@ -79,7 +79,7 @@ function CustomDropdown<T extends string | number>({
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center rounded-xl px-3 py-2 text-left text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     opt.value === value
                       ? "bg-[#fcc4c8] text-brand-black shadow-sm"
                       : "text-black/75 hover:bg-[#fcc4c8]/25 hover:text-brand-black"
@@ -117,26 +117,26 @@ export function ShopToolbar({
   const activeSort = (sortMode ?? "latest") as ProductSortMode;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-full border border-[#fcc4c8]/35 bg-white/95 px-5 py-2.5 shadow-[0_8px_32px_rgba(252,196,200,0.06)] backdrop-blur-md bg-gradient-to-r from-white to-[#fff5f6]">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-black/10 bg-white px-5 py-3.5 shadow-sm">
       {/* Left — count + mobile filter */}
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMobileFilterToggle}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#fcc4c8]/50 px-3.5 py-1.5 text-xs font-bold text-black/65 transition-all duration-200 hover:bg-[#fcc4c8]/15 hover:text-brand-black lg:hidden"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-black/10 bg-white px-4 py-2 text-xs font-bold text-black/65 transition-all duration-200 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10 hover:text-brand-black lg:hidden cursor-pointer"
         >
-          <IconFilter className="h-3.5 w-3.5" />
+          <IconFilter className="h-3.5 w-3.5 text-brand-black/60" />
           Filters
         </button>
-        <span className="text-sm text-black/50">
+        <span className="text-sm text-black/50 font-semibold">
           {total > 0 ? (
             <>
               Showing{" "}
-              <span className="font-semibold text-brand-black">
+              <span className="font-bold text-brand-black">
                 {from}–{to}
               </span>{" "}
               of{" "}
-              <span className="font-semibold text-brand-black">
+              <span className="font-bold text-brand-black">
                 {total}
               </span>{" "}
               products
@@ -148,9 +148,9 @@ export function ShopToolbar({
       </div>
 
       {/* Right — sort + page size */}
-      <div className="flex items-center gap-2.5">
-        <div className="flex items-center gap-1.5 text-xs text-black/45">
-          <IconArrowsSort className="h-3.5 w-3.5 text-brand-black" />
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 text-xs text-black/45 font-bold">
+          <IconArrowsSort className="h-3.5 w-3.5 text-brand-black/60" />
           <CustomDropdown
             value={activeSort}
             options={SORT_MENU}
