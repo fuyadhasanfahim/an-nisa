@@ -21,7 +21,6 @@ import { DataTable } from "@/components/admin/DataTable";
 import {
   IconChartBar,
   IconCoinOff,
-  IconFileInvoice,
   IconLayoutDashboard,
   IconPackage,
   IconPencil,
@@ -58,12 +57,6 @@ const QUICK_LINKS = [
     label: "Orders",
     description: "Fulfillment & payments",
     Icon: IconReceipt2,
-  },
-  {
-    href: "/admin/invoices",
-    label: "Invoices",
-    description: "PDFs & billing references",
-    Icon: IconFileInvoice,
   },
   {
     href: "/admin/customers",
@@ -332,24 +325,6 @@ export function AdminOverviewDashboard() {
             </div>
           </div>
 
-          <div className={kpiCardClass}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-xs font-medium tracking-wide text-black/55">
-                  Invoices
-                </div>
-                <div className="mt-2 font-serif text-2xl tracking-tight text-brand-black tabular-nums">
-                  {stats.invoicesCount}
-                </div>
-                <div className="mt-1 text-xs text-black/50">
-                  Issued from paid workflows
-                </div>
-              </div>
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-brand-black">
-                <IconFileInvoice className="h-5 w-5" stroke={1.75} />
-              </div>
-            </div>
-          </div>
 
           <Link href="/admin/expenses" className={`${kpiCardClass} block hover:ring-brand-pink/25`}>
             <div className="flex items-start justify-between gap-3">

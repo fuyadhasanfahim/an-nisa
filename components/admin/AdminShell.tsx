@@ -7,7 +7,6 @@ import { ProfileMenu } from "@/components/shared/ProfileMenu";
 import {
   IconChartBar,
   IconCoinOff,
-  IconFileInvoice,
   IconHome,
   IconLayoutDashboard,
   IconPackage,
@@ -19,7 +18,6 @@ const items = [
   { href: "/admin", label: "Overview", Icon: IconLayoutDashboard },
   { href: "/admin/products", label: "Products", Icon: IconPackage },
   { href: "/admin/orders", label: "Orders", Icon: IconReceipt2 },
-  { href: "/admin/invoices", label: "Invoices", Icon: IconFileInvoice },
   { href: "/admin/earnings", label: "Earnings", Icon: IconChartBar },
   { href: "/admin/expenses", label: "Expenses", Icon: IconCoinOff },
   { href: "/admin/customers", label: "Customers", Icon: IconUsers },

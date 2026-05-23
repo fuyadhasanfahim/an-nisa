@@ -66,33 +66,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 22,
   },
-  brandLockup: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    paddingRight: 16,
+  logoContainer: {
+    backgroundColor: pink,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
-  stitchMark: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderStyle: "dashed",
-    borderColor: pink,
-    backgroundColor: "rgba(252, 196, 200, 0.14)",
-    marginRight: 12,
-  },
-  brandName: {
+  logoText: {
     fontFamily: "Times-Bold",
-    fontSize: 22,
-    letterSpacing: -0.4,
+    fontSize: 11,
+    letterSpacing: 3,
     color: ink,
-  },
-  brandTagline: {
-    marginTop: 3,
-    fontSize: 9.5,
-    color: muted,
-    letterSpacing: 0.2,
+    textTransform: "uppercase",
   },
   invoicePill: {
     alignItems: "flex-end",
@@ -305,12 +289,8 @@ export function InvoiceDocument({ invoice }: { invoice: InvoicePdfModel }) {
         <View style={styles.pageInner}>
           <View style={styles.pageMain}>
           <View style={styles.headerRow}>
-            <View style={styles.brandLockup}>
-              <View style={styles.stitchMark} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.brandName}>An-Nisa</Text>
-                <Text style={styles.brandTagline}>Premium Embroidery</Text>
-              </View>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logoText}>An Nisa's World</Text>
             </View>
             <View style={styles.invoicePill}>
               <Text style={styles.invoicePillKicker}>INVOICE</Text>

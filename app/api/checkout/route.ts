@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       shippingFeeCents: Math.round(input.shippingFee * 100),
     });
 
-    const paymentId = (input.paymentId ?? "").trim() || "COD";
+    const paymentId = (input.paymentId ?? "").trim().toUpperCase() || "COD";
 
     const created = await prisma.$transaction(async (tx) => {
       await ensureCustomerPublicId(tx, session.user.id);

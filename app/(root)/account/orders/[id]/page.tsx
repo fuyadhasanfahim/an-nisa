@@ -301,7 +301,6 @@ export default function BoutiqueOrderDetailPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                   <a
                     href={`/api/invoices/${data.invoice.id}/pdf`}
-                    download
                     className="rounded-full bg-[#fcc4c8] hover:bg-[#fcc4c8]/85 text-brand-black font-bold text-xs uppercase tracking-wider px-6 py-3 transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center select-none border-none"
                   >
                     Download PDF
@@ -348,7 +347,7 @@ export default function BoutiqueOrderDetailPage() {
             
             <div className="mt-8 ml-auto grid w-full max-w-sm gap-3.5 text-sm font-semibold text-brand-black md:text-[15px] border-t border-[#fcc4c8]/25 pt-6">
               <div className="flex justify-between text-black/55 font-semibold">
-                <span>Goods</span>
+                <span>Subtotal</span>
                 <span className="font-serif">{formatBdtFromCents(data.subtotalCents, data.currency)}</span>
               </div>
               {data.discountCents > 0 ? (
@@ -358,11 +357,11 @@ export default function BoutiqueOrderDetailPage() {
                 </div>
               ) : null}
               <div className="flex justify-between text-black/55 font-semibold">
-                <span>Courier</span>
+                <span>Delivery Charge</span>
                 <span className="font-serif">{formatBdtFromCents(data.shippingFeeCents, data.currency)}</span>
               </div>
               <div className="flex justify-between pt-4 text-brand-black border-t border-[#fcc4c8]/15 select-none">
-                <span className="text-base font-bold">Golden total</span>
+                <span className="text-base font-bold">Total</span>
                 <span className="text-xl font-serif font-bold text-brand-black">{formatBdtFromCents(data.totalCents, data.currency)}</span>
               </div>
             </div>

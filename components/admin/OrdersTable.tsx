@@ -16,7 +16,7 @@ import {
     usePatchOrderMutation,
 } from '@/store/api/ordersApi';
 import Link from 'next/link';
-import { IconEye, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconEye, IconFileDownload, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/components/shared/toast/useToast';
 import { ConfirmAlertDialog } from '@/components/ui/ConfirmAlertDialog';
@@ -288,6 +288,14 @@ function OrderActionsCell({
                     >
                         <IconPencil className="h-4 w-4" stroke={2} />
                     </Link>
+                    <a
+                        href={`/api/orders/${orderId}/pdf`}
+                        className={comboBtn}
+                        title="Download PDF"
+                        aria-label="Download PDF invoice"
+                    >
+                        <IconFileDownload className="h-4 w-4" stroke={2} />
+                    </a>
                     <button
                         type="button"
                         className={`${comboBtn} ${comboBtnLast}`}

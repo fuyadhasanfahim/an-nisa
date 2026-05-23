@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { IconBrandInstagram, IconBrandFacebook, IconBrandTiktok, IconMail, IconPhone } from "@tabler/icons-react";
+import { IconBrandInstagram, IconBrandFacebook, IconMail, IconPhone } from "@tabler/icons-react";
 
 const columns = [
   {
@@ -69,7 +69,7 @@ export function SiteFooter() {
             {/* Social handles */}
             <div className="flex items-center gap-3 pt-1">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/annisasworld"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -78,22 +78,13 @@ export function SiteFooter() {
                 <IconBrandInstagram className="h-[18px] w-[18px]" stroke={1.8} />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/Annisasworld"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-[#fcc4c8]/40 bg-white/70 text-brand-black/60 shadow-sm transition duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8] hover:text-brand-black cursor-pointer"
               >
                 <IconBrandFacebook className="h-[18px] w-[18px]" stroke={1.8} />
-              </a>
-              <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TikTok"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#fcc4c8]/40 bg-white/70 text-brand-black/60 shadow-sm transition duration-300 hover:scale-105 hover:bg-[#fcc4c8]/15 hover:border-[#fcc4c8] hover:text-brand-black cursor-pointer"
-              >
-                <IconBrandTiktok className="h-[18px] w-[18px]" stroke={1.8} />
               </a>
             </div>
           </div>

@@ -20,6 +20,8 @@ import {
 import { finalizeOrderTotals } from "@/lib/orders/compute-order-totals";
 import { serializeOrderDetail } from "@/lib/orders/serialize-order";
 import { ensureCustomerPublicId } from "@/lib/ids/public-ref";
+import { sendOrderStatusEmail } from "@/lib/mail/nodemailer";
+import { handlePaymentPaidNotification } from "@/lib/orders/payment-notification";
 
 export const runtime = "nodejs";
 
@@ -181,6 +183,22 @@ export async function PUT(
       return order;
     });
 
+    // Detect status or payment changes and dispatch notifications in the background
+    const statusChanged = existing.status !== updated.status;
+    const paymentStatusChangedToPaid = updated.paymentStatus === "paid" && existing.paymentStatus !== "paid";
+
+    if (statusChanged) {
+      sendOrderStatusEmail(updated, updated.status).catch((err) => {
+        console.error("[PUT order update] Error sending status email:", err);
+      });
+    }
+
+    if (paymentStatusChangedToPaid) {
+      handlePaymentPaidNotification(updated.id).catch((err) => {
+        console.error("[PUT order update] Error sending invoice paid email:", err);
+      });
+    }
+
     return NextResponse.json(serializeOrderDetail(updated));
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -218,6 +236,9 @@ export async function PATCH(
     const json = await req.json();
     const body = orderPatchSchema.parse(json);
 
+    let beforeStatus: string | undefined;
+    let beforePaymentStatus: string | undefined;
+
     const updated = await prisma.$transaction(async (tx) => {
       const current = await tx.order.findUnique({
         where: { id },
@@ -226,6 +247,9 @@ export async function PATCH(
       if (!current) {
         throw new OrderNotFoundError();
       }
+
+      beforeStatus = current.status;
+      beforePaymentStatus = current.paymentStatus;
 
       const from = current.status;
       const to = body.status ?? from;
@@ -260,13 +284,13 @@ export async function PATCH(
         },
         include: {
           user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          customers: { select: { publicCustomerId: true } },
-        },
-      },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              customers: { select: { publicCustomerId: true } },
+            },
+          },
           items: {
             include: {
               product: { select: { id: true, name: true, slug: true } },
@@ -275,6 +299,22 @@ export async function PATCH(
         },
       });
     });
+
+    // Detect status or payment changes and dispatch notifications in the background
+    const statusChanged = beforeStatus !== undefined && beforeStatus !== updated.status;
+    const paymentStatusChangedToPaid = beforePaymentStatus !== undefined && beforePaymentStatus !== "paid" && updated.paymentStatus === "paid";
+
+    if (statusChanged) {
+      sendOrderStatusEmail(updated, updated.status).catch((err) => {
+        console.error("[PATCH order update] Error sending status email:", err);
+      });
+    }
+
+    if (paymentStatusChangedToPaid) {
+      handlePaymentPaidNotification(updated.id).catch((err) => {
+        console.error("[PATCH order update] Error sending invoice paid email:", err);
+      });
+    }
 
     return NextResponse.json(serializeOrderDetail(updated));
   } catch (err) {

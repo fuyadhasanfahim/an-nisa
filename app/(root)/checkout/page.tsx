@@ -68,7 +68,7 @@ export default function BoutiqueCheckoutPage() {
         discount: 0,
         shippingFee: shippingFee / 100,
         paymentMethod: "cod",
-        paymentId: trxId, // Store transaction ID of advance payment
+        paymentId: trxId.trim().toUpperCase(), // Store transaction ID of advance payment
         paymentCollectedVia: "cash",
       }).unwrap();
       toast({
@@ -220,8 +220,8 @@ export default function BoutiqueCheckoutPage() {
                   <span className="font-bold text-brand-black">৳{shippingLocation === "inside" ? 60 : 130}</span> in advance to our official personal wallet:
                 </p>
                 <div className="bg-white/80 rounded-xl p-3 border border-[#fcc4c8]/30 font-semibold text-xs space-y-1.5 text-black/80">
-                  <div>📱 <span className="font-bold text-brand-black">bKash Personal:</span> {walletPhone}</div>
-                  <div>📱 <span className="font-bold text-brand-black">Nagad Personal:</span> {walletPhone}</div>
+                  <div>📱 <span className="font-bold text-brand-black">bKash Personal:</span> {walletPhone} <span className="text-[#d37b82] font-bold ml-1">(Reference: An Nisa)</span></div>
+                  <div>📱 <span className="font-bold text-brand-black">Nagad Personal:</span> {walletPhone} <span className="text-[#d37b82] font-bold ml-1">(Reference: An Nisa)</span></div>
                 </div>
                 <p className="text-xs text-black/55 font-medium leading-normal">
                   After sending the payment, copy the Transaction ID (TrxID) and paste it below to validate and complete your purchase.
@@ -238,7 +238,7 @@ export default function BoutiqueCheckoutPage() {
                   required
                   className="w-full rounded-2xl border border-[#fcc4c8]/50 bg-white px-4 py-3 text-sm focus:border-[#fcc4c8] focus:ring-2 focus:ring-[#fcc4c8]/20 focus:outline-none transition-all shadow-sm text-brand-black font-bold placeholder-black/25 uppercase"
                   value={trxId}
-                  onChange={(e) => setTrxId(e.target.value)}
+                  onChange={(e) => setTrxId(e.target.value.toUpperCase())}
                   placeholder="e.g. 9K72B4D8X"
                 />
               </div>
@@ -290,11 +290,11 @@ export default function BoutiqueCheckoutPage() {
             
             <div className="space-y-3.5 border-t border-[#fcc4c8]/25 pt-6 text-sm font-semibold text-brand-black">
               <div className="flex justify-between text-black/55 font-semibold">
-                <span>Tactile goods</span>
+                <span>Subtotal</span>
                 <span className="font-serif">{formatBdtFromCents(subtotal)}</span>
               </div>
               <div className="flex justify-between text-black/55 font-semibold">
-                <span>Careful courier</span>
+                <span>Delivery Charge</span>
                 <span className="font-serif">{formatBdtFromCents(shippingFee)}</span>
               </div>
               <div className="flex justify-between pt-4 text-brand-black border-t border-[#fcc4c8]/15 select-none">
