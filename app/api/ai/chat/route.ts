@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 import { prisma } from "@/lib/db/prisma";
 
+// Matched against the user's own message (intent to escalate)
 const HUMAN_KEYWORDS = [
     // English
     'human',
@@ -19,6 +20,14 @@ const HUMAN_KEYWORDS = [
     'support',
     'representative',
     'operator',
+    'team member',
+    'connect me',
+    'real agent',
+    'customer service',
+    'support team',
+    'live chat',
+    'live agent',
+    'whatsapp',
 
     // Banglish
     'manush er sathe',
@@ -38,6 +47,8 @@ const HUMAN_KEYWORDS = [
     'call dibo',
     'real support',
     'human support',
+    'team er sathe',
+    'customer care',
 
     // Bangla
     'মানুষের সাথে',
@@ -58,6 +69,35 @@ const HUMAN_KEYWORDS = [
     'কর্মী',
     'স্টাফ',
     'ম্যানুয়ালি',
+    'দলের সদস্য',
+    'কাস্টমার সার্ভিস',
+    'সাপোর্ট টিম',
+    'কাস্টমার কেয়ার',
+];
+
+// Matched against the AI's own reply — catches cases where the AI itself
+// recognised escalation but the user's phrasing missed the keyword list.
+const HUMAN_REPLY_SIGNALS = [
+    'team member',
+    'will reply',
+    'will get back',
+    'connect you',
+    'our team will',
+    'someone will',
+    'shortly',
+    'reach out',
+    'whatsapp',
+    'customer service',
+    'support team',
+    'real person',
+    'human agent',
+    'live agent',
+    'হোয়াটসঅ্যাপ',
+    'টিম মেম্বার',
+    'দলের সদস্য',
+    'সাপোর্ট টিম',
+    'সংযুক্ত করব',
+    'যোগাযোগ করবে',
 ];
 
 export async function POST(req: Request) {
@@ -101,7 +141,7 @@ export async function POST(req: Request) {
                 take: 50,
             });
 
-            console.log(`[AI Chat] Fetched ${products.length} active products from DB`);
+            console.log('Products fetched for AI:', products.length, products.map(p => p.name));
 
             if (products.length > 0) {
                 catalogText = products.map(p => {
@@ -131,20 +171,25 @@ About An-Nisa:
 - Categories: Abaya, Embroidery, Fashion, Textiles, Handmade, Custom, Accessories.
 - Payment Methods Supported: Cash on Delivery (COD), bKash, Nagad.
 
-You have access to our REAL product catalog below. When a user asks for product recommendations, ALWAYS refer to this catalog and suggest specific products with their exact prices and a direct link in this format: /product/[slug]
+You have access to our REAL product catalog below. When a user asks for product recommendations, ALWAYS refer to this catalog and suggest specific products with their exact prices and a clickable link.
 
 ${catalogSection}
+
+IMPORTANT: Always format product links as markdown hyperlinks like this:
+[পণ্য দেখুন](/product/product-slug)
+Never write raw URLs or plain text links like "/product/slug" or "লিংক: /product/slug". Always use proper markdown link syntax so they render as clickable links.
 
 Important Rules:
 - ONLY suggest products that are listed in the catalog above. NEVER invent or guess product names, prices, or slugs.
 - If the catalog is empty or has no matching products, say exactly: "আমাদের এই মুহূর্তে কোনো পণ্য নেই।" Do not make up products.
 - Show price in Taka.
 - If discountPriceCents exists, show both original and discounted price.
-- Always include the product link: /product/[slug].
+- Every product recommendation MUST include a markdown link: [পণ্য দেখুন](/product/slug)
 - If stock is 0, don't recommend that product.
 - Keep your answers concise and elegant.
 - Always respond in the same language the user writes in (Bangla or English or Banglish).
-- If the user explicitly asks for a human, a real person, or WhatsApp, simply acknowledge it and say they will be connected shortly.
+
+CRITICAL RULE: If the user wants to talk to a human, team member, agent, or use WhatsApp, you must NEVER pretend to connect them or say "a team member will reply shortly" or make up fake handoff responses. Instead, reply with exactly one short sentence acknowledging their request, such as: "অবশ্যই, নিচের বাটনে ক্লিক করে আমাদের টিমের সাথে যোগাযোগ করুন।" (or in English: "Sure, please use the button below to contact our team.") — nothing more. Do NOT simulate a handoff.
 `;
 
         const model = genAI.getGenerativeModel({
@@ -166,9 +211,17 @@ Important Rules:
         const response = await result.response;
         const text = response.text();
 
+        // Also check the AI's own reply — if it wrote "team member will reply
+        // shortly" the user clearly needs escalation even if their message
+        // didn't hit the keyword list.
+        const lowerReply = text.toLowerCase();
+        const wantsHumanFromReply = HUMAN_REPLY_SIGNALS.some((signal) =>
+            lowerReply.includes(signal),
+        );
+
         return NextResponse.json({
             reply: text,
-            wantsHuman: wantsHumanFromInput,
+            wantsHuman: wantsHumanFromInput || wantsHumanFromReply,
         });
     } catch (error: unknown) {
         console.error("Gemini Chat API Error:", error instanceof Error ? error.message : error);

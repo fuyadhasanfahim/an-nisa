@@ -10,7 +10,6 @@ import {
     IconLoader2,
 } from '@tabler/icons-react';
 import ReactMarkdown from 'react-markdown';
-import Link from 'next/link';
 
 type Message = {
     id: string;
@@ -238,47 +237,36 @@ export function FloatingAIChat() {
                                     ) : (
                                         <div className="max-w-[82%] rounded-2xl rounded-tl-sm border border-[#fcc4c8]/30 bg-white px-4 py-2.5 font-sans text-[13.5px] leading-relaxed text-[#0b0b0f] shadow-softSm">
                                             <ReactMarkdown
+                                                urlTransform={(url) => url}
                                                 components={{
                                                     p: ({ children }) => (
                                                         <p className="mb-1.5 last:mb-0">{children}</p>
                                                     ),
                                                     strong: ({ children }) => (
-                                                        <strong className="font-semibold">{children}</strong>
+                                                        <strong className="font-semibold text-brand-black">{children}</strong>
                                                     ),
                                                     em: ({ children }) => (
                                                         <em className="italic">{children}</em>
                                                     ),
                                                     ul: ({ children }) => (
-                                                        <ul className="my-1.5 list-disc pl-4 space-y-0.5">{children}</ul>
+                                                        <ul className="list-disc list-inside space-y-1 mt-1">{children}</ul>
                                                     ),
                                                     ol: ({ children }) => (
-                                                        <ol className="my-1.5 list-decimal pl-4 space-y-0.5">{children}</ol>
+                                                        <ol className="list-decimal list-inside space-y-1 mt-1">{children}</ol>
                                                     ),
                                                     li: ({ children }) => (
-                                                        <li className="leading-snug">{children}</li>
+                                                        <li className="text-sm">{children}</li>
                                                     ),
-                                                    a: ({ href, children }) => {
-                                                        if (href?.startsWith('/')) {
-                                                            return (
-                                                                <Link
-                                                                    href={href}
-                                                                    className="font-medium underline underline-offset-2 decoration-[#fcc4c8] hover:opacity-75"
-                                                                >
-                                                                    {children}
-                                                                </Link>
-                                                            );
-                                                        }
-                                                        return (
-                                                            <a
-                                                                href={href}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="font-medium underline underline-offset-2 decoration-[#fcc4c8] hover:opacity-75"
-                                                            >
-                                                                {children}
-                                                            </a>
-                                                        );
-                                                    },
+                                                    a: ({ href, children }) => (
+                                                        <a
+                                                            href={href}
+                                                            target={href?.startsWith('/') ? '_self' : '_blank'}
+                                                            rel={href?.startsWith('/') ? undefined : 'noopener noreferrer'}
+                                                            className="text-brand-pink underline hover:opacity-80 font-medium"
+                                                        >
+                                                            {children}
+                                                        </a>
+                                                    ),
                                                 }}
                                             >
                                                 {msg.content}
