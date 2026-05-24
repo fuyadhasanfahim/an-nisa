@@ -3,7 +3,7 @@ import '@/styles/globals.css';
 import { Providers } from '@/store/providers';
 import { ToastProvider } from '@/components/shared/toast/ToastProvider';
 import { BannedUserGate } from '@/components/auth/BannedUserGate';
-import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp';
+import { FloatingAIChat } from '@/components/shared/FloatingAIChat';
 
 export const metadata: Metadata = {
     title: "An-Nisa's World — Premium Embroidery",
@@ -22,7 +22,7 @@ export default function RootLayout({
                     <BannedUserGate>
                         <ToastProvider>
                             {children}
-                            <FloatingWhatsApp />
+                            <FloatingAIChat />
                         </ToastProvider>
                     </BannedUserGate>
                 </Providers>

@@ -36,7 +36,7 @@ export function FloatingWhatsApp() {
 
       {/* Floating tooltip */}
       <span className="absolute right-16 rounded-xl border border-emerald-500/10 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 shadow-softSm opacity-0 -translate-x-2 transition-all duration-300 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap">
-        Chat with Concierge
+        Chat with us
       </span>
     </a>
   );

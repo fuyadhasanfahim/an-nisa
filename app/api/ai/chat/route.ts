@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/db/prisma";
 
 const HUMAN_KEYWORDS = [
     // English
@@ -78,22 +79,76 @@ export async function POST(req: Request) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
 
+        // Fetch products from Prisma
+        let catalogText = "";
+        try {
+            const products = await prisma.product.findMany({
+                where: { isActive: true },
+                select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    priceCents: true,
+                    discountPriceCents: true,
+                    category: true,
+                    description: true,
+                    colors: true,
+                    sizes: true,
+                    fabricType: true,
+                    tags: true,
+                    stockQuantity: true,
+                },
+                take: 50,
+            });
+
+            console.log(`[AI Chat] Fetched ${products.length} active products from DB`);
+
+            if (products.length > 0) {
+                catalogText = products.map(p => {
+                    const price = p.priceCents / 100;
+                    const discountPrice = p.discountPriceCents ? p.discountPriceCents / 100 : null;
+                    const priceStr = discountPrice ? `৳${discountPrice} (Original: ৳${price})` : `৳${price}`;
+                    const colorsStr = p.colors && p.colors.length > 0 ? p.colors.join(', ') : 'N/A';
+                    const sizesStr = p.sizes && p.sizes.length > 0 ? p.sizes.join(', ') : 'N/A';
+                    const tagsStr = p.tags && p.tags.length > 0 ? p.tags.join(', ') : 'N/A';
+                    const descStr = p.description ? p.description.substring(0, 100).replace(/\n/g, ' ') + '...' : 'N/A';
+
+                    return `- Name: ${p.name}\n  Link: /product/${p.slug}\n  Price: ${priceStr}\n  Category: ${p.category}\n  Stock: ${p.stockQuantity}\n  Colors: ${colorsStr}\n  Sizes: ${sizesStr}\n  Fabric: ${p.fabricType || 'N/A'}\n  Tags: ${tagsStr}\n  Description: ${descStr}`;
+                }).join('\n\n');
+            }
+        } catch (dbError) {
+            console.error("[AI Chat] Prisma fetch error:", dbError);
+        }
+
+        const catalogSection = catalogText
+            ? `CURRENT PRODUCT CATALOG:\n${catalogText}`
+            : `CURRENT PRODUCT CATALOG:\n(Empty — no active products in the database right now.)`;
+
         const systemPrompt = `
-You are An-Nisa's Helpful Shopping Assistant. Your goal is to help customers find products and answer their questions politely, briefly, and helpfully.
+You are An-Nisa Bot, a premium shopping assistant. Your goal is to help customers find products and answer their questions politely, briefly, and helpfully.
 About An-Nisa:
 - A premium boutique specializing in Modest Wear, Abayas, Embroidery, Handmade fashion, and custom pieces.
 - Categories: Abaya, Embroidery, Fashion, Textiles, Handmade, Custom, Accessories.
 - Payment Methods Supported: Cash on Delivery (COD), bKash, Nagad.
 
+You have access to our REAL product catalog below. When a user asks for product recommendations, ALWAYS refer to this catalog and suggest specific products with their exact prices and a direct link in this format: /product/[slug]
+
+${catalogSection}
+
 Important Rules:
+- ONLY suggest products that are listed in the catalog above. NEVER invent or guess product names, prices, or slugs.
+- If the catalog is empty or has no matching products, say exactly: "আমাদের এই মুহূর্তে কোনো পণ্য নেই।" Do not make up products.
+- Show price in Taka.
+- If discountPriceCents exists, show both original and discounted price.
+- Always include the product link: /product/[slug].
+- If stock is 0, don't recommend that product.
 - Keep your answers concise and elegant.
-- Always respond in the same language the user writes in (Bangla or English).
-- Do not make up non-existent products or prices. If you don't know, gently redirect them to browse our catalog or ask a human agent.
+- Always respond in the same language the user writes in (Bangla or English or Banglish).
 - If the user explicitly asks for a human, a real person, or WhatsApp, simply acknowledge it and say they will be connected shortly.
 `;
 
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3.5-flash',
             systemInstruction: systemPrompt,
         });
 
