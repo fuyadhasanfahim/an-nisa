@@ -14,6 +14,8 @@ import {
   IconCircleDotted,
   IconPlus,
   IconX,
+  IconSparkles,
+  IconLoader2,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/components/ui/ImageUpload";
@@ -84,6 +86,7 @@ export function ProductForm({
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
   const isSaving = isCreating || isUpdating;
   const [uploading, setUploading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const isEdit = !!productId;
   const slugEditedRef = useRef(false);
@@ -234,6 +237,46 @@ export function ProductForm({
     setValue("colorsText", colorsList.filter((c) => c !== rawVal).join(", "), { shouldDirty: true });
   };
 
+  const handleGenerateDescription = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/ai/generate-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          category: watch("category"),
+          fabricType: watch("fabricType"),
+          embroideryType: watch("embroideryType"),
+          colors: parsedColors,
+          sizes: sizesList,
+          tags: tagsList,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to generate description");
+      }
+
+      const data = await res.json();
+      setValue("description", data.description, { shouldDirty: true, shouldValidate: true });
+      toast({
+        title: "Success",
+        message: "Description generated successfully!",
+        variant: "success",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Error",
+        message: e.message || "Something went wrong.",
+        variant: "error",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   useEffect(() => {
     if (isEdit) return;
     if (slugEditedRef.current) return;
@@ -306,10 +349,27 @@ export function ProductForm({
           </FormField>
 
           <FormField label="Description" error={errors.description?.message}>
-            <FormTextarea
-              placeholder="A short, elegant description (optional)…"
-              {...register("description")}
-            />
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleGenerateDescription();
+                  }}
+                  disabled={isGenerating || !name}
+                  className="text-[11px] font-semibold bg-[#fcc4c8]/20 border border-[#fcc4c8]/40 text-brand-black px-2.5 py-1 rounded-lg flex items-center gap-1.5 hover:bg-[#fcc4c8]/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-max"
+                  title={!name ? "Please enter a product name first" : "Generate with Gemini AI"}
+                >
+                  {isGenerating ? <IconLoader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSparkles className="w-3.5 h-3.5" />}
+                  {isGenerating ? "Generating..." : "Generate with AI"}
+                </button>
+              </div>
+              <FormTextarea
+                placeholder="A short, elegant description (optional)…"
+                {...register("description")}
+              />
+            </div>
           </FormField>
         </FormSection>
 
