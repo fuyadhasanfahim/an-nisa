@@ -193,7 +193,7 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
             }}
           >
             <IconHeart className={`h-4 w-4 mr-1.5 transition-all ${liked ? "fill-[#fcc4c8] text-[#fcc4c8]" : "text-black/50"}`} />
-            Moodboard toggle
+            Add to wishlist
           </button>
 
           <button
@@ -229,7 +229,7 @@ export function BoutiqueProductStudio({ product }: { product: BoutiqueProductStu
             }}
           >
             <IconShoppingBagPlus className="h-4 w-4 mr-1" />
-            Add heirloom
+            Add to cart
           </button>
         </div>
       </div>

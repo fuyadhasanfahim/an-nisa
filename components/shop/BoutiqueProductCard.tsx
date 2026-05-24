@@ -57,6 +57,10 @@ export function BoutiqueProductCard({
         className
       )}
     >
+      <Link href={`/product/${product.slug}`} className="absolute inset-0 z-10" prefetch={false}>
+        <span className="sr-only">View {product.name} details</span>
+      </Link>
+
       {/* Image area */}
       <div
         className="relative aspect-[3/3.8] overflow-hidden"
@@ -142,13 +146,12 @@ export function BoutiqueProductCard({
       <div className="relative z-20 flex flex-1 flex-col gap-2 sm:gap-3 p-3 sm:p-4 bg-white border-t border-[#fcc4c8]/15 transition-all duration-500 ease-out group-hover:bg-[#fff9fa]/90 group-hover:backdrop-blur-md group-hover:border-t-[#fcc4c8]/65 shadow-[0_-8px_20px_-8px_rgba(252,196,200,0)] group-hover:shadow-[0_-8px_20px_-8px_rgba(252,196,200,0.25)]">
         {/* Title + rating */}
         <div className="flex items-start justify-between gap-1.5 sm:gap-2">
-          <Link
-            href={`/product/${product.slug}`}
-            className="line-clamp-1 font-serif text-sm sm:text-base font-semibold leading-snug text-brand-black transition hover:text-[#fcc4c8]"
+          <h3
+            className="line-clamp-1 font-serif text-sm sm:text-base font-semibold leading-snug text-brand-black transition group-hover:text-[#fcc4c8] relative z-20"
           >
             {product.name}
-          </Link>
-          <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 border border-amber-200/40 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-700 shadow-sm">
+          </h3>
+          <div className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 border border-amber-200/40 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-amber-700 shadow-sm relative z-20">
             <IconStar className="h-3 w-3 fill-amber-400 text-amber-500" />
             {(product.ratingAverage ?? 0).toFixed(1)}
           </div>
@@ -183,7 +186,7 @@ export function BoutiqueProductCard({
                 type="button"
                 onClick={() => setSize(s)}
                 className={cn(
-                  "rounded-full px-1.5 sm:px-2.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                  "relative z-20 rounded-full px-1.5 sm:px-2.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer",
                   size === s
                     ? "bg-[#fcc4c8] text-brand-black shadow-sm font-bold"
                     : "border border-[#fcc4c8]/30 text-black/55 hover:border-[#fcc4c8] hover:bg-[#fcc4c8]/10"
@@ -214,7 +217,7 @@ export function BoutiqueProductCard({
           <button
             type="button"
             className={cn(
-              "inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-2.5 sm:px-4 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm shrink-0 cursor-pointer border-none",
+              "relative z-20 inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-2.5 sm:px-4 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm shrink-0 cursor-pointer border-none",
               commerceBlocked
                 ? "cursor-not-allowed bg-black/8 text-black/35"
                 : "bg-[#fcc4c8] text-brand-black hover:bg-[#fcc4c8]/85 hover:scale-105 active:scale-95"
